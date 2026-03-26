@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro Crypto Dashboard V6</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+
+/* ─── CSS VARIABLES ─────────────────────────────────────────── */
+:root {
+  --bg-0:    #020617;
+  --bg-1:    #050e1c;
+  --bg-2:    #0a1628;
+  --bg-3:    #0f1f36;
+  --bg-4:    #162440;
+
+  --border:        rgba(34,211,238,.10);
+  --border-med:    rgba(34,211,238,.20);
+  --border-bright: rgba(34,211,238,.38);
+
+  --cyan:      #22d3ee;
+  --cyan-dim:  rgba(34,211,238,.55);
+  --sky:       #38bdf8;
+  --indigo:    #818cf8;
+  --violet:    #a78bfa;
+  --green:     #10b981;
+  --green-lt:  #34d399;
+  --amber:     #f59e0b;
+  --orange:    #f97316;
+  --red:       #ef4444;
+  --red-lt:    #fca5a5;
+
+  --text-0:  #f1f5f9;
+  --text-1:  #94a3b8;
+  --text-2:  #64748b;
+  --text-3:  #3d5068;
+
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+}
+
+/* ─── RESET & BASE ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg-0);
+  color: var(--text-0);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(34,211,238,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle radial glow top-left */
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px; left: -200px;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(34,211,238,.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 28px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── TYPOGRAPHY UTILS ──────────────────────────────────────── */
+.label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.section-header {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── HEADER ────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.header-left .sys-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: .7;
+}
+.header-left .btc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.btc-price {
+  font-family: var(--mono);
+  font-size: 38px;
+  font-weight: 600;
+  color: var(--text-0);
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+.btc-prefix {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text-2);
+}
+.btc-change-pill {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+.btc-change-pill.pos { background: rgba(16,185,129,.15); color: var(--green-lt); border: 1px solid rgba(16,185,129,.25); }
+.btc-change-pill.neg { background: rgba(239,68,68,.15);  color: var(--red-lt);   border: 1px solid rgba(239,68,68,.25); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.update-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-2);
+}
+.update-badge span { color: var(--text-1); }
+
+.btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  padding: 7px 16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all .2s;
+  border: 1px solid var(--border-med);
+  background: transparent;
+  color: var(--cyan);
+}
+.btn:hover { background: rgba(34,211,238,.07); border-color: var(--border-bright); }
+.btn:disabled { opacity: .4; pointer-events: none; }
+.btn-sm { font-size: 9px; padding: 4px 10px; }
+
+/* ─── MACRO CARDS ───────────────────────────────────────────── */
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.macro-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 14px 12px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s, background .3s;
+}
+.macro-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+  transition: background .4s;
+}
+.macro-card.bullish { border-color: rgba(16,185,129,.2); }
+.macro-card.bullish::before { background: var(--green); }
+.macro-card.bearish { border-color: rgba(239,68,68,.2); }
+.macro-card.bearish::before { background: var(--red); }
+.macro-card.neutral::before { background: var(--amber); }
+
+.mc-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-2);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.mc-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-0);
+  line-height: 1;
+}
+.mc-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+  margin-top: 5px;
+}
+.mc-badge {
+  position: absolute;
+  top: 10px; right: 8px;
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.badge-bull { background: rgba(16,185,129,.12); color: var(--green-lt); }
+.badge-bear { background: rgba(239,68,68,.12);  color: var(--red-lt); }
+.badge-neu  { background: rgba(245,158,11,.12); color: var(--amber); }
+.badge-off  { background: rgba(100,116,139,.12); color: var(--text-2); }
+
+/* ─── MAIN 2-COL LAYOUT ─────────────────────────────────────── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ─── PANEL BASE ────────────────────────────────────────────── */
+.panel {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+
+/* ─── TECHNICAL INPUT PANEL ─────────────────────────────────── */
+.indicator-row {
+  display: grid;
+  grid-template-columns: 1fr 170px 36px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(34,211,238,.05);
+}
+.indicator-row:last-of-type { border-bottom: none; }
+
+.ind-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-0);
+}
+.ind-meta {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.signal-select {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  width: 100%;
+  transition: border-color .2s;
+  -webkit-appearance: none;
+}
+.signal-select:hover, .signal-select:focus {
+  border-color: var(--cyan-dim);
+  outline: none;
+}
+
+.ind-pts {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  transition: color .3s;
+}
+
+/* Confluence strip */
+.confluence-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.conf-strip {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 7px;
+}
+.conf-pip {
+  flex: 1;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--bg-1);
+  transition: background .3s;
+}
+.conf-pip.met    { background: var(--green); }
+.conf-pip.partial { background: var(--amber); }
+.conf-msg {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-2);
+}
+
+/* ─── SCORE PANEL ───────────────────────────────────────────── */
+.score-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.score-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.score-title { font-family: var(--mono); font-size: 9px; color: var(--text-2); letter-spacing: .2em; text-transform: uppercase; }
+.score-num {
+  font-family: var(--mono);
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1;
+  transition: color .4s;
+}
+.score-max { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: -2px; }
+
+.sig-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  padding: 7px 20px;
+  border-radius: var(--r-sm);
+  text-align: center;
+  border: 1px solid transparent;
+  transition: all .3s;
+}
+.sig-sb   { background: rgba(16,185,129,.18); color: #34d399;   border-color: rgba(16,185,129,.38); }
+.sig-buy  { background: rgba(16,185,129,.08); color: #6ee7b7;   border-color: rgba(16,185,129,.2); }
+.sig-neu  { background: rgba(245,158,11,.08); color: var(--amber); border-color: rgba(245,158,11,.28); }
+.sig-sell { background: rgba(239,68,68,.08);  color: #fca5a5;   border-color: rgba(239,68,68,.2); }
+.sig-av   { background: rgba(239,68,68,.18);  color: var(--red); border-color: rgba(239,68,68,.38); }
+.sig-wait { background: rgba(100,116,139,.1); color: var(--text-2); border-color: var(--border); }
+
+/* Breakdown bars */
+.breakdown { display: flex; flex-direction: column; gap: 7px; }
+.bd-row { display: flex; align-items: center; gap: 8px; }
+.bd-label { font-family: var(--mono); font-size: 9px; color: var(--text-2); min-width: 92px; }
+.bd-track { flex: 1; height: 3px; background: var(--bg-1); border-radius: 99px; overflow: hidden; }
+.bd-fill  { height: 100%; border-radius: 99px; transition: width .6s cubic-bezier(.34,1.56,.64,1); }
+.bd-pts   { font-family: var(--mono); font-size: 9px; color: var(--text-1); min-width: 30px; text-align: right; }
+
+/* Counter-trend warning */
+.ct-warn {
+  background: rgba(239,68,68,.06);
+  border: 1px solid rgba(239,68,68,.22);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--red);
+  display: none;
+}
+
+/* ─── RULES PANEL ───────────────────────────────────────────── */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.rule-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+}
+.rule-no    { font-family: var(--mono); font-size: 9px; color: var(--cyan); letter-spacing: .15em; margin-bottom: 5px; }
+.rule-title { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-0); margin-bottom: 5px; }
+.rule-desc  { font-size: 10px; color: var(--text-2); line-height: 1.55; }
+.rule-status { margin-top: 9px; font-family: var(--mono); font-size: 10px; }
+
+/* ─── TEMPLATE PANEL ────────────────────────────────────────── */
+.tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.tpl-section {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+}
+.tpl-section-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--cyan);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.tpl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(34,211,238,.04);
+}
+.tpl-row:last-child { border-bottom: none; }
+.tpl-k { font-family: var(--mono); font-size: 10px; color: var(--text-2); }
+.tpl-v { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-0); }
+.tpl-v.g { color: var(--green-lt); }
+.tpl-v.r { color: var(--red-lt); }
+.tpl-v.a { color: var(--amber); }
+
+.inv-box {
+  margin-top: 12px;
+  background: rgba(239,68,68,.05);
+  border: 1px solid rgba(239,68,68,.18);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+.inv-label { font-family: var(--mono); font-size: 9px; color: var(--text-2); letter-spacing: .14em; margin-bottom: 5px; }
+.inv-text  { font-family: var(--mono); font-size: 10px; color: var(--red-lt); line-height: 1.55; }
+
+/* ─── CHART PANEL ───────────────────────────────────────────── */
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.ai-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ai-label { font-family: var(--mono); font-size: 11px; }
+
+/* ─── LOADING PULSE ─────────────────────────────────────────── */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+.loading-val { animation: pulse 1.4s infinite; color: var(--text-2); }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width:1100px) {
+  .macro-grid { grid-template-columns: repeat(3,1fr); }
+  .main-grid  { grid-template-columns: 1fr; }
+  .rules-grid { grid-template-columns: repeat(2,1fr); }
+  .tpl-grid   { grid-template-columns: 1fr; }
+}
+@media (max-width:640px) {
+  .macro-grid { grid-template-columns: repeat(2,1fr); }
+  .rules-grid { grid-template-columns: 1fr; }
+  .container  { padding: 16px; }
+  .btc-price  { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="sys-tag">Macro Crypto Dashboard · V6 · Institutional</div>
+    <div class="btc-row">
+      <div class="btc-price"><span class="btc-prefix">$</span><span id="btc-price">——</span></div>
+      <span class="btc-change-pill" id="btc-chg">—%</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="update-badge">Last refresh: <span id="upd-time">—</span></div>
+    <button class="btn" id="ref-btn" onclick="refreshAll()">↻ REFRESH</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     MACRO CARDS
+════════════════════════════════════════════════ -->
+<div class="section-header">Live Macro Indicators</div>
+<div class="macro-grid">
+
+  <div class="macro-card" id="c-funding">
+    <div class="mc-label">Funding Rate</div>
+    <div class="mc-value loading-val" id="v-funding">——</div>
+    <div class="mc-sub">BTCUSDT Perpetual</div>
+    <div class="mc-badge badge-off" id="b-funding">LOADING</div>
+  </div>
+
+  <div class="macro-card" id="c-fear">
+    <div class="mc-label">Fear &amp; Greed</div>
+    <div class="mc-value loading-val" id="v-fear">——</div>
+    <div class="mc-sub" id="v-fear-lbl">Alternative.me</div>
+    <div class="mc-badge badge-off" id="b-fear">LOADING</div>
+  </div>
+
+  <div class="macro-card" id="c-oi">
+    <div class="mc-label">Open Interest</div>
+    <div class="mc-value loading-val" id="v-oi">——</div>
+    <div class="mc-sub">BTC Futures · USD Billion</div>
+    <div class="mc-badge badge-off" id="b-oi">LOADING</div>
+  </div>
+
+  <div class="macro-card" id="c-vix">
+    <div class="mc-label">VIX</div>
+    <div class="mc-value loading-val" id="v-vix">——</div>
+    <div class="mc-sub">CBOE Volatility Index</div>
+    <div class="mc-badge badge-off" id="b-vix">LOADING</div>
+  </div>
+
+  <div class="macro-card" id="c-credit">
+    <div class="mc-label">HY Credit Spread</div>
+    <div class="mc-value loading-val" id="v-credit">——</div>
+    <div class="mc-sub">BAMLH0A0HYM2 · %</div>
+    <div class="mc-badge badge-off" id="b-credit">LOADING</div>
+  </div>
+
+  <div class="macro-card" id="c-dxy">
+    <div class="mc-label">DXY</div>
+    <div class="mc-value loading-val" id="v-dxy">——</div>
+    <div class="mc-sub">US Dollar Index</div>
+    <div class="mc-badge badge-off" id="b-dxy">LOADING</div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════
+     MAIN GRID  (Technical inputs | Score panel)
+════════════════════════════════════════════════ -->
+<div class="main-grid" style="margin-bottom:20px">
+
+  <!-- ── LEFT: Technical Inputs ── -->
+  <div class="panel">
+    <div class="section-header" style="margin-bottom:14px">Technical Analysis Inputs · Manual</div>
+
+    <!-- Ichimoku 1W -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">Ichimoku Cloud — 1W</div>
+        <div class="ind-meta">Weight: 20 pts · Timeframe Override (1W > 1D > 4H)</div>
+      </div>
+      <select class="signal-select" id="ichi1w" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="20">🟢 Full Bullish Structure</option>
+        <option value="14">🟡 Price Above Cloud</option>
+        <option value="8">🔶 Inside Cloud (Neutral)</option>
+        <option value="3">🔴 Price Below Cloud</option>
+        <option value="0">⛔ Full Bearish Structure</option>
+      </select>
+      <div class="ind-pts" id="pts-ichi1w" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- Ichimoku 1D -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">Ichimoku Cloud — 1D</div>
+        <div class="ind-meta">Weight: 15 pts · Primary Trend Confirmation</div>
+      </div>
+      <select class="signal-select" id="ichi1d" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="15">🟢 Full Bullish Structure</option>
+        <option value="10">🟡 Price Above Cloud</option>
+        <option value="6">🔶 Inside Cloud (Neutral)</option>
+        <option value="2">🔴 Price Below Cloud</option>
+        <option value="0">⛔ Full Bearish Structure</option>
+      </select>
+      <div class="ind-pts" id="pts-ichi1d" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- Ichimoku 4H -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">Ichimoku Cloud — 4H</div>
+        <div class="ind-meta">Weight: 10 pts · Execution Timeframe Signal</div>
+      </div>
+      <select class="signal-select" id="ichi4h" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="10">🟢 Full Bullish Structure</option>
+        <option value="7">🟡 Price Above Cloud</option>
+        <option value="4">🔶 Inside Cloud (Neutral)</option>
+        <option value="1">🔴 Price Below Cloud</option>
+        <option value="0">⛔ Full Bearish Structure</option>
+      </select>
+      <div class="ind-pts" id="pts-ichi4h" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- RSI -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">RSI Divergence</div>
+        <div class="ind-meta">Weight: 10 pts · Momentum Confirmation Signal</div>
+      </div>
+      <select class="signal-select" id="rsi" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="10">🟢 Bullish Divergence (OS)</option>
+        <option value="7">🟡 Neutral — Midrange RSI</option>
+        <option value="3">🔶 No Divergence — Trending</option>
+        <option value="1">🔴 Bearish Divergence</option>
+        <option value="0">⛔ Overbought, no div</option>
+      </select>
+      <div class="ind-pts" id="pts-rsi" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- MACD -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">MACD</div>
+        <div class="ind-meta">Weight: 10 pts · T2 Confluence Filter</div>
+      </div>
+      <select class="signal-select" id="macd" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="10">🟢 Bullish Cross + Expanding</option>
+        <option value="7">🟡 Bullish Cross — Flat</option>
+        <option value="3">🔶 Bearish Cross — Weak</option>
+        <option value="0">⛔ Bearish + Accelerating</option>
+      </select>
+      <div class="ind-pts" id="pts-macd" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- Volume Profile -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">Volume Profile</div>
+        <div class="ind-meta">Weight: 10 pts · POC / VAH / VAL Positioning</div>
+      </div>
+      <select class="signal-select" id="vp" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="10">🟢 Above POC — Near VAH</option>
+        <option value="7">🟡 At POC (key support)</option>
+        <option value="5">🔶 Between VAL and VAH</option>
+        <option value="2">🔴 Below POC</option>
+        <option value="0">⛔ Below VAL (low volume)</option>
+      </select>
+      <div class="ind-pts" id="pts-vp" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- Fibonacci -->
+    <div class="indicator-row">
+      <div>
+        <div class="ind-name">Fibonacci Retracement</div>
+        <div class="ind-meta">Weight: 5 pts · Key Level Proximity</div>
+      </div>
+      <select class="signal-select" id="fib" onchange="recalc()">
+        <option value="0">— Select status —</option>
+        <option value="5">🟢 At 0.618 / 0.786 Support</option>
+        <option value="3">🟡 At 0.5 Retracement</option>
+        <option value="1">🔶 At 0.382 Level</option>
+        <option value="0">⛔ No Fibonacci Proximity</option>
+      </select>
+      <div class="ind-pts" id="pts-fib" style="color:var(--text-3)">—</div>
+    </div>
+
+    <!-- Confluence strip -->
+    <div class="confluence-section">
+      <div class="conf-strip">
+        <div class="conf-pip" id="cp0"></div><div class="conf-pip" id="cp1"></div>
+        <div class="conf-pip" id="cp2"></div><div class="conf-pip" id="cp3"></div>
+        <div class="conf-pip" id="cp4"></div><div class="conf-pip" id="cp5"></div>
+        <div class="conf-pip" id="cp6"></div><div class="conf-pip" id="cp7"></div>
+      </div>
+      <div class="conf-msg" id="conf-msg">Confluence: — / 8 sources · Minimum required: 3</div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Score Panel ── -->
+  <div class="panel score-panel">
+
+    <div class="score-hero">
+      <div class="score-title">Conviction Score</div>
+      <div class="score-num" id="tot-score" style="color:var(--amber)">——</div>
+      <div class="score-max">/ 100 pts</div>
+      <div class="sig-pill sig-wait" id="sig-badge">AWAITING INPUTS</div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="label" style="margin-bottom:2px">Score Breakdown</div>
+
+      <div class="bd-row">
+        <div class="bd-label">Ichimoku 1W</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-i1w" style="width:0%;background:var(--cyan)"></div></div>
+        <div class="bd-pts" id="bp-i1w">0/20</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">Ichimoku 1D</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-i1d" style="width:0%;background:var(--sky)"></div></div>
+        <div class="bd-pts" id="bp-i1d">0/15</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">Ichimoku 4H</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-i4h" style="width:0%;background:#67e8f9"></div></div>
+        <div class="bd-pts" id="bp-i4h">0/10</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">RSI Divergence</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-rsi" style="width:0%;background:var(--violet)"></div></div>
+        <div class="bd-pts" id="bp-rsi">0/10</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">MACD</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-macd" style="width:0%;background:var(--indigo)"></div></div>
+        <div class="bd-pts" id="bp-macd">0/10</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">Volume Profile</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-vp" style="width:0%;background:var(--green)"></div></div>
+        <div class="bd-pts" id="bp-vp">0/10</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">Fibonacci</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-fib" style="width:0%;background:var(--green-lt)"></div></div>
+        <div class="bd-pts" id="bp-fib">0/5</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">Funding Rate</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-fund" style="width:0%;background:var(--amber)"></div></div>
+        <div class="bd-pts" id="bp-fund">0/8</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">Fear &amp; Greed</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-fear" style="width:0%;background:var(--orange)"></div></div>
+        <div class="bd-pts" id="bp-fear">0/7</div>
+      </div>
+      <div class="bd-row">
+        <div class="bd-label">VIX / Macro</div>
+        <div class="bd-track"><div class="bd-fill" id="bf-vix" style="width:0%;background:#fb923c"></div></div>
+        <div class="bd-pts" id="bp-vix">0/5</div>
+      </div>
+    </div>
+
+    <div class="ct-warn" id="ct-warn">
+      ⚠ Counter-trend detected (4H vs 1W) · −10 pt penalty applied
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     VALIDATION RULES
+════════════════════════════════════════════════ -->
+<div class="section-header">Validation Rules — Institutional Standards</div>
+<div class="panel" style="margin-bottom:20px">
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-no">RULE 01</div>
+      <div class="rule-title">Confluence Obligatoire</div>
+      <div class="rule-desc">Minimum 3 sources indépendantes en accord. Un signal isolé est systématiquement invalide.</div>
+      <div class="rule-status" id="rs-conf">—</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-no">RULE 02</div>
+      <div class="rule-title">Hiérarchie Temporelle</div>
+      <div class="rule-desc">1W override absolu. Position counter-trend vs 1W → pénalité −10 pts automatique.</div>
+      <div class="rule-status" id="rs-hier">—</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-no">RULE 03</div>
+      <div class="rule-title">Risk/Reward ≥ 2.0</div>
+      <div class="rule-desc">Stop-loss à 1.5× ATR sous l'entrée. Target minimum 2.0× le risque. ATR estimé à 2.5% BTC.</div>
+      <div class="rule-status" id="rs-rr">—</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-no">RULE 04</div>
+      <div class="rule-title">Invalidation Proactive</div>
+      <div class="rule-desc">Scénario d'invalidation documenté avant toute entrée. Sortie immédiate si condition atteinte.</div>
+      <div class="rule-status" id="rs-inv">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     ANALYSIS OUTPUT TEMPLATE
+════════════════════════════════════════════════ -->
+<div class="section-header">Analysis Output Template — BTC/USDT</div>
+<div class="panel" style="margin-bottom:20px">
+  <div class="tpl-grid">
+
+    <div class="tpl-section">
+      <div class="tpl-section-title">Entry &amp; Risk Parameters</div>
+      <div class="tpl-row"><span class="tpl-k">Asset</span><span class="tpl-v">BTC / USDT</span></div>
+      <div class="tpl-row"><span class="tpl-k">Current Price</span><span class="tpl-v" id="tpl-price">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Entry Zone</span><span class="tpl-v g" id="tpl-entry">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Stop-Loss (1.5 × ATR)</span><span class="tpl-v r" id="tpl-sl">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Target 1 (R/R 2.0)</span><span class="tpl-v g" id="tpl-tp1">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Target 2 (R/R 3.0)</span><span class="tpl-v g" id="tpl-tp2">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">R/R Ratio</span><span class="tpl-v a" id="tpl-rr">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Position Size</span><span class="tpl-v" id="tpl-size">——</span></div>
+    </div>
+
+    <div class="tpl-section">
+      <div class="tpl-section-title">Signal Summary</div>
+      <div class="tpl-row"><span class="tpl-k">Conviction Score</span><span class="tpl-v a" id="tpl-score">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Signal</span><span class="tpl-v" id="tpl-signal">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Confluence</span><span class="tpl-v" id="tpl-conf">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">1W Bias</span><span class="tpl-v" id="tpl-1w">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">1D Bias</span><span class="tpl-v" id="tpl-1d">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">4H Bias</span><span class="tpl-v" id="tpl-4h">——</span></div>
+      <div class="tpl-row"><span class="tpl-k">Macro Score</span><span class="tpl-v" id="tpl-macro">——</span></div>
+
+      <div class="inv-box">
+        <div class="inv-label">⚠ Invalidation Scenario</div>
+        <div class="inv-text" id="tpl-inv">Complete technical inputs to generate invalidation scenario.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCORE HISTORY CHART
+════════════════════════════════════════════════ -->
+<div class="section-header">Conviction Score History</div>
+<div class="panel">
+  <div class="chart-header">
+    <div class="ai-box">
+      <div class="label">AI Bottom Detection</div>
+      <div class="ai-label" id="ai-out" style="color:var(--text-2)">——</div>
+    </div>
+    <button class="btn btn-sm" onclick="clearHist()">✕ Clear History</button>
+  </div>
+  <canvas id="chart" height="72"></canvas>
+</div>
+
+</div><!-- /container -->
+
+<!-- ════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+
+// ── CONFIG ────────────────────────────────────────
+const FRED_KEY         = "YOUR_FRED_API_KEY";   // Replace with real key for HY credit
+const REFRESH_MS       = 60_000;                // 60s price refresh
+const ATR_PCT          = 0.025;                 // BTC daily ATR estimate: 2.5%
+const CONFLUENCE_MIN   = 3;
+
+// ── STATE ─────────────────────────────────────────
+let live = { btc:null, funding:null, fear:null, vix:null, credit:null, dxy:null, oi:null };
+let scoreHist = JSON.parse(localStorage.getItem("cdv6_scores")) || [];
+let timeHist  = JSON.parse(localStorage.getItem("cdv6_times"))  || [];
+let chart     = null;
+let timer     = null;
+
+// ── UTILS ─────────────────────────────────────────
+const fmt = (n, d=2) =>
+  (n === null || n === undefined || isNaN(n))
+    ? '——'
+    : Number(n).toLocaleString('en-US', { minimumFractionDigits:d, maximumFractionDigits:d });
+
+const $ = id => document.getElementById(id);
+
+function setCard(cardId, valId, val, badgeId, badgeText, badgeClass, stateClass, sub=null) {
+  $(valId).textContent = val;
+  $(valId).classList.remove('loading-val');
+  if (badgeId) {
+    $(badgeId).textContent = badgeText;
+    $(badgeId).className = 'mc-badge ' + badgeClass;
+  }
+  $(cardId).className = 'macro-card ' + (stateClass||'');
+  if (sub) $(valId.replace('v-','') + '-sub') ; // handled manually
+}
+
+async function get(url, parse) {
+  try {
+    const r = await fetch(url, { cache:'no-cache' });
+    if (!r.ok) throw new Error(r.status);
+    return await parse(r);
+  } catch(e) { console.warn('GET failed:', url, e.message); return null; }
+}
+
+async function proxy(url, parse) {
+  return get(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    async r => { const j = await r.json(); return parse(j.contents); }
+  );
+}
+
+// ── FETCH ALL ─────────────────────────────────────
+async function fetchAll() {
+  $('ref-btn').disabled = true;
+  $('ref-btn').textContent = '↻ LOADING…';
+
+  const tasks = [fetchBTC(), fetchFunding(), fetchFear(), fetchOI(), fetchVIX(), fetchCredit(), fetchDXY()];
+  await Promise.allSettled(tasks);
+
+  $('upd-time').textContent = new Date().toLocaleTimeString();
+  $('ref-btn').disabled = false;
+  $('ref-btn').textContent = '↻ REFRESH';
+  recalc();
+}
+
+async function fetchBTC() {
+  const d = await get(
+    'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
+    r => r.json()
+  );
+  if (!d) return;
+  live.btc = d.bitcoin.usd;
+  const chg = d.bitcoin.usd_24h_change;
+  $('btc-price').textContent = live.btc.toLocaleString('en-US');
+  const pill = $('btc-chg');
+  pill.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+  pill.className = 'btc-change-pill ' + (chg >= 0 ? 'pos' : 'neg');
+}
+
+async function fetchFunding() {
+  const d = await get(
+    'https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT',
+    r => r.json()
+  );
+  if (!d) return;
+  live.funding = parseFloat(d.lastFundingRate) * 100;
+  $('v-funding').textContent = live.funding.toFixed(4) + '%';
+  $('v-funding').classList.remove('loading-val');
+
+  let label, cls, state;
+  if (live.funding < -0.01) { label='EXTREME SHORT'; cls='badge-bull'; state='bullish'; }
+  else if (live.funding < 0){ label='NEGATIVE';       cls='badge-bull'; state='bullish'; }
+  else if (live.funding > 0.06){ label='OVERHEATED';  cls='badge-bear'; state='bearish'; }
+  else                         { label='NEUTRAL';      cls='badge-neu';  state='neutral'; }
+  $('b-funding').textContent = label;
+  $('b-funding').className = 'mc-badge ' + cls;
+  $('c-funding').className = 'macro-card ' + state;
+}
+
+async function fetchFear() {
+  const d = await get('https://api.alternative.me/fng/', r => r.json());
+  if (!d) return;
+  live.fear = parseInt(d.data[0].value);
+  $('v-fear').textContent = live.fear;
+  $('v-fear').classList.remove('loading-val');
+  $('v-fear-lbl').textContent = d.data[0].value_classification;
+
+  let label, cls, state;
+  if      (live.fear <= 20){ label='EXTREME FEAR'; cls='badge-bull'; state='bullish'; }
+  else if (live.fear <= 40){ label='FEAR';          cls='badge-bull'; state='bullish'; }
+  else if (live.fear >= 80){ label='EXTREME GREED'; cls='badge-bear'; state='bearish'; }
+  else if (live.fear >= 60){ label='GREED';          cls='badge-bear'; state='bearish'; }
+  else                      { label='NEUTRAL';       cls='badge-neu';  state='neutral'; }
+  $('b-fear').textContent = label; $('b-fear').className = 'mc-badge ' + cls;
+  $('c-fear').className = 'macro-card ' + state;
+}
+
+async function fetchOI() {
+  const d = await get('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT', r => r.json());
+  if (!d || !live.btc) return;
+  const oiB = parseFloat(d.openInterest) * live.btc / 1e9;
+  live.oi = oiB;
+  $('v-oi').textContent = oiB.toFixed(2) + 'B';
+  $('v-oi').classList.remove('loading-val');
+
+  let label, cls, state;
+  if      (oiB > 25){ label='HIGH OI';    cls='badge-bear'; state='bearish'; }
+  else if (oiB > 14){ label='ELEVATED';   cls='badge-neu';  state='neutral'; }
+  else               { label='NORMAL';    cls='badge-bull'; state='bullish'; }
+  $('b-oi').textContent = label; $('b-oi').className = 'mc-badge ' + cls;
+  $('c-oi').className = 'macro-card ' + state;
+}
+
+async function fetchVIX() {
+  const v = await proxy(
+    'https://stooq.com/q/l/?s=%5Evix&i=d',
+    txt => { const l = txt.trim().split('\n'); return parseFloat(l[1]?.split(',')[4]); }
+  );
+  if (v === null || isNaN(v)) return;
+  live.vix = v;
+  $('v-vix').textContent = fmt(v);
+  $('v-vix').classList.remove('loading-val');
+
+  let label, cls, state;
+  if      (v > 40){ label='PANIC';       cls='badge-bull'; state='bullish'; }
+  else if (v > 28){ label='ELEVATED';    cls='badge-bull'; state='bullish'; }
+  else if (v > 18){ label='MODERATE';    cls='badge-neu';  state='neutral'; }
+  else             { label='COMPLACENT'; cls='badge-bear'; state='bearish'; }
+  $('b-vix').textContent = label; $('b-vix').className = 'mc-badge ' + cls;
+  $('c-vix').className = 'macro-card ' + state;
+}
+
+async function fetchCredit() {
+  if (!FRED_KEY || FRED_KEY === 'YOUR_FRED_API_KEY') {
+    $('v-credit').textContent = 'N/A';
+    $('v-credit').classList.remove('loading-val');
+    $('b-credit').textContent = 'NO KEY';
+    $('b-credit').className = 'mc-badge badge-off';
+    return;
+  }
+  const d = await get(
+    `https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=${FRED_KEY}&file_type=json&sort_order=desc&limit=1`,
+    r => r.json()
+  );
+  if (!d) return;
+  live.credit = parseFloat(d.observations[0].value);
+  $('v-credit').textContent = fmt(live.credit) + '%';
+  $('v-credit').classList.remove('loading-val');
+
+  let label, cls, state;
+  if      (live.credit > 6.5){ label='STRESS';    cls='badge-bull'; state='bullish'; }
+  else if (live.credit > 4.5){ label='ELEVATED';  cls='badge-neu';  state='neutral'; }
+  else                        { label='TIGHT';     cls='badge-bear'; state='bearish'; }
+  $('b-credit').textContent = label; $('b-credit').className = 'mc-badge ' + cls;
+  $('c-credit').className = 'macro-card ' + state;
+}
+
+async function fetchDXY() {
+  const v = await proxy(
+    'https://stooq.com/q/l/?s=%5Edxy&i=d',
+    txt => { const l = txt.trim().split('\n'); return parseFloat(l[1]?.split(',')[4]); }
+  );
+  if (v === null || isNaN(v)) return;
+  live.dxy = v;
+  $('v-dxy').textContent = fmt(v);
+  $('v-dxy').classList.remove('loading-val');
+
+  let label, cls, state;
+  if      (v > 106){ label='STRONG $';  cls='badge-bear'; state='bearish'; }
+  else if (v > 101){ label='NEUTRAL';   cls='badge-neu';  state='neutral'; }
+  else              { label='WEAK $';   cls='badge-bull'; state='bullish'; }
+  $('b-dxy').textContent = label; $('b-dxy').className = 'mc-badge ' + cls;
+  $('c-dxy').className = 'macro-card ' + state;
+}
+
+// ── SCORING ENGINE ────────────────────────────────
+function macroFundingScore(f) {
+  if (f === null) return 0;
+  if (f < -0.01) return 8;
+  if (f < 0)     return 6;
+  if (f < 0.02)  return 4;
+  if (f < 0.05)  return 2;
+  return 0;
+}
+function macroFearScore(v) {
+  if (v === null) return 0;
+  if (v <= 15)   return 7;
+  if (v <= 25)   return 6;
+  if (v <= 40)   return 4;
+  if (v <= 55)   return 2;
+  return 0;
+}
+function macroVixScore(v) {
+  if (v === null) return 0;
+  if (v > 40) return 5;
+  if (v > 28) return 4;
+  if (v > 18) return 2;
+  return 0;
+}
+
+function getPtColor(got, max) {
+  const r = got / max;
+  return r >= .7 ? 'var(--green-lt)' : r >= .4 ? 'var(--amber)' : 'var(--red-lt)';
+}
+
+function recalc() {
+  // Technical (manual)
+  const i1w  = +$('ichi1w').value  || 0;
+  const i1d  = +$('ichi1d').value  || 0;
+  const i4h  = +$('ichi4h').value  || 0;
+  const rsi  = +$('rsi').value     || 0;
+  const macd = +$('macd').value    || 0;
+  const vp   = +$('vp').value      || 0;
+  const fib  = +$('fib').value     || 0;
+
+  // Macro (live)
+  const fs = macroFundingScore(live.funding);
+  const es = macroFearScore(live.fear);
+  const vs = macroVixScore(live.vix);
+
+  // Counter-trend penalty
+  const is4hBull = i4h >= 7, is1wBear = i1w <= 3;
+  const is4hBear = i4h <= 1, is1wBull = i1w >= 14;
+  const counter  = (is4hBull && is1wBear) || (is4hBear && is1wBull);
+  const penalty  = counter ? 10 : 0;
+
+  $('ct-warn').style.display = counter ? 'block' : 'none';
+
+  // Total
+  const raw   = i1w + i1d + i4h + rsi + macd + vp + fib + fs + es + vs;
+  const total = Math.max(0, Math.min(100, raw - penalty));
+
+  // Confluence: count non-zero tech sources + macro if meaningful
+  const confArr = [i1w>0, i1d>0, i4h>0, rsi>0, macd>0, vp>0, fib>0, fs>2];
+  const confCnt = confArr.filter(Boolean).length;
+
+  // ── Update breakdown bars ──
+  const bars = [
+    ['bf-i1w','bp-i1w', i1w,  20],
+    ['bf-i1d','bp-i1d', i1d,  15],
+    ['bf-i4h','bp-i4h', i4h,  10],
+    ['bf-rsi','bp-rsi', rsi,  10],
+    ['bf-macd','bp-macd',macd,10],
+    ['bf-vp', 'bp-vp',  vp,   10],
+    ['bf-fib','bp-fib', fib,   5],
+    ['bf-fund','bp-fund',fs,   8],
+    ['bf-fear','bp-fear',es,   7],
+    ['bf-vix','bp-vix',  vs,   5],
+  ];
+  bars.forEach(([bid, pid, got, max]) => {
+    $(bid).style.width = (got/max*100) + '%';
+    $(pid).textContent = got + '/' + max;
+  });
+
+  // ── Pts color on selects ──
+  [
+    ['pts-ichi1w',i1w,20],['pts-ichi1d',i1d,15],['pts-ichi4h',i4h,10],
+    ['pts-rsi',rsi,10],['pts-macd',macd,10],['pts-vp',vp,10],['pts-fib',fib,5]
+  ].forEach(([id,g,m]) => {
+    $(id).textContent = g > 0 ? g : '—';
+    $(id).style.color = g > 0 ? getPtColor(g,m) : 'var(--text-3)';
+  });
+
+  // ── Score display ──
+  $('tot-score').textContent = total;
+  const sc = $('tot-score');
+  sc.style.color = total>=75 ? 'var(--green)' : total>=55 ? 'var(--green-lt)' : total>=40 ? 'var(--amber)' : total>=22 ? 'var(--orange)' : 'var(--red)';
+
+  // ── Signal badge ──
+  let sText, sCls;
+  if      (total >= 80)  { sText='STRONG BUY';  sCls='sig-sb'; }
+  else if (total >= 62)  { sText='BUY';          sCls='sig-buy';}
+  else if (total >= 42)  { sText='NEUTRAL';      sCls='sig-neu';}
+  else if (total >= 22)  { sText='SELL';         sCls='sig-sell';}
+  else                   { sText='AVOID';        sCls='sig-av'; }
+
+  if (confCnt < CONFLUENCE_MIN && (sCls==='sig-sb'||sCls==='sig-buy')) {
+    sText = 'INSUFF. CONFLUENCE'; sCls = 'sig-neu';
+  }
+
+  const badge = $('sig-badge');
+  badge.textContent = sText;
+  badge.className   = 'sig-pill ' + sCls;
+
+  // ── Confluence pips ──
+  for (let i=0; i<8; i++) {
+    $('cp'+i).className = 'conf-pip ' + (i < confCnt ? (confCnt >= CONFLUENCE_MIN ? 'met' : 'partial') : '');
+  }
+  $('conf-msg').textContent =
+    `Confluence: ${confCnt} / 8 sources · Min ${CONFLUENCE_MIN} required · ${confCnt >= CONFLUENCE_MIN ? '✓ MET' : '✗ NOT MET'}`;
+
+  // ── Rules ──
+  $('rs-conf').innerHTML = confCnt >= CONFLUENCE_MIN
+    ? `<span style="color:var(--green-lt)">✓ ${confCnt} sources active</span>`
+    : `<span style="color:var(--red-lt)">✗ Only ${confCnt} source(s) — signal invalid</span>`;
+
+  $('rs-hier').innerHTML = i1w === 0
+    ? `<span style="color:var(--text-3)">— 1W not yet set</span>`
+    : counter
+      ? `<span style="color:var(--amber)">⚠ Counter-trend (−10 pts applied)</span>`
+      : `<span style="color:var(--green-lt)">✓ Timeframes aligned</span>`;
+
+  $('rs-rr').innerHTML =
+    live.btc
+      ? `<span style="color:var(--cyan)">R/R 2.0 enforced · SL at 1.5× ATR</span>`
+      : `<span style="color:var(--text-3)">— Awaiting BTC price</span>`;
+
+  $('rs-inv').innerHTML =
+    live.btc
+      ? `<span style="color:var(--cyan)">Daily close below SL → immediate exit</span>`
+      : `<span style="color:var(--text-3)">— Awaiting BTC price</span>`;
+
+  // ── Template ──
+  updateTemplate(total, sText, confCnt, fs, es, vs, counter, i1w, i1d, i4h);
+
+  // ── AI bottom ──
+  const ai = $('ai-out');
+  if (live.vix > 35 && live.fear !== null && live.fear < 30 && live.funding !== null && live.funding < 0) {
+    ai.textContent = '🟢 Bottom Probable'; ai.style.color = 'var(--green-lt)';
+  } else if (live.vix > 25 && live.fear !== null && live.fear < 40) {
+    ai.textContent = '🟡 Bottom Forming';  ai.style.color = 'var(--amber)';
+  } else if (live.fear !== null) {
+    ai.textContent = '🔴 No Bottom Signal'; ai.style.color = 'var(--red-lt)';
+  } else {
+    ai.textContent = '—— Awaiting Data';    ai.style.color = 'var(--text-2)';
+  }
+
+  // ── Chart history (only on live data refresh, not every select change) ──
+  if (live.btc) {
+    scoreHist.push(total);
+    timeHist.push(new Date().toLocaleTimeString());
+    if (scoreHist.length > 60) { scoreHist.shift(); timeHist.shift(); }
+    localStorage.setItem('cdv6_scores', JSON.stringify(scoreHist));
+    localStorage.setItem('cdv6_times',  JSON.stringify(timeHist));
+    renderChart();
+  }
+}
+
+// ── TEMPLATE ──────────────────────────────────────
+function selText(id) {
+  const s = $(id);
+  return s.options[s.selectedIndex]?.text
+    .replace(/^[🟢🟡🔶🔴⛔] /, '') || '——';
+}
+
+function updateTemplate(total, sigText, conf, fs, es, vs, counter, i1w, i1d, i4h) {
+  const p = live.btc;
+
+  $('tpl-score').textContent  = total + ' / 100';
+  $('tpl-signal').textContent = sigText;
+  $('tpl-conf').textContent   = conf + ' / 8 sources';
+  $('tpl-1w').textContent     = i1w > 0 ? selText('ichi1w') : '——';
+  $('tpl-1d').textContent     = i1d > 0 ? selText('ichi1d') : '——';
+  $('tpl-4h').textContent     = i4h > 0 ? selText('ichi4h') : '——';
+  $('tpl-macro').textContent  = (fs + es + vs) + ' / 20 pts';
+
+  if (!p) {
+    ['tpl-price','tpl-entry','tpl-sl','tpl-tp1','tpl-tp2','tpl-rr','tpl-size']
+      .forEach(id => $(id).textContent = '——');
+    $('tpl-inv').textContent = 'Awaiting BTC price data.';
+    return;
+  }
+
+  const atr  = p * ATR_PCT;
+  const sl   = p - atr * 1.5;
+  const tp1  = p + atr * 1.5 * 2.0;
+  const tp2  = p + atr * 1.5 * 3.0;
+  const risk = p - sl;
+  const rr   = ((tp1 - p) / risk).toFixed(2);
+
+  $('tpl-price').textContent = '$' + p.toLocaleString('en-US');
+  $('tpl-entry').textContent = '$' + Math.round(p * .998).toLocaleString('en-US') + ' – $' + Math.round(p).toLocaleString('en-US');
+  $('tpl-sl').textContent    = '$' + Math.round(sl).toLocaleString('en-US') + '  (−' + (risk/p*100).toFixed(1) + '%)';
+  $('tpl-tp1').textContent   = '$' + Math.round(tp1).toLocaleString('en-US') + '  (+' + ((tp1-p)/p*100).toFixed(1) + '%)';
+  $('tpl-tp2').textContent   = '$' + Math.round(tp2).toLocaleString('en-US') + '  (+' + ((tp2-p)/p*100).toFixed(1) + '%)';
+  $('tpl-rr').textContent    = rr + ' : 1';
+
+  const size = total >= 75 ? '3 – 5%' : total >= 55 ? '2 – 3%' : total >= 42 ? '1 – 2%' : '< 1%';
+  $('tpl-size').textContent = size + ' of portfolio';
+
+  $('tpl-inv').textContent = counter
+    ? `Daily close below $${Math.round(sl).toLocaleString('en-US')} OR weekly 1W structure shifts bearish → immediate full exit.`
+    : `Daily close below $${Math.round(sl).toLocaleString('en-US')}. Recalculate if confluence drops below ${CONFLUENCE_MIN} sources. Monitor 4H cloud for directional break.`;
+}
+
+// ── CHART ─────────────────────────────────────────
+function renderChart() {
+  const ctx = $('chart');
+  if (chart) {
+    chart.data.labels = timeHist;
+    chart.data.datasets[0].data = scoreHist;
+    chart.update('none');
+    return;
+  }
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: timeHist,
+      datasets: [{
+        label: 'Conviction Score',
+        data: scoreHist,
+        borderColor: '#22d3ee',
+        backgroundColor: 'rgba(34,211,238,.05)',
+        borderWidth: 1.5,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: '#22d3ee',
+        fill: true,
+        tension: .35
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a1628',
+          borderColor: 'rgba(34,211,238,.25)',
+          borderWidth: 1,
+          titleFont: { family: 'IBM Plex Mono', size: 10 },
+          bodyFont:  { family: 'IBM Plex Mono', size: 11 },
+          titleColor: '#64748b',
+          bodyColor:  '#f1f5f9',
+          callbacks: { label: ctx => 'Score: ' + ctx.raw + ' / 100' }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(34,211,238,.04)' },
+          ticks: { color:'#3d5068', font:{ family:'IBM Plex Mono', size:9 }, maxRotation:0 }
+        },
+        y: {
+          min: 0, max: 100,
+          grid: { color: 'rgba(34,211,238,.04)' },
+          ticks: { color:'#3d5068', font:{ family:'IBM Plex Mono', size:9 },
+            callback: v => v + 'pt' }
+        }
+      }
+    }
+  });
+}
+
+function clearHist() {
+  scoreHist = []; timeHist = [];
+  localStorage.removeItem('cdv6_scores');
+  localStorage.removeItem('cdv6_times');
+  if (chart) { chart.data.labels=[]; chart.data.datasets[0].data=[]; chart.update(); }
+}
+
+// ── REFRESH LOOP ──────────────────────────────────
+function refreshAll() {
+  clearTimeout(timer);
+  fetchAll();
+  timer = setTimeout(refreshAll, REFRESH_MS);
+}
+
+// ── BOOT ──────────────────────────────────────────
+if (scoreHist.length) renderChart();
+refreshAll();
+
+</script>
+</body>
+</html>
