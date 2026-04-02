@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Artemis Fundamentals 1</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#070b12; color:#b8ccd8; font-family:'IBM Plex Sans',sans-serif; min-height:100vh; font-size:13px; }
+
+/* ── NAVBAR ── */
+.navbar { background:#0b1828; border-bottom:1px solid #162030; padding:0 14px; display:flex; align-items:center; justify-content:space-between; height:52px; position:sticky; top:0; z-index:100; gap:8px; }
+.nav-brand { color:#3d8bff; font-size:13px; font-weight:700; letter-spacing:1px; flex-shrink:0; }
+.nav-brand span { color:#3a5a70; font-weight:400; }
+.nav-tag { font-size:9px; color:#3a5a70; border:1px solid #162030; padding:2px 7px; border-radius:3px; letter-spacing:1px; text-transform:uppercase; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+.nav-update { font-size:10px; color:#2e4a60; }
+.btn { padding:5px 14px; font-size:11px; cursor:pointer; border-radius:4px; border:1px solid #162030; background:#0b1420; color:#b8ccd8; font-weight:500; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
+.btn:hover { border-color:#3d8bff; color:#3d8bff; }
+.btn:disabled { opacity:0.5; pointer-events:none; }
+.btn-primary { border-color:#3d8bff; background:#0a1e35; color:#3d8bff; }
+
+/* ── PAGE ── */
+.page { padding:14px; }
+.card { background:#0b1828; border:1px solid #162030; border-radius:8px; padding:16px; margin-bottom:12px; }
+.card-title { color:#3d8bff; font-size:10px; letter-spacing:3px; text-transform:uppercase; margin-bottom:14px; font-weight:600; }
+.section-label { font-size:10px; color:#3a5a70; letter-spacing:3px; text-transform:uppercase; margin-bottom:12px; font-weight:600; }
+
+/* ── REGIME BANNER ── */
+.regime-card { border-radius:8px; padding:16px; margin-bottom:12px; border:1px solid; position:relative; overflow:hidden; }
+.regime-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:8px 0 0 8px; }
+.regime-bull { background:#001a0f; border-color:#00d98b33; }
+.regime-bull::before { background:#00d98b; }
+.regime-bear { background:#1a060c; border-color:#ff3d5a33; }
+.regime-bear::before { background:#ff3d5a; }
+.regime-loading { background:#0b1828; border-color:#162030; }
+.regime-loading::before { background:#162030; }
+
+.regime-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.regime-left { display:flex; align-items:center; gap:14px; }
+.regime-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.regime-bull .regime-dot { background:#00d98b; box-shadow:0 0 8px #00d98b; }
+.regime-bear .regime-dot { background:#ff3d5a; box-shadow:0 0 8px #ff3d5a; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.regime-label { font-size:9px; color:#3a5a70; text-transform:uppercase; letter-spacing:2px; margin-bottom:3px; }
+.regime-status { font-size:15px; font-weight:700; font-family:'IBM Plex Mono',monospace; }
+.regime-bull .regime-status { color:#00d98b; }
+.regime-bear .regime-status { color:#ff3d5a; }
+
+.regime-stats { display:flex; gap:24px; }
+.regime-stat { text-align:right; }
+.rs-label { font-size:9px; color:#3a5a70; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+.rs-value { font-size:13px; font-weight:600; font-family:'IBM Plex Mono',monospace; color:#fff; }
+
+.regime-action-badge { font-size:10px; font-weight:700; padding:5px 14px; border-radius:4px; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; }
+.regime-bull .regime-action-badge { background:#00d98b18; color:#00d98b; border:1px solid #00d98b44; }
+.regime-bear .regime-action-badge { background:#ff3d5a18; color:#ff3d5a; border:1px solid #ff3d5a44; }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:12px; }
+@media(max-width:700px){ .kpi-strip { grid-template-columns:1fr 1fr; } }
+.kpi-card { background:#0b1828; border:1px solid #162030; border-radius:8px; padding:13px 14px; }
+.kpi-label { font-size:9px; color:#3a5a70; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.kpi-value { font-size:22px; font-weight:700; font-family:'IBM Plex Mono',monospace; }
+.kpi-sub { font-size:10px; color:#2e4a60; margin-top:3px; }
+.kpi-blue { color:#3d8bff; }
+.kpi-green { color:#00d98b; }
+.kpi-red { color:#ff3d5a; }
+.kpi-yellow { color:#f0b840; }
+.kpi-white { color:#fff; }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { text-align:left; padding:7px 10px; color:#2e4a60; font-weight:500; font-size:10px; letter-spacing:2px; text-transform:uppercase; border-bottom:1px solid #162030; white-space:nowrap; }
+th.r { text-align:right; }
+th.c { text-align:center; }
+td { padding:9px 10px; border-bottom:1px solid #0d1825; vertical-align:middle; white-space:nowrap; }
+td.r { text-align:right; }
+td.c { text-align:center; }
+tr:last-child td { border-bottom:none; }
+tbody tr { transition:background 0.1s; }
+tbody tr:hover { background:#0d1f35; }
+
+.token-cell { display:flex; align-items:center; gap:9px; }
+.token-icon { width:28px; height:28px; border-radius:50%; background:#0a1929; border:1px solid #162030; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#3d8bff; flex-shrink:0; }
+.token-name { font-size:12px; font-weight:700; color:#fff; }
+.token-sector { font-size:9px; color:#3a5a70; text-transform:uppercase; letter-spacing:1px; }
+
+/* Score bar */
+.score-wrap { display:flex; align-items:center; gap:8px; justify-content:flex-end; }
+.score-bar-bg { width:70px; height:5px; background:#162030; border-radius:3px; overflow:hidden; flex-shrink:0; }
+.score-bar-fill { height:100%; border-radius:3px; transition:width 0.7s ease; }
+.score-num { font-size:13px; font-weight:700; font-family:'IBM Plex Mono',monospace; min-width:28px; text-align:right; }
+
+/* Signal cells */
+.z-pos { color:#00d98b; font-weight:600; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.z-neg { color:#ff3d5a; font-weight:600; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.z-neu { color:#3a5a70; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.z-na  { color:#2e4a60; font-size:10px; }
+
+/* Badges */
+.badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:3px; white-space:nowrap; display:inline-block; }
+.badge-long    { background:#00d98b18; color:#00d98b; border:1px solid #00d98b44; }
+.badge-short   { background:#ff3d5a18; color:#ff3d5a; border:1px solid #ff3d5a44; }
+.badge-watch   { background:#f0b84018; color:#f0b840; border:1px solid #f0b84044; }
+.badge-neutral { background:#162030; color:#3a5a70; border:1px solid #1e2d3d; }
+.badge-na      { background:#0a0f18; color:#2e4a60; border:1px solid #162030; }
+
+/* Rank */
+.rank-num { font-size:11px; color:#2e4a60; font-family:'IBM Plex Mono',monospace; }
+
+/* ── PORTFOLIO CARDS ── */
+.port-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+@media(max-width:600px){ .port-grid { grid-template-columns:1fr; } }
+.port-card { background:#0b1828; border:1px solid #162030; border-radius:8px; padding:14px; }
+.port-card-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.port-dot { width:8px; height:8px; border-radius:50%; }
+.port-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+.port-sub { font-size:9px; color:#3a5a70; }
+.port-card.long { border-color:#00d98b22; }
+.port-card.long .port-dot { background:#00d98b; }
+.port-card.long .port-title { color:#00d98b; }
+.port-card.short { border-color:#ff3d5a22; }
+.port-card.short .port-dot { background:#ff3d5a; }
+.port-card.short .port-title { color:#ff3d5a; }
+
+.port-row { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; background:#070b12; border:1px solid #0d1825; border-radius:5px; margin-bottom:5px; }
+.port-row:last-child { margin-bottom:0; }
+.port-row-name { font-size:12px; font-weight:700; font-family:'IBM Plex Mono',monospace; }
+.port-card.long .port-row-name { color:#00d98b; }
+.port-card.short .port-row-name { color:#ff3d5a; }
+.port-row-score { font-size:11px; color:#3a5a70; font-family:'IBM Plex Mono',monospace; }
+
+/* ── METHOD CARDS ── */
+.method-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+@media(max-width:900px){ .method-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:500px){ .method-grid { grid-template-columns:1fr; } }
+.method-card { background:#070b12; border:1px solid #162030; border-radius:6px; padding:13px; }
+.method-num { font-size:9px; color:#3d8bff; font-weight:700; letter-spacing:2px; margin-bottom:7px; }
+.method-name { font-size:12px; font-weight:600; color:#fff; margin-bottom:4px; }
+.method-desc { font-size:11px; color:#3a5a70; line-height:1.6; }
+
+/* ── LOADING / ERROR ── */
+.loading-row td { text-align:center; padding:28px; color:#3a5a70; }
+.spinner-inline { display:inline-block; width:12px; height:12px; border:2px solid #162030; border-top-color:#3d8bff; border-radius:50%; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.error { background:#1a060c; border:1px solid #ff3d5a33; border-radius:8px; padding:12px 14px; margin-bottom:12px; color:#ff3d5a; font-size:12px; display:none; }
+
+/* MISC */
+.green{color:#00d98b} .red{color:#ff3d5a} .yellow{color:#f0b840} .blue{color:#3d8bff}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#00d98b;margin-right:5px;animation:blink 2s infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.footer{text-align:center;margin-top:16px;font-size:10px;color:#162030;padding-bottom:20px}
+
+/* BEAR OVERLAY */
+.bear-overlay { background:#1a060c; border:1px solid #ff3d5a22; border-radius:6px; padding:12px 14px; margin-bottom:12px; display:none; }
+.bear-overlay-text { font-size:12px; color:#ff3d5a; line-height:1.7; }
+.bear-overlay-text strong { color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="nav-brand">ARTEMIS <span>/ Fundamentals 1</span></div>
+    <div class="nav-tag">Beta v0.1</div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-update" id="lastUpdate"><span class="live-dot"></span>—</span>
+    <button class="btn" id="refreshBtn" onclick="runFullAnalysis()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ERROR -->
+  <div class="error" id="errorBanner"></div>
+
+  <!-- BEAR OVERLAY WARNING -->
+  <div class="bear-overlay" id="bearOverlay">
+    <div class="bear-overlay-text">
+      ⊘ <strong>BEAR REGIME ACTIVE</strong> — BTC is trading below its 20-week SMA. Per the Artemis Fundamentals 1 methodology, <strong>all positions should be scaled to zero</strong>. Scores are shown for informational purposes only.
+    </div>
+  </div>
+
+  <!-- REGIME CARD -->
+  <div class="regime-card regime-loading" id="regimeCard">
+    <div class="regime-inner">
+      <div class="regime-left">
+        <div class="regime-dot"></div>
+        <div>
+          <div class="regime-label">BTC Regime Filter — 20-Week SMA</div>
+          <div class="regime-status" id="regimeStatus">Fetching data…</div>
+        </div>
+      </div>
+      <div class="regime-stats">
+        <div class="regime-stat">
+          <div class="rs-label">BTC Price</div>
+          <div class="rs-value" id="btcPrice">—</div>
+        </div>
+        <div class="regime-stat">
+          <div class="rs-label">20W SMA</div>
+          <div class="rs-value" id="btcSma">—</div>
+        </div>
+        <div class="regime-stat">
+          <div class="rs-label">Distance</div>
+          <div class="rs-value" id="btcDist">—</div>
+        </div>
+      </div>
+      <div class="regime-action-badge" id="regimeAction">—</div>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Universe</div>
+      <div class="kpi-value kpi-blue">9</div>
+      <div class="kpi-sub">DeFi tokens tracked</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Long Candidates</div>
+      <div class="kpi-value" id="kpiLong">—</div>
+      <div class="kpi-sub">Score ≥ 60</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Short Candidates</div>
+      <div class="kpi-value" id="kpiShort">—</div>
+      <div class="kpi-sub">Score ≤ 35</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Signal Coverage</div>
+      <div class="kpi-value" id="kpiCoverage">—</div>
+      <div class="kpi-sub">Signals available / 4</div>
+    </div>
+  </div>
+
+  <!-- SIGNAL TABLE -->
+  <div class="card">
+    <div class="card-title">Factor Scores — Weekly Composite</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:28px">#</th>
+            <th>Token</th>
+            <th class="r">Composite Score</th>
+            <th class="c" title="DAU Growth — % change in active users/txns (30d vs prior 30d)">DAU Growth</th>
+            <th class="c" title="Revenue Stability — Inverse CV of daily fees over 30d">Rev Stability</th>
+            <th class="c" title="MC/Fees Mean Reversion — Negative z-score vs own 90d history">MC / Fees MR</th>
+            <th class="c" title="Revenue Quality — Revenue / Fees ratio (30d avg)">Rev Quality</th>
+            <th class="c">Signal</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr class="loading-row">
+            <td colspan="8">
+              <span class="spinner-inline"></span>Fetching on-chain data from DefiLlama & CoinGecko…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO -->
+  <div class="section-label">Portfolio Recommendation</div>
+  <div class="port-grid">
+    <div class="port-card long">
+      <div class="port-card-header">
+        <div class="port-dot"></div>
+        <div>
+          <div class="port-title">Long Leg</div>
+          <div class="port-sub">Highest composite score — equal weight</div>
+        </div>
+      </div>
+      <div id="longList"><div class="z-na" style="padding:6px 0;font-size:11px">Loading…</div></div>
+    </div>
+    <div class="port-card short">
+      <div class="port-card-header">
+        <div class="port-dot"></div>
+        <div>
+          <div class="port-title">Short Leg</div>
+          <div class="port-sub">Lowest composite score — equal weight</div>
+        </div>
+      </div>
+      <div id="shortList"><div class="z-na" style="padding:6px 0;font-size:11px">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- METHODOLOGY -->
+  <div class="card">
+    <div class="card-title">Signal Methodology — Artemis Fundamentals 1</div>
+    <div class="method-grid">
+      <div class="method-card">
+        <div class="method-num">SIGNAL 01</div>
+        <div class="method-name">DAU Growth</div>
+        <div class="method-desc">% change in daily active users over a 30d trailing window vs prior 30d. Captures adoption momentum. Proxied via DefiLlama txns when direct DAU unavailable.</div>
+      </div>
+      <div class="method-card">
+        <div class="method-num">SIGNAL 02</div>
+        <div class="method-name">Revenue Stability</div>
+        <div class="method-desc">Coefficient of variation (σ/μ) of daily fees over 30d. Per Artemis, less stable revenue is associated with higher forward returns — consistent with a risk premium.</div>
+      </div>
+      <div class="method-card">
+        <div class="method-num">SIGNAL 03</div>
+        <div class="method-name">MC / Fees Mean Reversion</div>
+        <div class="method-desc">Negative z-score of the MC-to-annualized-fees ratio vs its own 90d history. Tokens cheap relative to their own history tend to mean-revert positively.</div>
+      </div>
+      <div class="method-card">
+        <div class="method-num">SIGNAL 04</div>
+        <div class="method-name">Revenue Quality</div>
+        <div class="method-desc">Revenue / Fees ratio over 30d. Measures how much of gross protocol fees are captured as protocol revenue — a proxy for active vs passive revenue mix.</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:#070b12;border:1px solid #162030;border-radius:6px;font-size:11px;color:#3a5a70;line-height:1.7">
+      Scores are cross-sectional rank z-scores, normalized weekly. A minimum of <span class="blue">2 of 4 signals</span> is required to receive a composite score. Composite is scaled to <span class="blue">0–100</span>. Portfolio goes <span class="green">long</span> top quintile and <span class="red">short</span> bottom quintile with equal weighting. Source: <a href="https://artemis.xyz" style="color:#3d8bff;text-decoration:none">Artemis Analytics</a> methodology (Mar 2026).
+    </div>
+  </div>
+
+  <div class="footer">
+    Data: DefiLlama · CoinGecko · Binance &nbsp;·&nbsp; CORS proxy: allorigins.win &nbsp;·&nbsp; Based on Artemis Analytics "Fundamentals 1" · Beta v0.1
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const TOKENS = [
+  { symbol:'ETH',    name:'Ethereum',    sector:'L1',        cg:'ethereum',              llama:'ethereum',        binance:'ETHUSDT'   },
+  { symbol:'SOL',    name:'Solana',      sector:'L1',        cg:'solana',                llama:'solana',          binance:'SOLUSDT'   },
+  { symbol:'HYPE',   name:'Hyperliquid', sector:'DEX/Perp',  cg:'hyperliquid',           llama:'hyperliquid-dex', binance:'HYPEUSDT'  },
+  { symbol:'UNI',    name:'Uniswap',     sector:'DEX',       cg:'uniswap',               llama:'uniswap',         binance:'UNIUSDT'   },
+  { symbol:'AAVE',   name:'Aave',        sector:'Lending',   cg:'aave',                  llama:'aave',            binance:'AAVEUSDT'  },
+  { symbol:'JTO',    name:'Jito',        sector:'LST',       cg:'jito-governance-token', llama:'jito',            binance:'JTOUSDT'   },
+  { symbol:'PENDLE', name:'Pendle',      sector:'Yield',     cg:'pendle',                llama:'pendle',          binance:'PENDLEUSDT'},
+  { symbol:'ENA',    name:'Ethena',      sector:'Stablecoin',cg:'ethena',                llama:'ethena',          binance:'ENAUSDT'   },
+  { symbol:'RAY',    name:'Raydium',     sector:'DEX',       cg:'raydium',               llama:'raydium',         binance:'RAYUSDT'   },
+];
+
+const PROXY = 'https://api.allorigins.win/get?url=';
+
+// ═══════════════════════════════════════
+// FETCH HELPERS
+// ═══════════════════════════════════════
+async function fetchDirect(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+async function fetchProxy(url) {
+  const r = await fetch(PROXY + encodeURIComponent(url));
+  const d = await r.json();
+  return JSON.parse(d.contents);
+}
+
+async function safeFetch(url) {
+  try { return await fetchDirect(url); }
+  catch { return await fetchProxy(url); }
+}
+
+// ═══════════════════════════════════════
+// BTC REGIME — 20W SMA
+// ═══════════════════════════════════════
+async function fetchBTCRegime() {
+  try {
+    const data = await safeFetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1w&limit=22');
+    const closes = data.map(k => parseFloat(k[4]));
+    const price  = closes[closes.length - 1];
+    const sma20  = closes.slice(0, 20).reduce((a,b) => a+b, 0) / 20; // last 20 completed weeks
+    const dist   = ((price - sma20) / sma20) * 100;
+    const bull   = price > sma20;
+
+    const card = document.getElementById('regimeCard');
+    card.className = 'regime-card ' + (bull ? 'regime-bull' : 'regime-bear');
+    document.getElementById('regimeStatus').textContent = bull
+      ? 'BULL REGIME — BTC trading above 20W SMA'
+      : 'BEAR REGIME — BTC trading below 20W SMA';
+    document.getElementById('btcPrice').textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits:0});
+    document.getElementById('btcSma').textContent   = '$' + Math.round(sma20).toLocaleString('en-US');
+    document.getElementById('btcDist').textContent  = (dist >= 0 ? '+' : '') + dist.toFixed(1) + '%';
+    document.getElementById('regimeAction').textContent = bull ? '✓ POSITIONS ACTIVE' : '⊘ POSITIONS = ZERO';
+    document.getElementById('bearOverlay').style.display = bull ? 'none' : 'block';
+
+    return { bull, price, sma20, dist };
+  } catch(e) {
+    console.error('BTC fetch error', e);
+    document.getElementById('regimeStatus').textContent = 'Error fetching BTC data';
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════
+// DEFILLAMA
+// ═══════════════════════════════════════
+async function fetchFees(slug) {
+  try {
+    return await safeFetch(`https://api.llama.fi/summary/fees/${slug}?dataType=dailyFees`);
+  } catch { return null; }
+}
+
+async function fetchRevenue(slug) {
+  try {
+    return await safeFetch(`https://api.llama.fi/summary/fees/${slug}?dataType=dailyRevenue`);
+  } catch { return null; }
+}
+
+async function fetchMC(cgId) {
+  try {
+    const d = await safeFetch(`https://api.coingecko.com/api/v3/coins/${cgId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`);
+    return d?.market_data?.market_cap?.usd || null;
+  } catch { return null; }
+}
+
+// ═══════════════════════════════════════
+// SIGNAL COMPUTATIONS
+// ═══════════════════════════════════════
+
+// S1: DAU Growth — proxy via fees 30d vs prior 30d
+function sig1_DAUGrowth(feesData) {
+  try {
+    const pts = feesData?.totalDataChart;
+    if (!pts || pts.length < 60) return null;
+    const recent = pts.slice(-30).map(d => d[1] || 0);
+    const prior  = pts.slice(-60,-30).map(d => d[1] || 0);
+    const avgR = recent.reduce((a,b)=>a+b,0) / recent.length;
+    const avgP = prior.reduce((a,b)=>a+b,0) / prior.length;
+    if (avgP === 0) return null;
+    return (avgR - avgP) / avgP;
+  } catch { return null; }
+}
+
+// S2: Revenue Stability — CV of fees (higher CV = more volatile = positive signal per Artemis)
+function sig2_RevStability(feesData) {
+  try {
+    const pts = feesData?.totalDataChart;
+    if (!pts || pts.length < 30) return null;
+    const vals = pts.slice(-30).map(d => d[1] || 0).filter(v => v > 0);
+    if (vals.length < 10) return null;
+    const mean = vals.reduce((a,b)=>a+b,0) / vals.length;
+    if (mean === 0) return null;
+    const sd = Math.sqrt(vals.reduce((a,b) => a + (b - mean)**2, 0) / vals.length);
+    return sd / mean; // CV — higher = less stable = positive signal
+  } catch { return null; }
+}
+
+// S3: MC/Fees mean reversion — negative z-score vs own 90d history
+function sig3_MCFeesMR(feesData, mc) {
+  try {
+    if (!mc) return null;
+    const pts = feesData?.totalDataChart;
+    if (!pts || pts.length < 90) return null;
+    const last90 = pts.slice(-90).map(d => d[1] || 0);
+    const ratios = [];
+    for (let i = 0; i <= 60; i += 5) {
+      const slice = last90.slice(i, i + 30);
+      const avg = slice.reduce((a,b)=>a+b,0) / slice.length;
+      const annFees = avg * 365;
+      if (annFees > 0) ratios.push(mc / annFees);
+    }
+    if (ratios.length < 4) return null;
+    const cur  = ratios[ratios.length - 1];
+    const mean = ratios.reduce((a,b)=>a+b,0) / ratios.length;
+    const sd   = Math.sqrt(ratios.reduce((a,b)=>a+(b-mean)**2,0) / ratios.length);
+    if (sd === 0) return null;
+    return -((cur - mean) / sd); // negative z-score: cheap = positive
+  } catch { return null; }
+}
+
+// S4: Revenue Quality — revenue/fees ratio
+function sig4_RevQuality(feesData, revData) {
+  try {
+    const fp = feesData?.totalDataChart;
+    const rp = revData?.totalDataChart;
+    if (!fp || !rp || fp.length < 30 || rp.length < 30) return null;
+    const avgF = fp.slice(-30).reduce((a,d)=>a+(d[1]||0),0) / 30;
+    const avgR = rp.slice(-30).reduce((a,d)=>a+(d[1]||0),0) / 30;
+    if (avgF === 0) return null;
+    return avgR / avgF;
+  } catch { return null; }
+}
+
+// ═══════════════════════════════════════
+// RANK Z-SCORE NORMALIZATION
+// ═══════════════════════════════════════
+function probit(p) {
+  if (p <= 0 || p >= 1) return 0;
+  const a = [-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b = [-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+  const c = [-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d = [7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+  const pL=0.02425,pH=1-pL;
+  let q,r;
+  if(p<pL){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p<=pH){q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+}
+
+function crossSectionalZ(items) {
+  // items: [{symbol, raw}] — returns {symbol: zScore}
+  const valid = items.filter(x => x.raw !== null && isFinite(x.raw)).sort((a,b) => a.raw - b.raw);
+  const n = valid.length;
+  const out = {};
+  valid.forEach((x, i) => { out[x.symbol] = probit((i + 1) / (n + 1)); });
+  items.forEach(x => { if (!(x.symbol in out)) out[x.symbol] = null; });
+  return out;
+}
+
+function toScore(zAvg) {
+  // z typically ranges ±2.5 → map to 0–100
+  return Math.max(0, Math.min(100, ((zAvg + 2.5) / 5) * 100));
+}
+
+// ═══════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════
+function scoreColor(s) {
+  if (s === null) return '#3a5a70';
+  if (s >= 65) return '#00d98b';
+  if (s >= 50) return '#3d8bff';
+  if (s >= 35) return '#f0b840';
+  return '#ff3d5a';
+}
+
+function zCell(z) {
+  if (z === null) return '<span class="z-na">—</span>';
+  const arrow = z > 0.5 ? '▲' : z < -0.5 ? '▼' : '◆';
+  const cls   = z > 0.5 ? 'z-pos' : z < -0.5 ? 'z-neg' : 'z-neu';
+  return `<span class="${cls}">${arrow} ${z.toFixed(2)}</span>`;
+}
+
+function signalBadge(s) {
+  if (s === null) return '<span class="badge badge-na">N/A</span>';
+  if (s >= 65)   return '<span class="badge badge-long">LONG</span>';
+  if (s <= 35)   return '<span class="badge badge-short">SHORT</span>';
+  if (s >= 55)   return '<span class="badge badge-watch">WATCH</span>';
+  return '<span class="badge badge-neutral">NEUTRAL</span>';
+}
+
+// ═══════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════
+async function runFullAnalysis() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '↻ Loading…';
+  document.getElementById('errorBanner').style.display = 'none';
+  document.getElementById('tableBody').innerHTML =
+    '<tr class="loading-row"><td colspan="8"><span class="spinner-inline"></span>Fetching on-chain data…</td></tr>';
+
+  // 1. BTC Regime
+  const regime = await fetchBTCRegime();
+
+  // 2. Fetch all token data in parallel
+  const raw = await Promise.all(TOKENS.map(async t => {
+    const [fees, rev, mc] = await Promise.all([
+      fetchFees(t.llama),
+      fetchRevenue(t.llama),
+      fetchMC(t.cg),
+    ]);
+    return {
+      ...t,
+      r1: sig1_DAUGrowth(fees),
+      r2: sig2_RevStability(fees),
+      r3: sig3_MCFeesMR(fees, mc),
+      r4: sig4_RevQuality(fees, rev),
+      mc, fees,
+    };
+  }));
+
+  // 3. Cross-sectional rank z-scores
+  const z1 = crossSectionalZ(raw.map(t => ({ symbol:t.symbol, raw:t.r1 })));
+  const z2 = crossSectionalZ(raw.map(t => ({ symbol:t.symbol, raw:t.r2 })));
+  const z3 = crossSectionalZ(raw.map(t => ({ symbol:t.symbol, raw:t.r3 })));
+  const z4 = crossSectionalZ(raw.map(t => ({ symbol:t.symbol, raw:t.r4 })));
+
+  // 4. Composite scores
+  const scored = raw.map(t => {
+    const zs = [z1[t.symbol], z2[t.symbol], z3[t.symbol], z4[t.symbol]].filter(v => v !== null);
+    const composite = zs.length >= 2 ? toScore(zs.reduce((a,b)=>a+b,0)/zs.length) : null;
+    return { ...t, z1:z1[t.symbol], z2:z2[t.symbol], z3:z3[t.symbol], z4:z4[t.symbol], score:composite, sigCount:zs.length };
+  }).sort((a,b) => (b.score ?? -1) - (a.score ?? -1));
+
+  // 5. Render table
+  document.getElementById('tableBody').innerHTML = scored.map((t, i) => {
+    const sc = t.score;
+    const col = scoreColor(sc);
+    return `
+    <tr>
+      <td><span class="rank-num">${i+1}</span></td>
+      <td>
+        <div class="token-cell">
+          <div class="token-icon">${t.symbol.slice(0,2)}</div>
+          <div>
+            <div class="token-name">${t.symbol}</div>
+            <div class="token-sector">${t.sector}</div>
+          </div>
+        </div>
+      </td>
+      <td class="r">
+        <div class="score-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${sc??0}%;background:${col}"></div></div>
+          <span class="score-num" style="color:${col}">${sc !== null ? sc.toFixed(0) : '—'}</span>
+        </div>
+      </td>
+      <td class="c">${zCell(t.z1)}</td>
+      <td class="c">${zCell(t.z2)}</td>
+      <td class="c">${zCell(t.z3)}</td>
+      <td class="c">${zCell(t.z4)}</td>
+      <td class="c">${signalBadge(sc)}</td>
+    </tr>`;
+  }).join('');
+
+  // 6. Portfolio lists
+  const longs  = scored.filter(t => t.score !== null && t.score >= 60);
+  const shorts = scored.filter(t => t.score !== null).slice(-3).reverse();
+
+  document.getElementById('longList').innerHTML = longs.length
+    ? longs.slice(0,4).map(t => `
+      <div class="port-row">
+        <span class="port-row-name">${t.symbol}</span>
+        <span class="port-row-score">${t.score.toFixed(0)} pts</span>
+      </div>`).join('')
+    : `<div class="z-na" style="font-size:11px;padding:6px 0">No tokens meet threshold (score ≥ 60)</div>`;
+
+  document.getElementById('shortList').innerHTML = shorts.length
+    ? shorts.map(t => `
+      <div class="port-row">
+        <span class="port-row-name">${t.symbol}</span>
+        <span class="port-row-score">${t.score.toFixed(0)} pts</span>
+      </div>`).join('')
+    : `<div class="z-na" style="font-size:11px;padding:6px 0">Insufficient data</div>`;
+
+  // 7. KPI cards
+  const longCount  = longs.length;
+  const shortCount = shorts.filter(t => t.score <= 35).length;
+  const avgCov     = scored.reduce((a,t) => a + t.sigCount, 0) / scored.length;
+
+  const kpiLong  = document.getElementById('kpiLong');
+  kpiLong.textContent = longCount;
+  kpiLong.className   = 'kpi-value ' + (longCount > 0 ? 'kpi-green' : 'kpi-yellow');
+
+  const kpiShort = document.getElementById('kpiShort');
+  kpiShort.textContent = shortCount;
+  kpiShort.className   = 'kpi-value kpi-red';
+
+  const kpiCov = document.getElementById('kpiCoverage');
+  kpiCov.textContent = avgCov.toFixed(1) + ' / 4';
+  kpiCov.className   = 'kpi-value ' + (avgCov >= 3 ? 'kpi-green' : avgCov >= 2 ? 'kpi-blue' : 'kpi-red');
+
+  // 8. Timestamp
+  const now = new Date();
+  document.getElementById('lastUpdate').innerHTML =
+    `<span class="live-dot"></span>Updated ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+
+  btn.disabled = false;
+  btn.textContent = '↻ Refresh';
+}
+
+window.addEventListener('DOMContentLoaded', runFullAnalysis);
+</script>
+</body>
+</html>
