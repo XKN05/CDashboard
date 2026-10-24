@@ -1811,8 +1811,9 @@ const ARCA_ASSETS = [
 ];
 
 let selectedToken = TOKENS[0];
+let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-13-a"; // shown in the Ichimoku footer to confirm which file is loaded
+const DASH_BUILD = "2026-10-24-a"; // shown in the Ichimoku footer to confirm which file is loaded
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
 let ichLastPrice = null;
@@ -1975,7 +1976,13 @@ async function fetchTokenPrices(){
 // ── Hyperliquid native candles — HYPE is read from its own venue, Binance stays as fallback ──
 const HL_COINS = { HYPEUSDT:'HYPE' };
 const HL_INTERVAL_MS = {'1h':36e5,'4h':144e5,'1d':864e5,'1w':6048e5};
-function candleSourceLabel(symbol){ return HL_COINS[symbol] ? 'Hyperliquid' : 'Binance'; }
+function candleSourceLabel(symbol){ return HL_COINS[symbol] ? 'Hyperliquid' : 'Binance'; } // expected venue, before any fetch
+// tags the candle array with the venue that really answered, so the UI never claims a source that wasn't used
+function tagCandleSource(candles, source){ candles.source=source; return candles; }
+function actualSourceLabel(symbol, candles){
+  const src=candles?.source||candleSourceLabel(symbol);
+  return (HL_COINS[symbol] && src!=='Hyperliquid') ? src+' (Hyperliquid failed)' : src;
+}
 async function fetchHyperliquidCandles(coin, interval, limit){
   const step=HL_INTERVAL_MS[interval]; if(!step) throw new Error('Hyperliquid: unsupported interval '+interval);
   const endTime=Date.now(), startTime=endTime-step*(limit+5);
@@ -1988,7 +1995,7 @@ async function fetchHyperliquidCandles(coin, interval, limit){
 }
 async function fetchBinanceCandles(symbol, interval, limit){
   if(HL_COINS[symbol]){
-    try{ return await fetchHyperliquidCandles(HL_COINS[symbol], interval, limit); }
+    try{ return tagCandleSource(await fetchHyperliquidCandles(HL_COINS[symbol], interval, limit), 'Hyperliquid'); }
     catch(e){ console.warn('Hyperliquid candles failed, falling back to Binance:', e.message); }
   }
   // 1. Try spot API
@@ -1996,7 +2003,7 @@ async function fetchBinanceCandles(symbol, interval, limit){
     const res=await fetchWithTimeout(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,10000);
     if(res.ok) {
       const data = await res.json();
-      if(data.length > 0) return data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]);
+      if(data.length > 0) return tagCandleSource(data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]), 'Binance');
     }
   } catch {}
   // 2. Try futures API (some tokens listed on futures before spot)
@@ -2004,7 +2011,7 @@ async function fetchBinanceCandles(symbol, interval, limit){
     const res=await fetchWithTimeout(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,10000);
     if(res.ok) {
       const data = await res.json();
-      if(data.length > 0) return data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]);
+      if(data.length > 0) return tagCandleSource(data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]), 'Binance futures');
     }
   } catch {}
   // 3. Try via CORS proxy (last resort)
@@ -2014,7 +2021,7 @@ async function fetchBinanceCandles(symbol, interval, limit){
     if(res.ok) {
       const w = await res.json();
       const data = JSON.parse(w.contents || '[]');
-      if(data.length > 0) return data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]);
+      if(data.length > 0) return tagCandleSource(data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]), 'Binance (proxy)');
     }
   } catch {}
   throw new Error(`${symbol} candles unavailable — all endpoints failed`);
@@ -2813,7 +2820,7 @@ function renderIchimoku(price, ich, rsi, macd, vwap, vp){
   }).join("")+`<div class="signal-v2 sv2-warn" style="margin-top:8px"><div class="sv2-icon sv2-icon-warn">📊</div><div class="sv2-body"><div class="sv2-header"><div class="sv2-title">Volume (Momentum)</div></div><div class="sv2-desc" style="color:${conf.volSignal.color}">${conf.volSignal.text}</div></div></div>`;
   // Tier breakdown
   document.getElementById("ich-tier-breakdown").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[{label:"T1 Structural (×2)",signals:t1s},{label:"T2 Confirmation (×1)",signals:t2s}].map(g=>`<div style="background:#070b12;border:1px solid #162030;border-radius:6px;padding:10px"><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${g.label}</div>${g.signals.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px"><span style="color:#7a9ab0">${s.icon} ${s.name}</span>${badge(s.bull)}</div>`).join("")}</div>`).join("")}</div>`;
-  document.getElementById("ich-footer").textContent=`Auto-refresh 30s · ${candleSourceLabel(selectedToken.binanceSymbol)} ${selectedToken.name} · build ${DASH_BUILD} · ${ichParams.tenkan}/${ichParams.kijun}/${ichParams.spanB}/${ichParams.displacement} · Scoring v5 ${conf.tfLabel} (BULL≥${conf.thresholds.bull}/BEAR≤${conf.thresholds.bear} · T1:${Math.round(conf.split.t1*100)}%/T2:${Math.round(conf.split.t2*100)}%)`;
+  document.getElementById("ich-footer").textContent=`Auto-refresh 30s · ${ichCandleSource||candleSourceLabel(selectedToken.binanceSymbol)} ${selectedToken.name} · build ${DASH_BUILD} · ${ichParams.tenkan}/${ichParams.kijun}/${ichParams.spanB}/${ichParams.displacement} · Scoring v5 ${conf.tfLabel} (BULL≥${conf.thresholds.bull}/BEAR≤${conf.thresholds.bear} · T1:${Math.round(conf.split.t1*100)}%/T2:${Math.round(conf.split.t2*100)}%)`;
 }
 
 // ===================== FETCH ICHIMOKU =====================
@@ -2830,6 +2837,8 @@ async function fetchIchimoku(){
     const candles=await fetchBinanceCandles(myToken.binanceSymbol, myInterval, limit);
     if(isStale()) return; // user switched token/TF while this was in flight — don't overwrite the newer view
     lastCandles=candles;
+    ichCandleSource=actualSourceLabel(myToken.binanceSymbol, candles);
+    document.getElementById("ich-pair-label").innerHTML=`<span>${myToken.name}/USDT · ${ichCandleSource} (candles)</span>`;
     const price=candles[candles.length-1][4];
     const ich=calcIchimoku(candles,ichParams);
     const rsi=calcRSI(candles,14);
