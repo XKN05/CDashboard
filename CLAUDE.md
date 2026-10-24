@@ -56,4 +56,6 @@ Binance et Hyperliquid sont injoignables depuis la sandbox Claude Code : le test
 - Si toutes les sources échouent pour un token, la page Ichimoku garde le prix/l'analyse du token précédent sous le nouveau nom (seul un bandeau d'erreur s'affiche).
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
 - Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?
+- **Tâche : vue « Prix vs fondamentaux »** — pour chaque token ARCA, variation du revenu 30 j (DefiLlama) vs variation du prix ; faire ressortir les divergences. Validée par Tim le 24 oct. 2026, pas démarrée.
+- À examiner au bilan de janvier 2027 (scoring gelé d'ici là) : le Real Yield Net du score utilise `realYield` statique alors que `liveRealYield` existe ; `protocolAge` calculé avec `2026` en dur.
 - Pistes hors bug : données SYRUP à revérifier, bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi (pas démarré).
