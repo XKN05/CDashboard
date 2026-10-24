@@ -39,7 +39,7 @@ Propose, ne modifie rien. Produit une note de 3 à 5 propositions classées par 
 
 **Rappel** : au début de chaque conversation, si la dernière session penseur ci-dessous date de plus de 14 jours (ou n'a jamais eu lieu), le rappeler à Tim. Mettre la date à jour après chaque session penseur.
 
-Dernière session penseur : jamais
+Dernière session penseur : 2026-10-24 (note : `docs/penseur/2026-10-24.md`)
 
 ## Règles métier
 - Ichimoku de référence : Tenkan 20, Kijun 60, SpanB 120, Displacement 30.
