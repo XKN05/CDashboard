@@ -3,7 +3,7 @@
 Dashboard crypto en **un seul fichier `index.html`** (HTML/JS), déployé sur GitHub Pages.
 Pages : Home, ARCA Fundamentals, Artemis Factor Model, Ichimoku Technical, Strategy Builder, DeFi Ecosystem.
 **Tout ce qui est affiché sur le dashboard est en anglais** (textes, libellés, messages d'erreur). Les échanges avec Tim restent en français.
-**Circuit de mise en ligne** : toute modification part d'abord dans `Test.html` (servi sur https://xkn05.github.io/CDashboard/Test.html). Tim vérifie sur le vrai réseau ; seulement après son feu vert, `Test.html` est copié tel quel dans `index.html` (PR séparée). `index.html` n'est jamais modifié directement.
+**Circuit de mise en ligne** : toute modification part d'abord dans `Test.html` (servi sur https://xkn05.github.io/CDashboard/Test.html). Tim vérifie sur le vrai réseau ; seulement après sa confirmation explicite de la version test, Claude copie `Test.html` tel quel dans `index.html` et pousse **directement sur `main`** (autorisé par Tim le 24 oct. 2026, uniquement dans ce cas). `index.html` n'est jamais modifié autrement.
 
 ## Façon de travailler
 - Français, ton informel et concis.
@@ -14,7 +14,7 @@ Pages : Home, ARCA Fundamentals, Artemis Factor Model, Ichimoku Technical, Strat
 - Bumper `DASH_BUILD` à chaque patch : affiché en bas de la page d'accueil pour vérifier quel fichier est chargé.
 
 ## Les trois reviewers
-Claude joue trois rôles. Les deux premiers passent sur **chaque patch de `index.html`**, avant le push. Le rapport est séparé en « Technique » et « Méthode & données ».
+Claude joue trois rôles. Les deux premiers passent sur **chaque patch** (appliqué à `Test.html`), avant le push. Le rapport est séparé en « Technique » et « Méthode & données ».
 
 ### 1. Reviewer technique (chaque patch)
 Cherche activement les bugs dans son propre patch.
@@ -23,7 +23,7 @@ Cherche activement les bugs dans son propre patch.
 3. Test navigateur headless (Playwright, réseau simulé, Chromium dans `/opt/pw-browsers/chromium`) quand le changement touche aux fetch, à la sélection de token ou à l'affichage. Zéro `pageerror`.
 4. `DASH_BUILD` bumpé.
 5. Rapport honnête : ce qui est vérifié, ce qui ne l'est pas (tout ce qui dépend du vrai réseau Binance/Hyperliquid), risques restants.
-6. Patch appliqué à `Test.html` ; push sur la branche de travail uniquement ; fusion dans `main` par une PR validée par Tim. Promotion vers `index.html` = copie à l'identique de `Test.html` validé, dans une PR à part.
+6. Patch appliqué à `Test.html` ; push sur la branche de travail uniquement ; fusion dans `main` par une PR validée par Tim. Promotion vers `index.html` = copie à l'identique de `Test.html` validé par Tim, poussée directement sur `main`.
 
 ### 2. Reviewer méthode & données (chaque patch qui touche à un calcul, une source ou un affichage de chiffres ; sauté pour le purement visuel)
 - Calculs : Ichimoku, RSI, MACD, score ARCA… conformes à la définition standard, ou écart voulu et documenté.
