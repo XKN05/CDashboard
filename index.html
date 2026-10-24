@@ -820,7 +820,7 @@ tr:last-child td { border-bottom:none; }
     </div>
 
     <div style="text-align:center;font-size:10px;color:#162030;padding-bottom:24px">
-      Data: Binance · DefiLlama · CoinGecko · Hyperliquid &nbsp;·&nbsp; Not investment advice
+      Data: Binance · DefiLlama · CoinGecko · Hyperliquid &nbsp;·&nbsp; Not investment advice &nbsp;·&nbsp; <span id="home-build" style="color:#7a9ab0"></span>
     </div>
   </div>
 </div>
@@ -1813,7 +1813,8 @@ const ARCA_ASSETS = [
 let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-24-a"; // shown in the Ichimoku footer to confirm which file is loaded
+const DASH_BUILD = "2026-10-24-b"; // shown at the bottom of the home page to confirm which file is loaded
+{ const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
 let ichLastPrice = null;
@@ -2820,7 +2821,7 @@ function renderIchimoku(price, ich, rsi, macd, vwap, vp){
   }).join("")+`<div class="signal-v2 sv2-warn" style="margin-top:8px"><div class="sv2-icon sv2-icon-warn">📊</div><div class="sv2-body"><div class="sv2-header"><div class="sv2-title">Volume (Momentum)</div></div><div class="sv2-desc" style="color:${conf.volSignal.color}">${conf.volSignal.text}</div></div></div>`;
   // Tier breakdown
   document.getElementById("ich-tier-breakdown").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[{label:"T1 Structural (×2)",signals:t1s},{label:"T2 Confirmation (×1)",signals:t2s}].map(g=>`<div style="background:#070b12;border:1px solid #162030;border-radius:6px;padding:10px"><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${g.label}</div>${g.signals.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px"><span style="color:#7a9ab0">${s.icon} ${s.name}</span>${badge(s.bull)}</div>`).join("")}</div>`).join("")}</div>`;
-  document.getElementById("ich-footer").textContent=`Auto-refresh 30s · ${ichCandleSource||candleSourceLabel(selectedToken.binanceSymbol)} ${selectedToken.name} · build ${DASH_BUILD} · ${ichParams.tenkan}/${ichParams.kijun}/${ichParams.spanB}/${ichParams.displacement} · Scoring v5 ${conf.tfLabel} (BULL≥${conf.thresholds.bull}/BEAR≤${conf.thresholds.bear} · T1:${Math.round(conf.split.t1*100)}%/T2:${Math.round(conf.split.t2*100)}%)`;
+  document.getElementById("ich-footer").textContent=`Auto-refresh 30s · ${ichCandleSource||candleSourceLabel(selectedToken.binanceSymbol)} ${selectedToken.name} · ${ichParams.tenkan}/${ichParams.kijun}/${ichParams.spanB}/${ichParams.displacement} · Scoring v5 ${conf.tfLabel} (BULL≥${conf.thresholds.bull}/BEAR≤${conf.thresholds.bear} · T1:${Math.round(conf.split.t1*100)}%/T2:${Math.round(conf.split.t2*100)}%)`;
 }
 
 // ===================== FETCH ICHIMOKU =====================

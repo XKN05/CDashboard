@@ -10,7 +10,7 @@ Pages : Home, Crypto Macro, ARCA, Ichimoku, Strategy Builder.
 - Réponses complètes (implémentation entière d'un coup) plutôt que mini-étapes.
 - Données : signaler les chiffres douteux plutôt que les accepter.
 - Échec propre (log + continuer), pas de boucles de retry. Fetch parallèles avec `Promise.allSettled()`.
-- Bumper `BUILD` (footer Ichimoku) à chaque patch pour vérifier quel fichier est chargé.
+- Bumper `DASH_BUILD` à chaque patch : affiché en bas de la page d'accueil pour vérifier quel fichier est chargé.
 
 ## Les trois reviewers
 Claude joue trois rôles. Les deux premiers passent sur **chaque patch de `index.html`**, avant le push. Le rapport est séparé en « Technique » et « Méthode & données ».
