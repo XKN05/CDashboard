@@ -781,13 +781,14 @@ tr:last-child td { border-bottom:none; }
         <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f7931a,#9945ff);border-radius:12px 12px 0 0"></div>
         <div class="home-card-icon" style="background:#f7931a18;border:1px solid #f7931a33;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px">⚡</div>
         <div class="home-card-title">Strategy Builder</div>
-        <div class="home-card-desc">Mechanical DCA engine. BTC accumulation laddered on Ichimoku × Fibonacci confluence bottoms, with ₿ amounts and weighted avg entry. ARCA-qualified altcoins gated on the daily, timed on the 4H.</div>
+        <div class="home-card-desc">Mechanical DCA engine. BTC accumulation laddered on Ichimoku × Fibonacci confluence bottoms, with ₿ amounts and weighted avg entry. ARCA-qualified altcoins gated on the daily, timed on the 4H. AI commentary.</div>
         <div class="home-card-tags">
           <span class="home-card-tag">BTC DCA Ladder</span>
           <span class="home-card-tag">Fibonacci × Ichimoku</span>
           <span class="home-card-tag">Confluence Zones</span>
           <span class="home-card-tag">ARCA Gate</span>
           <span class="home-card-tag">Risk Slider</span>
+          <span class="home-card-tag">AI Commentary</span>
         </div>
         <div style="margin-top:12px;display:inline-flex;align-items:center;gap:5px;font-size:9px;color:#f7931a;border:1px solid #f7931a33;padding:2px 7px;border-radius:3px;font-weight:600">⚡ BETA V0.1</div>
         <span class="home-card-arrow" style="position:absolute;bottom:20px;right:20px;font-size:16px;color:#2e4a60">→</span>
@@ -819,7 +820,7 @@ tr:last-child td { border-bottom:none; }
     </div>
 
     <div style="text-align:center;font-size:10px;color:#162030;padding-bottom:24px">
-      Data: Binance · DefiLlama · CoinGecko · Hyperliquid &nbsp;·&nbsp; Not investment advice &nbsp;·&nbsp; <span id="home-build" style="color:#7a9ab0"></span>
+      Data: Binance · DefiLlama · CoinGecko · Hyperliquid &nbsp;·&nbsp; Not investment advice
     </div>
   </div>
 </div>
@@ -1407,10 +1408,10 @@ tr:last-child td { border-bottom:none; }
             <th style="width:28px">#</th>
             <th>Token</th>
             <th class="r" title="Score composite 0-100">Score</th>
-            <th class="c" title="Score change vs previous run in this browser session">Δ</th>
+            <th class="c" title="Variation du score vs run précédent (sessionStorage)">Δ</th>
             <th class="r" title="Protocol Fees 30d — DefiLlama">Fees 30d</th>
-            <th class="r" title="Circulating market cap — CoinGecko">Mkt Cap</th>
-            <th class="c" title="DAU Growth proxy — % change in protocol fees, 30d vs prior 30d (DefiLlama). Not a user count.">DAU</th>
+            <th class="r" title="Market Cap circulant — CoinGecko">Mkt Cap</th>
+            <th class="c" title="DAU Growth — % change in active users/txns (30d vs prior 30d)">DAU</th>
             <th class="c" title="Revenue Stability — CV of daily fees over 30d">Stab</th>
             <th class="c" title="MC/Fees Mean Reversion — Negative z-score vs own 90d history">MC/Fees</th>
             <th class="c" title="Revenue Quality — Revenue / Fees ratio (30d avg)">Qual</th>
@@ -1466,7 +1467,7 @@ tr:last-child td { border-bottom:none; }
       <div class="method-card">
         <div class="method-num">SIGNAL 01</div>
         <div class="method-name">DAU Growth</div>
-        <div class="method-desc">Proxy for adoption momentum: % change in protocol fees over the last 30d vs the prior 30d (DefiLlama). Not a direct user count.</div>
+        <div class="method-desc">% change in daily active users over a 30d trailing window vs prior 30d. Captures adoption momentum. Proxied via DefiLlama txns when direct DAU unavailable.</div>
       </div>
       <div class="method-card">
         <div class="method-num">SIGNAL 02</div>
@@ -1490,7 +1491,7 @@ tr:last-child td { border-bottom:none; }
   </div>
 
   <div class="footer">
-    Data: DefiLlama · CoinGecko · Binance &nbsp;·&nbsp; CORS proxy: allorigins.win &nbsp;·&nbsp; Based on Artemis Analytics "Fundamentals 1" · Beta v0.2
+    Data: DefiLlama · CoinGecko · Binance &nbsp;·&nbsp; CORS proxy: allorigins.win &nbsp;·&nbsp; Based on Artemis Analytics "Fundamentals 1" · Beta v0.1
   </div>
 
 </div>
@@ -1811,10 +1812,8 @@ const ARCA_ASSETS = [
 
 let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
-let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-24-c"; // shown at the bottom of the home page to confirm which file is loaded
-{ const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
+const DASH_BUILD = "2026-10-24-a"; // shown in the Ichimoku footer to confirm which file is loaded
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
 let ichLastPrice = null;
@@ -2132,7 +2131,6 @@ function calcRSI(candles, period=14){
 }
 
 // ===================== MACD =====================
-function fmtOsc(v){ if(v==null||!isFinite(v)) return '—'; const a=Math.abs(v); return a>=100?v.toFixed(0):a>=1?v.toFixed(2):a===0?'0':v.toPrecision(3); }
 function calcMACD(candles, fast=12, slow=26, signal=9){
   const n=candles.length;
   if(n<slow+signal+10) return null;
@@ -2534,7 +2532,7 @@ function calcConfluence(price, ich, rsi, macd, vwap, tf){
     // On 1W, crossover is a major cycle signal → amplify crossover weight
     if(tfLower==='1w'&&(macd.crossUp||macd.crossDown)) macdCtxW=2.0;
     signals.push({id:"macd",tier:2,name:`MACD${macd.crossUp?' \u2b06 CROSS':macd.crossDown?' \u2b07 CROSS':''}`,bull:macdBull,icon:"\ud83d\udcc8",
-      detail:`MACD ${fmtOsc(macd.macd)} / Signal ${fmtOsc(macd.signal)} / Hist ${macd.histogram>0?'+':''}${fmtOsc(macd.histogram)}${macd.crossUp?' \u2014 Bullish crossover!':macd.crossDown?' \u2014 Bearish crossover!':''}`,
+      detail:`MACD ${macd.macd.toFixed(1)} / Signal ${macd.signal.toFixed(1)} / Hist ${macd.histogram>0?'+':''}${macd.histogram.toFixed(1)}${macd.crossUp?' \u2014 Bullish crossover!':macd.crossDown?' \u2014 Bearish crossover!':''}`,
       watch:macd.crossUp?"Fresh bull cross = momentum building.":macd.crossDown?"Fresh bear cross = momentum fading.":macd.histogram>0?"Positive histogram = bullish momentum.":"Negative histogram = bearish momentum.",
       weight:macdCtxW * sc.macd});
   }
@@ -2658,12 +2656,11 @@ function calcTradeSetup(price, ich, conf){
 function renderIchimoku(price, ich, rsi, macd, vwap, vp){
   document.getElementById("ich-price").textContent="$"+fmt(price);
   const pc=document.getElementById("ich-price-change");
-  // 24h change from candles (1H: 24 bars back, 4H: 6, 1D: 1); on 1W the only honest read is the last weekly bar
-  const bars24={'1h':24,'4h':6,'1d':1}[ichInterval], back=bars24||1, chgLabel=bars24?'24h':'1W bar';
-  if(lastCandles&&lastCandles.length>back){
+  // Use 24h price change from candles (last close vs prev close), not session delta
+  if(lastCandles&&lastCandles.length>=2){
     const cur=lastCandles[lastCandles.length-1][4];
-    const prev=lastCandles[lastCandles.length-1-back][4];
-    if(prev>0){const chg=cur-prev,pct=(chg/prev*100).toFixed(2);pc.textContent=` ${chg>=0?"+":""}${fmt(chg)} (${pct}%) · ${chgLabel}`;pc.style.color=chg>=0?"#00d98b":"#ff3d5a";}
+    const prev=lastCandles[lastCandles.length-2][4];
+    if(prev>0){const chg=cur-prev,pct=(chg/prev*100).toFixed(2);pc.textContent=` ${chg>=0?"+":""}${fmt(chg)} (${pct}%)`;pc.style.color=chg>=0?"#00d98b":"#ff3d5a";}
   }
   if(!ich) return;
   const conf=calcConfluence(price,ich,rsi,macd,vwap,ichInterval);
@@ -2733,7 +2730,7 @@ function renderIchimoku(price, ich, rsi, macd, vwap, vp){
   }
   if(macd){
     const hCol=macd.histogram>0?"#00d98b":"#ff3d5a";
-    macdEl.innerHTML=`<div class="card-title">MACD (12/26/9)</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center"><div><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">MACD Line</div><div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${macd.macd>0?'#00d98b':'#ff3d5a'}">${fmtOsc(macd.macd)}</div></div><div><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Signal</div><div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#3d8bff">${fmtOsc(macd.signal)}</div></div><div><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Histogram</div><div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${hCol}">${macd.histogram>0?'+':''}${fmtOsc(macd.histogram)}</div></div></div>${macd.crossUp?'<div style="margin-top:8px;background:#001a0f;border:1px solid #00d98b33;border-radius:6px;padding:8px;color:#00d98b;font-size:11px;font-weight:600">\u2b06 Bullish MACD crossover detected</div>':macd.crossDown?'<div style="margin-top:8px;background:#1a060c;border:1px solid #ff3d5a33;border-radius:6px;padding:8px;color:#ff3d5a;font-size:11px;font-weight:600">\u2b07 Bearish MACD crossover detected</div>':''}
+    macdEl.innerHTML=`<div class="card-title">MACD (12/26/9)</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center"><div><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">MACD Line</div><div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${macd.macd>0?'#00d98b':'#ff3d5a'}">${macd.macd.toFixed(1)}</div></div><div><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Signal</div><div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#3d8bff">${macd.signal.toFixed(1)}</div></div><div><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Histogram</div><div style="font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${hCol}">${macd.histogram>0?'+':''}${macd.histogram.toFixed(1)}</div></div></div>${macd.crossUp?'<div style="margin-top:8px;background:#001a0f;border:1px solid #00d98b33;border-radius:6px;padding:8px;color:#00d98b;font-size:11px;font-weight:600">\u2b06 Bullish MACD crossover detected</div>':macd.crossDown?'<div style="margin-top:8px;background:#1a060c;border:1px solid #ff3d5a33;border-radius:6px;padding:8px;color:#ff3d5a;font-size:11px;font-weight:600">\u2b07 Bearish MACD crossover detected</div>':''}
     <div style="margin-top:10px;font-size:11px;color:#7a9ab0;line-height:1.7;padding:8px 10px;background:#070b12;border-radius:6px;border:1px solid #162030">${
       macd.crossUp?'<strong style="color:#00d98b">Fresh bullish crossover.</strong> The MACD line just crossed above the signal line \u2014 a momentum shift to the upside. This is strongest when it occurs below the zero line (reversal) or after a consolidation. Combine with cloud breakout for high-conviction entries.':
       macd.crossDown?'<strong style="color:#ff3d5a">Fresh bearish crossover.</strong> The MACD line crossed below the signal line \u2014 momentum is turning negative. Most reliable when it occurs above the zero line (distribution). Tighten stops and watch for cloud breakdown confirmation.':
@@ -2822,8 +2819,8 @@ function renderIchimoku(price, ich, rsi, macd, vwap, vp){
     return`<div class="signal-v2 ${cls}"><div class="sv2-icon ${iCls}" style="font-size:15px">${s.icon}</div><div class="sv2-body"><div class="sv2-header"><div class="sv2-title">${s.name}</div><span style="font-size:9px;color:${tc};font-weight:700;letter-spacing:1px;white-space:nowrap;flex-shrink:0">TIER ${s.tier}</span>${special}${badge(s.bull)}</div><div class="sv2-desc">${s.detail}</div><div class="sv2-watch">👁 ${s.watch}</div></div></div>`;
   }).join("")+`<div class="signal-v2 sv2-warn" style="margin-top:8px"><div class="sv2-icon sv2-icon-warn">📊</div><div class="sv2-body"><div class="sv2-header"><div class="sv2-title">Volume (Momentum)</div></div><div class="sv2-desc" style="color:${conf.volSignal.color}">${conf.volSignal.text}</div></div></div>`;
   // Tier breakdown
-  document.getElementById("ich-tier-breakdown").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[{label:`T1 Structural (${Math.round(conf.split.t1*100)}%)`,signals:t1s},{label:`T2 Confirmation (${Math.round(conf.split.t2*100)}%)`,signals:t2s}].map(g=>`<div style="background:#070b12;border:1px solid #162030;border-radius:6px;padding:10px"><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${g.label}</div>${g.signals.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px"><span style="color:#7a9ab0">${s.icon} ${s.name}</span>${badge(s.bull)}</div>`).join("")}</div>`).join("")}</div>`;
-  document.getElementById("ich-footer").textContent=`Auto-refresh 30s · ${ichCandleSource||candleSourceLabel(selectedToken.binanceSymbol)} ${selectedToken.name} · ${ichParams.tenkan}/${ichParams.kijun}/${ichParams.spanB}/${ichParams.displacement} · Scoring v5 ${conf.tfLabel} (BULL≥${conf.thresholds.bull}/BEAR≤${conf.thresholds.bear} · T1:${Math.round(conf.split.t1*100)}%/T2:${Math.round(conf.split.t2*100)}%)`;
+  document.getElementById("ich-tier-breakdown").innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[{label:"T1 Structural (×2)",signals:t1s},{label:"T2 Confirmation (×1)",signals:t2s}].map(g=>`<div style="background:#070b12;border:1px solid #162030;border-radius:6px;padding:10px"><div style="font-size:9px;color:#2e4a60;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${g.label}</div>${g.signals.map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px"><span style="color:#7a9ab0">${s.icon} ${s.name}</span>${badge(s.bull)}</div>`).join("")}</div>`).join("")}</div>`;
+  document.getElementById("ich-footer").textContent=`Auto-refresh 30s · ${ichCandleSource||candleSourceLabel(selectedToken.binanceSymbol)} ${selectedToken.name} · build ${DASH_BUILD} · ${ichParams.tenkan}/${ichParams.kijun}/${ichParams.spanB}/${ichParams.displacement} · Scoring v5 ${conf.tfLabel} (BULL≥${conf.thresholds.bull}/BEAR≤${conf.thresholds.bear} · T1:${Math.round(conf.split.t1*100)}%/T2:${Math.round(conf.split.t2*100)}%)`;
 }
 
 // ===================== FETCH ICHIMOKU =====================
@@ -2840,7 +2837,6 @@ async function fetchIchimoku(){
     const candles=await fetchBinanceCandles(myToken.binanceSymbol, myInterval, limit);
     if(isStale()) return; // user switched token/TF while this was in flight — don't overwrite the newer view
     lastCandles=candles;
-    ichShownKey=myToken.name+'|'+myInterval;
     ichCandleSource=actualSourceLabel(myToken.binanceSymbol, candles);
     document.getElementById("ich-pair-label").innerHTML=`<span>${myToken.name}/USDT · ${ichCandleSource} (candles)</span>`;
     const price=candles[candles.length-1][4];
@@ -2865,25 +2861,7 @@ async function fetchIchimoku(){
     }
   }catch(e){
     if(isStale()) return;
-    // Same token & TF still on screen (e.g. a failed auto-refresh) → keep it, flagged as stale.
-    // Different token or TF → clear the view: never show another token's analysis under this name.
-    if(ichShownKey!==myToken.name+'|'+myInterval){
-      ichShownKey=null; lastCandles=null; lastIchData=null; ichCandleSource=null; mtfFullData=null;
-      document.getElementById("ich-dashboard").style.display="none";
-      document.getElementById("ich-price").textContent="—";
-      document.getElementById("ich-price-change").textContent="";
-      document.getElementById("ich-regime-display").innerHTML="";
-      document.getElementById("ich-vol-display").innerHTML="";
-      document.getElementById("ich-pair-label").innerHTML=`<span>${myToken.name}/USDT · data unavailable</span>`;
-      document.getElementById("ich-footer").textContent="";
-      ["4h","1d","1w"].forEach(tf=>{const el=document.getElementById("mtf-"+tf);if(el){el.textContent=tf.toUpperCase()+" —";el.className="mtf-badge load";el.style.color="";el.style.borderColor="";}});
-      const ctxEl=document.getElementById('mtf-context-label'); if(ctxEl) ctxEl.innerHTML='';
-      const b=document.getElementById('ich-deriv-block'); if(b) b.style.display='none';
-      document.getElementById("ich-error").textContent="⚠ "+e.message;
-    } else {
-      document.getElementById("ich-error").textContent="⚠ Refresh failed — showing last data. "+e.message;
-    }
-    document.getElementById("ich-error").style.display="block";
+    document.getElementById("ich-error").textContent="⚠ "+e.message; document.getElementById("ich-error").style.display="block";
   }finally{ if(!isStale()) document.getElementById("ich-spinner").style.display="none"; }
 }
 
@@ -2891,7 +2869,7 @@ async function fetchMtfBias(reqId=ichRequestId, myToken=selectedToken){
   const isStale=()=>reqId!==ichRequestId;
   const tfs=["4h","1d","1w"]; // 1H removed — no mtf-1h badge exists on the page; was wasting a fetch each refresh
   const limit=Math.max(ichParams.spanB+ichParams.displacement*2+200,500);
-  tfs.forEach(tf=>{const el=document.getElementById("mtf-"+tf);if(el){el.textContent=tf.toUpperCase()+" ···";el.className="mtf-badge load";el.style.color="";el.style.borderColor="";}});
+  tfs.forEach(tf=>{const el=document.getElementById("mtf-"+tf);if(el){el.textContent=tf.toUpperCase()+" ···";el.className="mtf-badge load";}});
   const fullData={};
   for(const tf of tfs){
     if(isStale()) return;
@@ -2915,7 +2893,7 @@ async function fetchMtfBias(reqId=ichRequestId, myToken=selectedToken){
       fullData[tf]={price:p,ich,rsi,macd:macdMtf,vwap:vwapMtf,bb,adx,stochRsi,volTrend,pivots,techScore,conf};
       if(el){
         el.textContent=`${tf.toUpperCase()} ${conf.score}`;
-        el.className=`mtf-badge ${conf.bias==="BULLISH"?"bull":conf.bias==="BEARISH"?"bear":"neut"}`; // per-TF thresholds (v5)
+        el.className=`mtf-badge ${conf.score>=60?"bull":conf.score<=40?"bear":"neut"}`;
         el.title=`${tf.toUpperCase()}: ${conf.bias} (${conf.score}/100)`;
       }
     }catch(e){if(el){el.textContent=tf.toUpperCase()+" ERR";el.className="mtf-badge";el.style.color="#ff3d5a";el.style.borderColor="#ff3d5a44";}}
@@ -3033,10 +3011,6 @@ function fmtIchPrice(p){
 function ichCardHtml(t){
   const c = ichOverviewCache[t.id] || null;
   const scores = c ? (c.scores || {}) : {};
-  const biases = c ? (c.biases || {}) : {};
-  // Per-TF cells use the TF's own v5 thresholds (bias); the blended overall badge keeps the 60/40 scale
-  const biasColor = (b,s) => b==='BULLISH'?'#00d98b':b==='BEARISH'?'#ff3d5a':b==='NEUTRAL'?'#f0b840':ichScoreColor(s);
-  const biasLabel = (b,s) => b==='BULLISH'?'BULL':b==='BEARISH'?'BEAR':b==='NEUTRAL'?'NEUT':ichScoreLabel(s);
   const price  = c ? c.price  : null;
   const change = c ? c.change : null;
 
@@ -3049,8 +3023,8 @@ function ichCardHtml(t){
     if(tf === '1w' && c && !hasData) return; // skip 1W if no data
     tfsShown++;
     var scoreVal = hasData ? s : (c ? '\u2014' : '\u00b7\u00b7\u00b7');
-    var scoreCol = hasData ? biasColor(biases[tf],s) : '#1e3550';
-    var labelHtml = hasData ? '<div style="font-size:6px;color:'+biasColor(biases[tf],s)+';font-weight:600">'+biasLabel(biases[tf],s)+'</div>' : '<div style="font-size:6px;color:transparent">.</div>';
+    var scoreCol = hasData ? ichScoreColor(s) : '#1e3550';
+    var labelHtml = hasData ? '<div style="font-size:6px;color:'+ichScoreColor(s)+';font-weight:600">'+ichScoreLabel(s)+'</div>' : '<div style="font-size:6px;color:transparent">.</div>';
     tfsHtml += '<div style="display:flex;flex-direction:column;align-items:center;gap:1px">'
       + '<div style="font-size:7px;color:'+(hasData?'#3a5a70':'#1e3550')+';text-transform:uppercase;letter-spacing:0.3px">'+tf.toUpperCase()+'</div>'
       + '<div style="font-size:10px;font-weight:700;color:'+scoreCol+'">'+scoreVal+'</div>'
@@ -3147,21 +3121,21 @@ async function fetchIchimokuOverview(){
   await Promise.allSettled(tokens.slice(bi,bi+OV_BATCH).map(async t=>{
     if(!t.binanceSymbol){ ichOverviewCache[t.id]={scores:{},price:null,change:null,ts:Date.now()}; renderIchOverviewCards(); return; }
     try{
-      const scores={}, biases={};
+      const scores={};
       let price=null, change=null;
       for(const tf of ICH_OVERVIEW_TFS){
         try{
           const candles = await fetchBinanceCandles(t.binanceSymbol, tf, limit);
           if(!candles?.length) continue;
           const p = candles[candles.length-1][4];
-          if(tf==='4h'){ price=p; const prev=candles[candles.length-7]?.[4]; change=prev>0?((p-prev)/prev*100):null; } // 6 × 4H = 24h
+          if(tf==='4h'){ price=p; const prev=candles[candles.length-2]?.[4]||p; change=prev>0?((p-prev)/prev*100):0; }
           const ich=calcIchimoku(candles,ichParams), rsi=calcRSI(candles,14), macd=calcMACD(candles), vwap=calcVWAP(candles,tf);
           const conf=calcConfluence(p,ich,rsi,macd,vwap,tf);
-          if(conf.score>0){ scores[tf]=conf.score; biases[tf]=conf.bias; } // 0 = not enough data, skip
+          if(conf.score>0) scores[tf]=conf.score; // 0 = not enough data, skip
         }catch{}
       }
-      if(price===null&&scores['1d']!=null){ try{ const c2=await fetchBinanceCandles(t.binanceSymbol,'1d',2); if(c2?.length){ price=c2[c2.length-1][4]; change=null; }}catch{} }
-      ichOverviewCache[t.id]={scores,biases,price,change,ts:Date.now()};
+      if(price===null&&scores['1d']!=null){ try{ const c2=await fetchBinanceCandles(t.binanceSymbol,'1d',2); if(c2?.length){ price=c2[c2.length-1][4]; change=0; }}catch{} }
+      ichOverviewCache[t.id]={scores,price,change,ts:Date.now()};
       renderIchOverviewCards();
     }catch{ ichOverviewCache[t.id]={scores:{},price:null,change:null,ts:Date.now()}; renderIchOverviewCards(); }
   }));
@@ -3345,7 +3319,7 @@ async function fetchArcaData(){
   let cgMap={};
   try{
     const cgIds=ARCA_ASSETS.flatMap(a=>[a.coingeckoId,a.coingeckoIdAlt].filter(Boolean)).join(',');
-    const data=await cachedFetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+cgIds+'&order=market_cap_desc&sparkline=true&price_change_percentage=7d%2C30d',60);
+    const data=await cachedFetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+cgIds+'&order=market_cap_desc&sparkline=false&price_change_percentage=7d%2C30d',60);
     arcaSources.cg=Date.now();
     if(Array.isArray(data)) data.forEach(c=>{cgMap[c.id]=c;});
   }catch(e){console.warn('CoinGecko batch failed:',e);const se=document.getElementById('src-cg');if(se){se.textContent='CoinGecko ERR';se.className='source-status source-err';}}
@@ -3410,7 +3384,7 @@ async function fetchArcaData(){
       const cs=a.staticCircSupply||0;
       const ts=a.staticTotalSupply||cs;
       if(cs>0){
-        arcaDynamic[a.id].cg={circMC:p*cs,fdv:p*ts,circSupply:cs,totalSupply:ts,hasOverride:false,isFallback:true,
+        arcaDynamic[a.id].cg={circMC:p*cs,fdv:p*ts,circSupply:cs,totalSupply:ts,hasOverride:false,
           vol24h:0,ath:0,athDate:'',atl:0,pctChg7d:null,pctChg30d:null,sparkline:[]};
         console.log(a.id+': CoinGecko fallback → circMC='+(p*cs).toFixed(0)+' from price×staticSupply');
       }
@@ -3446,9 +3420,8 @@ async function fetchArcaData(){
 
   updateSourceUI();
   try{renderArcaGrid();renderRevChart();renderDormanMatrix();}catch(e){console.error('renderArcaGrid error:',e);document.getElementById('arca-grid').innerHTML='<div style="color:#ff3d5a;padding:20px;text-align:center">Render error: '+e.message+'</div>';}
-  const states=ARCA_ASSETS.map(a=>calcDynamicMetrics(a).liveState);
-  const liveCount=states.filter(x=>x==='live').length, partialCount=states.filter(x=>x==='partial').length;
-  document.getElementById("arca-update").innerHTML=`<span style="color:#00d98b">${liveCount}/${ARCA_ASSETS.length} live</span>${partialCount?` \u00b7 <span style="color:#f0b840">${partialCount} partial</span>`:''} \u00b7 ${new Date().toLocaleTimeString("en-GB")}`;
+  const liveCount=ARCA_ASSETS.filter(a=>arcaDynamic[a.id]?.fees||arcaDynamic[a.id]?.cg).length;
+  document.getElementById("arca-update").innerHTML=`<span style="color:#00d98b">${liveCount}/${ARCA_ASSETS.length} live</span> \u00b7 ${new Date().toLocaleTimeString("en-GB")}`;
   if(arcaBtn){arcaBtn.disabled=false;arcaBtn.textContent='↻ Refresh';}
 }
 
@@ -3481,15 +3454,6 @@ function calcDynamicMetrics(a){
   // §4.2: quality flags
   const revQuality=d.fees?.revQuality||'missing';
   const feeQuality=d.fees?.feeQuality||'missing';
-  // Live-ness of what the UI shows. Market cap is live only when CoinGecko answered (not price × static supply);
-  // revenue is 'manual' when overrideRevenue is used, and inherits the fee quality when fees stand in for revenue.
-  const mcIsLive=!!(d.cg&&!d.cg.isFallback);
-  const feesUsedAsRev=a.useFeesAsRevenue&&!(a.overrideRevenue>0)&&(!(d.fees?.revenue30d>0)||revQuality==='estimated')&&feesAnn30d>0;
-  const revSourceQuality=a.overrideRevenue>0?'manual':(feesUsedAsRev?feeQuality:revQuality);
-  const LIVE_Q=['direct30d','from_chain_fees'];
-  const revIsLive=revAnn30d>0&&LIVE_Q.includes(revSourceQuality);
-  const strikeIsLive=revIsLive&&mcIsLive&&revAnn30d>0&&supply>0;
-  const liveState=(mcIsLive&&revIsLive)?'live':(mcIsLive||revIsLive)?'partial':'static';
   const priceSource=d.priceSource||'none';
   // §6.1: Data completeness (0-1)
   const checks=[pe!==null,ps!==null,mcTvl!==null,revTvl!==null,tvl>0];
@@ -3511,8 +3475,7 @@ function calcDynamicMetrics(a){
   const spark=d.cg?.sparkline||[];
   if(spark.length>10){
     const returns=[];for(let i=1;i<spark.length;i++){if(spark[i-1]>0)returns.push((spark[i]-spark[i-1])/spark[i-1]);}
-    // CoinGecko's 7d sparkline is hourly (~168 points) → annualize by the number of points per day
-    if(returns.length>5){const mean=returns.reduce((a,b)=>a+b,0)/returns.length;const variance=returns.reduce((a,r)=>a+Math.pow(r-mean,2),0)/returns.length;const perDay=(spark.length-1)/7;vol7dPct=Math.sqrt(variance)*Math.sqrt(365*perDay)*100;}
+    if(returns.length>5){const mean=returns.reduce((a,b)=>a+b,0)/returns.length;const variance=returns.reduce((a,r)=>a+Math.pow(r-mean,2),0)/returns.length;vol7dPct=Math.sqrt(variance)*Math.sqrt(365)*100;}
   }
   // Sector P/E target range from asset config
   const sectorPELow=a.sectorPE?a.sectorPE[0]:8;
@@ -3530,7 +3493,7 @@ function calcDynamicMetrics(a){
   const emissionsHasData=d.emissions?.hasData||false;
   return{circMC,supply,totalSupply,revAnn30d,feesAnn30d,tvl,pe,ps,mcTvl,revTvl,price,fdv:d.cg?.fdv||0,
     dynamicStrike,sectorPELow,sectorPEHigh,sectorPEMid,
-    hasLive:!!(d.fees||d.cg),hasOverride,mcIsLive,revSourceQuality,revIsLive,strikeIsLive,liveState,
+    hasLive:!!(d.fees||d.cg),hasOverride,
     rev24h:d.fees?.revenue24h||0,fees24h:d.fees?.fees24h||0,rev7d:d.fees?.revenue7d||0,fees7d:d.fees?.fees7d||0,rev1y:d.fees?.revenue1y||0,fees1y:d.fees?.fees1y||0,
     revQuality,feeQuality,priceSource,dataCompleteness,
     vol24h,volMcRatio,pctChg7d,pctChg30d,ath,drawdownFromATH,vol7dPct,realYieldNet,liveRealYield,
@@ -3549,8 +3512,7 @@ function getPEZone(pe){
 
 // ═══════════════════════════════════════════════════════════════
 // CONVICTION SCORE — 3 pillars: BUSINESS QUALITY 60% · VALUATION 30% · CAPITAL RISK 10%
-// Computed live in the browser. arca_snapshot.py mirrors these rules but is re-synced deliberately, every 3–6 months,
-// so its datasets stay consistent for analysis — the dashboard itself can evolve between syncs.
+// Rules frozen on 02/10/2026 and mirrored exactly in arca_snapshot.py (do not change one without the other).
 //   Business     : 30d average revenue (log-scale), TVL, real yield, buyback, risk flags
 //   Valuation    : base 50 · P/E adj. · P/S · MC/TVL · relative valuation (multiple vs own 90d median)
 //   Capital Risk : net dilution, unlocks, thin-liquidity penalty, protocol age, risk flags
@@ -3740,7 +3702,7 @@ function getBuySignal(price, strike, livePe, convScore) {
 }
 
 function arcaFmtPrice(p){if(!p&&p!==0)return"\u2014";const v=cx(p);const s=cxSym();if(v<0.001)return s+v.toFixed(6);if(v<0.01)return s+v.toFixed(5);if(v<1)return s+v.toFixed(4);if(v<100)return s+v.toFixed(2);return s+fmt(v);}
-function qualityBadge(q){if(q==='manual')return'<span title="Manual revenue estimate (analyst input), not live" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udccb EST</span>';if(q==='direct30d')return'<span title="Direct 30d data from DefiLlama" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2</span>';if(q==='from_chain_fees')return'<span title="Chain-level fees from DefiLlama /overview/fees" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2 ⛓</span>';if(q==='from7d')return'<span title="Estimated from 7d data" style="color:#f0b840;font-size:8px;cursor:help">\ud83d\udfe1 EST</span>';if(q==='from24h'||q==='estimated')return'<span title="Estimated from 24h data" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udfe0 EST</span>';return'<span title="No live data" style="color:#ff3d5a;font-size:8px;cursor:help">\ud83d\udd34</span>';}
+function qualityBadge(q){if(q==='direct30d')return'<span title="Direct 30d data from DefiLlama" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2</span>';if(q==='from_chain_fees')return'<span title="Chain-level fees from DefiLlama /overview/fees" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2 ⛓</span>';if(q==='from7d')return'<span title="Estimated from 7d data" style="color:#f0b840;font-size:8px;cursor:help">\ud83d\udfe1 EST</span>';if(q==='from24h'||q==='estimated')return'<span title="Estimated from 24h data" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udfe0 EST</span>';return'<span title="No live data" style="color:#ff3d5a;font-size:8px;cursor:help">\ud83d\udd34</span>';}
 function buybackLabel(level){if(level==='programmatic')return{text:'Programmatic',color:'#00d98b',icon:'\u2713\u2713'};if(level==='opportunistic')return{text:'Opportunistic',color:'#f0b840',icon:'\u2713'};return{text:'None',color:'#ff3d5a',icon:'\u2717'};}
 
 // ── Dorman Token Investability Matrix ───────────────────────────────────────
@@ -3913,8 +3875,7 @@ function renderArcaGrid(){
       ? { label:'NOT RATED', cls:'signal-risky', icon:'⏳' }
       : getBuySignal(price,strike,livePe,conv.total);
     const convCol=a.isPreMarket ? '#6c4fff' : convictionColor(conv.total);
-    const liveState=m.liveState;
-    const liveCol=liveState==='live'?'#00d98b':liveState==='partial'?'#f0b840':'#ff8c00';
+    const isLive=m.hasLive;
     const peDisplay=displayPe!=null?((typeof displayPe==='number'&&isFinite(displayPe))?displayPe.toFixed(1):(displayPe||'—'))+'\u00d7':'\u2014';
 
     let distText="\u2014",distColor="#3a5a70",distSign="";
@@ -3964,7 +3925,7 @@ function renderArcaGrid(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:38px;height:38px;border-radius:50%;background:${a.color}22;color:${a.color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;border:1px solid ${a.color}33">${a.icon}</div>
-          <div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div class="arca-asset-name">${a.name}</div><span class="arca-signal ${peZone.cls}" style="font-size:9px;padding:2px 7px">${peZone.label}</span>${dormanBadgeHtml}<span title="LIVE = market cap and revenue both live · PARTIAL = one of them falls back to analyst inputs" style="background:${a.isPreMarket?'#6c4fff':a.isEarlyStage?'#f0b840':liveCol}18;color:${a.isPreMarket?'#6c4fff':a.isEarlyStage?'#f0b840':liveCol};border:1px solid ${a.isPreMarket?'#6c4fff':a.isEarlyStage?'#f0b840':liveCol}33;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:600">${a.isPreMarket?'PRE-MARKET':a.isEarlyStage?'EARLY STAGE':liveState==='live'?'LIVE DATA':liveState==='partial'?'PARTIAL':'STATIC'}</span></div><div class="arca-asset-sector">${sectorBadge(a.sector)}${a.sector}</div></div>
+          <div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div class="arca-asset-name">${a.name}</div><span class="arca-signal ${peZone.cls}" style="font-size:9px;padding:2px 7px">${peZone.label}</span>${dormanBadgeHtml}<span style="background:${a.isPreMarket?'#6c4fff':a.isEarlyStage?'#f0b840':isLive?'#00d98b':'#f0b840'}18;color:${a.isPreMarket?'#6c4fff':a.isEarlyStage?'#f0b840':isLive?'#00d98b':'#f0b840'};border:1px solid ${a.isPreMarket?'#6c4fff':a.isEarlyStage?'#f0b840':isLive?'#00d98b':'#f0b840'}33;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:600">${a.isPreMarket?'PRE-MARKET':a.isEarlyStage?'EARLY STAGE':isLive?'LIVE DATA':'STATIC'}</span></div><div class="arca-asset-sector">${sectorBadge(a.sector)}${a.sector}</div></div>
         </div>
         <div style="text-align:right"><div class="arca-asset-price" style="color:${a.color}">${hasPrice?arcaFmtPrice(price):'\u2014'}</div><div style="font-size:8px;color:#2e4a60">${m.priceSource}</div><div class="arca-asset-change" style="color:${change!==null&&change!==undefined?(change>=0?'#00d98b':'#ff3d5a'):'#3a5a70'}">${change!==null&&change!==undefined?(change>=0?'+':'')+sf(change,2)+'%':'\u2014'}</div></div>
       </div>
@@ -3972,7 +3933,7 @@ function renderArcaGrid(){
       ${preMarketBadgeHtml}
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;padding:10px 12px;background:#070b12;border-radius:6px;border:1px solid #0d1e2e">
         <div><div style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Entry Signal</div><span class="arca-signal ${sig.cls}">${sig.icon} ${sig.label}</span></div>
-        <div style="text-align:center"><div style="font-size:9px;color:#00d98b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Strike (P/E=10×) ${hasStrike&&!a.isPreMarket?(m.strikeIsLive?'🟢':'<span style="color:#ff8c00;font-size:7px">EST</span>'):''}</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${a.isPreMarket?'#2e4a60':'#00d98b'}">${a.isPreMarket?'N/A':hasStrike?arcaFmtPrice(strike):'—'}</div></div>
+        <div style="text-align:center"><div style="font-size:9px;color:#00d98b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Strike (P/E=10×) ${hasStrike&&!a.isPreMarket?'🟢':''}</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${a.isPreMarket?'#2e4a60':'#00d98b'}">${a.isPreMarket?'N/A':hasStrike?arcaFmtPrice(strike):'—'}</div></div>
         <div style="text-align:right"><div style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">vs Strike</div><div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${a.isPreMarket?'#2e4a60':distColor}">${a.isPreMarket?'N/A':distSign+' '+distText}</div></div>
       </div>
       <!-- §2.3 + §5.1: Live Fundamentals -->
@@ -3989,12 +3950,12 @@ function renderArcaGrid(){
             <div class="arca-metric-sub">MegaETH L2 chain</div>
           </div>
         ` : `
-        <div class="arca-metric ${peIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip(peLabel,'Circ. MC ÷ (Revenue 30d × 12)','How many years of current revenue the market is pricing in.',peIsLive?(displayPe<10?'Deep Value — market severely underprices revenue.':displayPe<18?'Fair Value — reasonable for proven revenue.':displayPe<30?'Growth — paying premium for expected growth.':'Expensive — priced for perfection.'):'Static estimate — no live signal.')} ${qualityBadge(m.revSourceQuality)}${peIsLive&&!m.mcIsLive?' <span style="color:#ff8c00;font-size:7px" title="Market cap from static supply">EST</span>':''}</div><div class="arca-metric-value" style="color:${peZone.color}">${peDisplay}</div><div class="arca-metric-sub">${peZone.label} · ${peZone.action}</div></div>
-        ${m.ps!=null?`<div class="arca-metric ${m.mcIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip('P/S (30d ann.)','Circ. MC ÷ (Total Fees 30d × 12)','Price-to-Sales: total fees collected vs market cap. Lower = cheaper.',m.ps<5?'Very cheap relative to fee generation.':m.ps<15?'Reasonable valuation vs fees.':'Expensive — fees don\'t justify market cap.')} ${qualityBadge(m.feeQuality)}</div><div class="arca-metric-value">${sf(m.ps,1)}×</div><div class="arca-metric-sub">Circ.MC / Total Fees</div></div>`:''}
-        ${m.circMC>0?`<div class="arca-metric ${m.mcIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("Circ. Market Cap","Price × Circulating Supply","Total value of all freely tradeable tokens.",m.circMC>1e9?"Large cap — more stable, less upside.":"Small/mid cap — higher volatility, more upside potential.")} ${m.hasOverride?'<span style="color:#ff8c00;font-size:7px">OVERRIDE</span>':m.mcIsLive?'🟢':'<span style="color:#ff8c00;font-size:7px" title="Price × static circulating supply">EST</span>'}</div><div class="arca-metric-value" style="font-size:11px">${fmtCompact(m.circMC)}</div></div>`:''}
+        <div class="arca-metric ${peIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip(peLabel,'Circ. MC ÷ (Revenue 30d × 12)','How many years of current revenue the market is pricing in.',peIsLive?(displayPe<10?'Deep Value — market severely underprices revenue.':displayPe<18?'Fair Value — reasonable for proven revenue.':displayPe<30?'Growth — paying premium for expected growth.':'Expensive — priced for perfection.'):'Static estimate — no live signal.')} ${qualityBadge(m.revQuality)}</div><div class="arca-metric-value" style="color:${peZone.color}">${peDisplay}</div><div class="arca-metric-sub">${peZone.label} · ${peZone.action}</div></div>
+        ${m.ps!=null?`<div class="arca-metric arca-live"><div class="arca-metric-label">${tip('P/S (30d ann.)','Circ. MC ÷ (Total Fees 30d × 12)','Price-to-Sales: total fees collected vs market cap. Lower = cheaper.',m.ps<5?'Very cheap relative to fee generation.':m.ps<15?'Reasonable valuation vs fees.':'Expensive — fees don\'t justify market cap.')} ${qualityBadge(m.feeQuality)}</div><div class="arca-metric-value">${sf(m.ps,1)}×</div><div class="arca-metric-sub">Circ.MC / Total Fees</div></div>`:''}
+        ${m.circMC>0?`<div class="arca-metric arca-live"><div class="arca-metric-label">${tip("Circ. Market Cap","Price × Circulating Supply","Total value of all freely tradeable tokens.",m.circMC>1e9?"Large cap — more stable, less upside.":"Small/mid cap — higher volatility, more upside potential.")} ${m.hasOverride?'<span style="color:#ff8c00;font-size:7px">OVERRIDE</span>':'🟢'}</div><div class="arca-metric-value" style="font-size:11px">${fmtCompact(m.circMC)}</div></div>`:''}
         <div class="arca-metric ${m.tvl>0?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("TVL","Sum of assets deposited in protocol smart contracts","Total Value Locked: measures capital trust.",m.tvl>1e9?"Strong capital base.":m.tvl>100e6?"Moderate TVL.":"Low TVL.")} ${m.tvl>0?'🟢':''}</div><div class="arca-metric-value" style="font-size:11px;color:#b8ccd8">${m.tvl>0?fmtCompact(m.tvl):a.staticTVL}</div></div>
-        ${m.mcTvl!=null?`<div class="arca-metric ${m.mcIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("MC/TVL","Circ. MC ÷ TVL","Market cap relative to locked capital.",m.mcTvl<1?"Below 1x — potential deep value.":m.mcTvl<3?"1-3x — fair range.":"Above 3x — premium.")} ${m.mcIsLive?'🟢':'<span style="color:#ff8c00;font-size:7px">EST</span>'}</div><div class="arca-metric-value" style="color:${m.mcTvl<1?'#00d98b':m.mcTvl<3?'#f0b840':'#ff3d5a'}">${sf(m.mcTvl,2)}×</div></div>`:''}
-        ${m.revTvl!=null?`<div class="arca-metric ${m.revIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("Rev/TVL","Annual Revenue ÷ TVL × 100","Capital efficiency.",m.revTvl>0.5?"High efficiency.":m.revTvl>0.1?"Moderate efficiency.":"Low efficiency.")} ${m.revIsLive?'🟢':qualityBadge(m.revSourceQuality)}</div><div class="arca-metric-value">${(m.revTvl*100).toFixed(1)}%</div></div>`:''}
+        ${m.mcTvl!=null?`<div class="arca-metric arca-live"><div class="arca-metric-label">${tip("MC/TVL","Circ. MC ÷ TVL","Market cap relative to locked capital.",m.mcTvl<1?"Below 1x — potential deep value.":m.mcTvl<3?"1-3x — fair range.":"Above 3x — premium.")} 🟢</div><div class="arca-metric-value" style="color:${m.mcTvl<1?'#00d98b':m.mcTvl<3?'#f0b840':'#ff3d5a'}">${sf(m.mcTvl,2)}×</div></div>`:''}
+        ${m.revTvl!=null?`<div class="arca-metric arca-live"><div class="arca-metric-label">${tip("Rev/TVL","Annual Revenue ÷ TVL × 100","Capital efficiency.",m.revTvl>0.5?"High efficiency.":m.revTvl>0.1?"Moderate efficiency.":"Low efficiency.")} 🟢</div><div class="arca-metric-value">${(m.revTvl*100).toFixed(1)}%</div></div>`:''}
         `}
       </div>
       <!-- §2.3 + §5.1: Model Assumptions -->
@@ -4079,7 +4040,7 @@ function renderArcaGrid(){
     const strike=m.dynamicStrike;const livePe=m.pe;const displayPe=livePe!=null?livePe:a.staticPE;
     const peZone=getPEZone(displayPe);const conv=getConvictionScore(price,a,m);const sig=getBuySignal(price,strike,livePe,conv.total);const convCol=convictionColor(conv.total);
     const peDisplay=livePe!=null?sf(livePe,1)+'\u00d7':a.staticPE+'\u00d7';
-    const peTag=(livePe!=null&&m.revIsLive&&m.mcIsLive)?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>';
+    const peTag=livePe!=null?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>';
     let distHtml="\u2014";
     if(hasPrice&&strike>0){
       if(price<strike){const pct=((strike-price)/strike*100);distHtml=`<span style="color:#00d98b">\u2193${pct.toFixed(1)}%</span>`;}
@@ -4088,10 +4049,10 @@ function renderArcaGrid(){
     return`<tr>
       <td><strong style="color:${a.color}">${a.name}</strong>${arcaScopeBadge(a,m)}<span style="font-size:9px;color:#3a5a70;margin-left:4px">${sectorBadge(a.sector)}${a.sector}</span></td>
       <td class="white">${hasPrice?arcaFmtPrice(price):'\u2014'}</td>
-      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#00d98b">${strike>0?arcaFmtPrice(strike)+(m.strikeIsLive?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>'):'\u2014'}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#00d98b">${strike>0?arcaFmtPrice(strike)+' \ud83d\udfe2':'\u2014'}</td>
       <td>${distHtml}</td>
       <td style="color:${peZone.color};font-family:'IBM Plex Mono',monospace">${peDisplay}${peTag}</td>
-      <td style="font-family:'IBM Plex Mono',monospace">${m.ps!=null?sf(m.ps,1)+'\u00d7'+((m.mcIsLive&&m.feeQuality==='direct30d')?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>'):'\u2014'}</td>
+      <td style="font-family:'IBM Plex Mono',monospace">${m.ps!=null?sf(m.ps,1)+'\u00d7 \ud83d\udfe2':'\u2014'}</td>
       <td style="color:${m.mcTvl!=null?(m.mcTvl<1?'#00d98b':m.mcTvl<3?'#f0b840':'#ff3d5a'):'#3a5a70'};font-family:'IBM Plex Mono',monospace">${m.mcTvl!=null?sf(m.mcTvl,2)+'\u00d7':'\u2014'}</td>
       <td style="color:${m.realYieldNet>5?'#00d98b':m.realYieldNet>0?'#f0b840':'#ff3d5a'}">${m.realYieldNet>0?'+':''}${sf(m.realYieldNet,1)}%</td><td style="color:${m.vol7dPct!=null?(m.vol7dPct<60?'#00d98b':m.vol7dPct<120?'#f0b840':'#ff3d5a'):'#3a5a70'}">${m.vol7dPct!=null?sf(m.vol7dPct,0)+'%':'\u2014'}</td>
       <td><span class="arca-signal ${sig.cls}" style="font-size:10px;padding:2px 8px">${sig.icon} ${sig.label}</span></td>
@@ -4338,50 +4299,54 @@ function exportIchimokuPage(){
     token:d.token,
     interval:d.interval,
     price:d.price,
-    tenkan:ich?.tenkan??null,
-    kijun:ich?.kijun??null,
-    senkouA:ich?.spanAFuture??null,
-    senkouB:ich?.spanBFuture??null,
-    cloudTop:ich?.cloudTop??null,
-    cloudBot:ich?.cloudBot??null,
-    cloudColor:ich?.cloudColor??null,
-    chikou:ich?.chikouVal??null,
-    chikouBull:ich?.chikouBull??null,
+    tenkan:ich?.tenkan||null,
+    kijun:ich?.kijun||null,
+    senkouA:ich?.spanAFuture||null,
+    senkouB:ich?.spanBFuture||null,
+    cloudTop:ich?.cloudTop||null,
+    cloudBot:ich?.cloudBot||null,
+    cloudColor:ich?.cloudColor||null,
+    chikou:ich?.chikouVal||null,
+    chikouBull:ich?.chikouBull||null,
     // TK Cross
-    tkBullish:ich?.tkBullish??null,
+    tkBullish:ich?.tkBullish||null,
     // Cloud structure
-    futureTwist:ich?.futureTwist??null,
-    cloudThickness:ich?.cloudThickness??null,
+    futureTwist:ich?.futureTwist||null,
+    cloudThickness:ich?.cloudThickness||null,
     // Context
-    kijunDevPct:ich?.kijunDevPct??null,
-    kijunFlat:ich?.kijunFlat??null,
-    isRanging:ich?.isRanging??null,
-    atr:ich?.atr??null,
-    volRelative:ich?.volRelative??null,
+    kijunDevPct:ich?.kijunDevPct||null,
+    kijunFlat:ich?.kijunFlat||null,
+    isRanging:ich?.isRanging||null,
+    atr:ich?.atr||null,
+    volRelative:ich?.volRelative||null,
     // RSI
-    rsi:d.rsi?.value??null,
-    rsiZone:d.rsi?.zone??null,
-    rsiDivergence:d.rsi?.divergence?.type??null,
+    rsi:d.rsi?.value||null,
+    rsiZone:d.rsi?.zone||null,
+    rsiDivergence:d.rsi?.divergence?.type||null,
     // MACD
-    macd:d.macd?.macd??null,
-    macdSignal:d.macd?.signal??null,
-    macdHistogram:d.macd?.histogram??null,
+    macd:d.macd?.macd||null,
+    macdSignal:d.macd?.signal||null,
+    macdHistogram:d.macd?.histogram||null,
     macdCrossUp:d.macd?.crossUp||false,
     macdCrossDown:d.macd?.crossDown||false,
     // VWAP
-    vwap:d.vwap?.vwap??null,
-    vwapUpper:d.vwap?.upper1??null,
-    vwapLower:d.vwap?.lower1??null,
+    vwap:d.vwap?.vwap||null,
+    vwapUpper:d.vwap?.upper1||null,
+    vwapLower:d.vwap?.lower1||null,
     // Volume Profile
-    poc:d.vp?.poc??null,
-    vah:d.vp?.vah??null,
-    val:d.vp?.val??null,
+    poc:d.vp?.poc||null,
+    vah:d.vp?.vah||null,
+    val:d.vp?.val||null,
+    // Fibonacci
+    fibSwingHigh:d.fib?.swingHigh||null,
+    fibSwingLow:d.fib?.swingLow||null,
+    fibLevels:d.fib?.fibs?.filter(f=>f.level>0&&f.level<1).map(f=>({level:f.level,price:f.price}))||[],
     // Confluence (Ichimoku-centric — drives Strategy Builder gating elsewhere in the dashboard)
-    confluenceScore:d.conf?.score??null,
-    bias:d.conf?.bias??null,
+    confluenceScore:d.conf?.score||null,
+    bias:d.conf?.bias||null,
     bullCount:d.conf?.bullCount||0,
     bearCount:d.conf?.bearCount||0,
-    regime:d.conf?.regime??null,
+    regime:d.conf?.regime||null,
     signals:d.conf?.signals?.map(s=>({name:s.name,tier:s.tier,bull:s.bull,detail:s.detail}))||[],
     // Bollinger Bands
     bollinger:d.bb?{upper:d.bb.upper,mid:d.bb.mid,lower:d.bb.lower,percentB:d.bb.percentB,bandwidth:d.bb.bandwidth,squeeze:d.bb.squeeze}:null,
@@ -4421,20 +4386,20 @@ async function exportIchimokuAllTF(){
       const {ich,rsi,macd,vwap,bb,adx,stochRsi,volTrend,pivots,techScore,conf,price}=tfd;
       return{
         price,
-        tenkan:ich?.tenkan??null, kijun:ich?.kijun??null, senkouA:ich?.spanAFuture??null, senkouB:ich?.spanBFuture??null,
-        cloudTop:ich?.cloudTop??null, cloudBot:ich?.cloudBot??null, cloudColor:ich?.cloudColor??null,
-        chikouBull:ich?.chikouBull??null, tkBullish:ich?.tkBullish??null, futureTwist:ich?.futureTwist??null,
-        kijunDevPct:ich?.kijunDevPct??null, kijunFlat:ich?.kijunFlat??null, isRanging:ich?.isRanging??null,
-        atr:ich?.atr??null, volRelative:ich?.volRelative??null,
-        rsi:rsi?.value??null, rsiZone:rsi?.zone??null, rsiDivergence:rsi?.divergence?.type??null,
-        macd:macd?.macd??null, macdSignal:macd?.signal??null, macdHistogram:macd?.histogram??null,
-        vwap:vwap?.vwap??null,
+        tenkan:ich?.tenkan||null, kijun:ich?.kijun||null, senkouA:ich?.spanAFuture||null, senkouB:ich?.spanBFuture||null,
+        cloudTop:ich?.cloudTop||null, cloudBot:ich?.cloudBot||null, cloudColor:ich?.cloudColor||null,
+        chikouBull:ich?.chikouBull||null, tkBullish:ich?.tkBullish||null, futureTwist:ich?.futureTwist||null,
+        kijunDevPct:ich?.kijunDevPct||null, kijunFlat:ich?.kijunFlat||null, isRanging:ich?.isRanging||null,
+        atr:ich?.atr||null, volRelative:ich?.volRelative||null,
+        rsi:rsi?.value||null, rsiZone:rsi?.zone||null, rsiDivergence:rsi?.divergence?.type||null,
+        macd:macd?.macd||null, macdSignal:macd?.signal||null, macdHistogram:macd?.histogram||null,
+        vwap:vwap?.vwap||null,
         bollinger:bb?{percentB:bb.percentB,bandwidth:bb.bandwidth,squeeze:bb.squeeze}:null,
         adx:adx?{value:adx.adx,direction:adx.direction,strength:adx.strength}:null,
         stochRsi:stochRsi?{k:stochRsi.k,d:stochRsi.d,zone:stochRsi.zone}:null,
         volumeTrend:volTrend?{trend:volTrend.trend,trendPct:volTrend.trendPct}:null,
         horizontalPivots:pivots||[],
-        confluenceScore:conf?.score??null, bias:conf?.bias??null,
+        confluenceScore:conf?.score||null, bias:conf?.bias||null,
         technicalScore:techScore?{score:techScore.score,bias:techScore.bias}:null,
       };
     };
@@ -4940,21 +4905,21 @@ function buildInterpretation(scored, regime) {
     ? `<strong>⊘ BEAR REGIME</strong> — BTC below 20-week SMA. <span class="hl-r">All positions should be scaled to zero</span> per Artemis methodology.`
     : `<strong>✓ BULL REGIME</strong> — BTC above 20-week SMA. Scores are <span class="hl-g">actionable</span>.`;
   const healthLine = avg>=60
-    ? `The universe is broadly <span class="hl-g">solid</span> — average score <strong>${avg.toFixed(0)}/100</strong>.`
+    ? `L'univers est globalement <span class="hl-g">solide</span> — score moyen <strong>${avg.toFixed(0)}/100</strong>.`
     : avg>=45
-    ? `<span class="hl-y">Mixed</span> signals — average score <strong>${avg.toFixed(0)}/100</strong>.`
-    : `Universe <span class="hl-r">under pressure</span> — average score <strong>${avg.toFixed(0)}/100</strong>.`;
+    ? `Signaux <span class="hl-y">mixtes</span> — score moyen <strong>${avg.toFixed(0)}/100</strong>.`
+    : `Univers <span class="hl-r">sous pression</span> — score moyen <strong>${avg.toFixed(0)}/100</strong>.`;
   const getBestSig = t => [{n:'DAU',z:t.z1},{n:'Stab',z:t.z2},{n:'MC/Fees',z:t.z3},{n:'Quality',z:t.z4}].filter(s=>s.z!==null).sort((a,b)=>b.z-a.z)[0];
   const getWorstSig = t => [{n:'DAU',z:t.z1},{n:'Stab',z:t.z2},{n:'MC/Fees',z:t.z3},{n:'Quality',z:t.z4}].filter(s=>s.z!==null).sort((a,b)=>a.z-b.z)[0];
   let longLine = longs.length
-    ? `<strong>Long Candidates:</strong> ${longs.map(t=>`<span class="hl-g">${t.name}</span> (${t.score.toFixed(0)})`).join(', ')}. ${top.name} leads${getBestSig(top)?` — strongest signal: <span class="hl-b">${getBestSig(top).n}</span>`:''}.`
+    ? `<strong>Long Candidates:</strong> ${longs.map(t=>`<span class="hl-g">${t.name}</span> (${t.score.toFixed(0)})`).join(', ')}. ${top.name} mène${getBestSig(top)?` — signal dominant : <span class="hl-b">${getBestSig(top).n}</span>`:''}.`
     : watches.length ? `No token ≥ 65 this week. On watch: ${watches.map(t=>t.name).join(', ')}.`
     : `<span class="hl-r">No long candidates</span> this week.`;
   let shortLine = shorts.length
-    ? `<strong>Short Candidates:</strong> ${shorts.map(t=>`<span class="hl-r">${t.name}</span> (${t.score.toFixed(0)})`).join(', ')}. ${bottom.name} trails${getWorstSig(bottom)?` — weakest signal: <span class="hl-b">${getWorstSig(bottom).n}</span>`:''}.`
+    ? `<strong>Short Candidates:</strong> ${shorts.map(t=>`<span class="hl-r">${t.name}</span> (${t.score.toFixed(0)})`).join(', ')}. ${bottom.name} en queue${getWorstSig(bottom)?` — point faible : <span class="hl-b">${getWorstSig(bottom).n}</span>`:''}.`
     : `No token ≤ 35 — homogeneous universe.`;
   const missing = valid.filter(t=>t.sigCount<4);
-  const note = missing.length ? `<em style="color:#2e4a60;font-size:11px">⚠ ${missing.map(t=>t.name).join(', ')}: fewer than 4 signals.</em>` : '';
+  const note = missing.length ? `<em style="color:#2e4a60;font-size:11px">⚠ ${missing.map(t=>t.name).join(', ')} : moins de 4 signaux.</em>` : '';
   return `${regimeLine}<br><br>${healthLine} ${longLine}<br><br>${shortLine}${note?'<br><br>'+note:''}`;
 }
 
@@ -5058,7 +5023,7 @@ async function runArtemisAnalysis() {
   } catch(err) {
     console.error('Artemis error:',err);
     const errEl=document.getElementById('artErrorBanner');
-    if(errEl){ errEl.textContent='⚠ Error: '+err.message; errEl.style.display='block'; }
+    if(errEl){ errEl.textContent='⚠ Erreur : '+err.message; errEl.style.display='block'; }
     document.getElementById('artTableBody').innerHTML=`<tr><td colspan="11" style="text-align:center;padding:20px;color:#ff3d5a">Failed to load data. Click ↻ Refresh to retry.</td></tr>`;
     if(progressEl) progressEl.style.display='none';
     if(btn){ btn.disabled=false; btn.textContent='↻ Refresh'; }
@@ -5205,7 +5170,7 @@ function macroDrawCanvas(id, series, labelFmt) {
     <div class="defi-kpi"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#627eea"></div><div class="defi-kpi-label">ETH Dominance</div><div class="defi-kpi-value" id="kpi-eth-dom">—</div><div class="defi-kpi-sub">% of total DeFi TVL</div></div>
     <div class="defi-kpi"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#9945ff"></div><div class="defi-kpi-label">SOL Dominance</div><div class="defi-kpi-value" id="kpi-sol-dom">—</div><div class="defi-kpi-sub">% of total DeFi TVL</div></div>
     <div class="defi-kpi"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#0052ff"></div><div class="defi-kpi-label">Base Dominance</div><div class="defi-kpi-value" id="kpi-base-dom">—</div><div class="defi-kpi-sub">% of total DeFi TVL</div></div>
-    <div class="defi-kpi"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#ff6b35"></div><div class="defi-kpi-label">Protocol Deployments</div><div class="defi-kpi-value" id="kpi-nb-proto">—</div><div class="defi-kpi-sub">Sum over tracked chains · multi-chain protocols counted per chain</div></div>
+    <div class="defi-kpi"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#ff6b35"></div><div class="defi-kpi-label">Active Protocols</div><div class="defi-kpi-value" id="kpi-nb-proto">—</div><div class="defi-kpi-sub">Tracked DeFi protocols</div></div>
   </div>
 
   <!-- TVL DOMINANCE BAR -->
@@ -5235,6 +5200,8 @@ function macroDrawCanvas(id, series, labelFmt) {
       <div class="defi-tvl-period-tile" id="tvl-tile-6m"><div class="dtp-label">6 Months</div><div class="dtp-val">—</div><div class="dtp-ref">—</div></div>
       <div class="defi-tvl-period-tile" id="tvl-tile-1m"><div class="dtp-label">1 Month</div><div class="dtp-val">—</div><div class="dtp-ref">—</div></div>
     </div>
+    <!-- Chart -->
+    <div style="display:flex;gap:6px;margin-bottom:8px">
     <!-- Chart with time range selector -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
       <div style="display:flex;gap:4px">
@@ -5292,6 +5259,7 @@ function macroDrawCanvas(id, series, labelFmt) {
   </div>
 
   <div class="footer">DeFi Ecosystem · DefiLlama · CoinGecko · Not investment advice</div>
+</div>
 </div>
 
 
@@ -5425,6 +5393,17 @@ function macroDrawCanvas(id, series, labelFmt) {
     <div id="sb-summary-note" style="font-size:10px;color:#2e4a60;margin-top:8px"></div>
   </div>
 
+  <!-- ═══ AI COMMENTARY ═══ -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">AI Commentary</div>
+      <button class="btn" id="sb-ai-btn" onclick="runStrategyAI()">✦ Generate commentary</button>
+    </div>
+    <div id="sb-ai-body" style="font-size:12px;color:#7a9ab0;line-height:1.8">
+      Build a plan, then generate commentary. The AI reads the mechanical plan and explains it — it never invents price levels.
+    </div>
+  </div>
+
   <!-- ═══ EXCLUDED (moved to the end — reference only) ═══ -->
   <div class="card">
     <div class="card-title">Excluded Assets</div>
@@ -5437,12 +5416,12 @@ function macroDrawCanvas(id, series, labelFmt) {
     </div>
   </div>
 
-  <div class="footer">Strategy Builder · Mechanical engine · Levels derived from Ichimoku only · Not investment advice</div>
+  <div class="footer">Strategy Builder · Mechanical engine + AI commentary · Levels derived from Ichimoku only · Not investment advice</div>
 </div>
 
 <script>
 // ════════════════════════════════════════════════════════════════
-// STRATEGY BUILDER — mechanical DCA engine
+// STRATEGY BUILDER — mechanical DCA engine + AI commentary
 // Reuses global helpers: fetchBinanceCandles, calcIchimoku, calcRSI,
 // calcMACD, calcVWAP, calcConfluence, ARCA_ASSETS, calcDynamicMetrics,
 // getConvictionScore, arcaPrices, arcaDynamic, ichParams, fmt, fetchArcaData
@@ -5503,7 +5482,7 @@ const SB_CFG = {
   tacticalMaxDistPct: 50,                          // raised from 45→50 to accommodate the new 0.886/1.0 fib levels
 };
 
-let sbState = null;   // holds last computed plan for rendering
+let sbState = null;   // holds last computed plan for rendering + AI
 
 // ── Currency display (Strategy Builder only) ─────────────────────────────────
 // Independent from the ARCA page toggle on purpose — switching one must not
@@ -5798,8 +5777,7 @@ async function sbBuildPlan(){
       catch(e){ ich1dObj=null; ich1d=ichOverviewCache[a.id]?.scores?.['1d'] ?? null; }
       const ich4h = altIch?altIch.conf.score:null;
       // Daily bias derived from its score (gate1D threshold = BULLISH cutoff on 1D)
-      const bias1d = ich1dObj ? ich1dObj.conf.bias
-        : (ichOverviewCache[a.id]?.biases?.['1d'] ?? (ich1d==null ? null : (ich1d>=SB_CFG.gate1D ? 'BULLISH' : (ich1d<=40 ? 'BEARISH' : 'NEUTRAL'))));
+      const bias1d = ich1d==null ? null : (ich1d>=SB_CFG.gate1D ? 'BULLISH' : (ich1d<=38 ? 'BEARISH' : 'NEUTRAL'));
       alts.push({
         id:a.id, name:a.name, color:a.color||'#3d8bff', icon:a.icon||a.name[0],
         arca: arca!=null?Math.round(arca):null,
@@ -6112,6 +6090,8 @@ function renderStrategy(){
     </tr>`;
   }).join('') : `<tr><td colspan="5" style="color:#3a5a70;text-align:center;padding:12px">None</td></tr>`;
 
+  // stash render-derived data for AI
+  sbState._render={ budget, risk, rp, btcBudget, altBudget, eligible, excluded, override:overrideActive };
   // ── Consolidated portfolio summary (reuses the exact numbers rendered above) ──
   renderPortfolioSummary({ g, budget, btcBudget, altBudget, eligible, altTotalComposite, tacticalW, btcFmt });
   sbSaveSettings();   // persist budget/risk/override/compact on every render
@@ -6373,6 +6353,124 @@ function sbUpdateFreshness(){
   sbFreshTimer=setTimeout(sbUpdateFreshness, 60000); // re-tick every minute
 }
 
+// ── AI commentary (Claude API, with graceful fallback) ─────────
+function sbBuildPlanJSON(){
+  const g=sbState, r=sbState._render;
+  return {
+    btc:{ spot:g.price, gateOpen:g.gateOpen, gateScore:g.gateScore, score4H:g.s4, score1D:g.s1d,
+      zones:g.zones.map(z=>({source:z.src, tf:z.tf, level:+z.level.toFixed(2),
+        structuralWeight:+(z.structW||z.w).toFixed(2),   // true structural strength
+        allocWeight:+z.w.toFixed(2),                      // distance-adjusted (drives $ allocation)
+        proximityFactor:+(z.proximity||1).toFixed(2),
+        confluence:z.mixedFamily, familyCount:z.familyCount, stackCount:z.members.length,
+        families:[...new Set(z.members.map(m=>m.family))],
+        pivotTouches:z.members.filter(m=>m.family==='horizontal').reduce((s,m)=>s+(m.touches||0),0)||null})) },
+    risk:{ value:r.risk, label:r.rp.label, btcShare:+(r.rp.btcShare).toFixed(2), selThreshold:+r.rp.selThreshold.toFixed(0) },
+    gateOverride:!!r.override,
+    budget:{ total:r.budget, btc:+r.btcBudget.toFixed(0), alts:+r.altBudget.toFixed(0) },
+    eligible:r.eligible.map(x=>({name:x.name, arca:x.arca, ich1d:x.ich1d, ich4h:x.ich4h, ichCombined:x.ichCombined, composite:x.composite, bias1d:x.bias1d, bias4h:x.bias4h,
+      manuallyForced: x.manual==='include' && !!x.forcedAgainst,   // user overrode the engine
+      forcedAgainstReason: x.forcedAgainst || null,                 // what the engine objected to
+      kijun4h:x.kijun4h?+x.kijun4h.toFixed(4):null, cloudBot4h:x.cloudBot4h?+x.cloudBot4h.toFixed(4):null})),
+    excluded:r.excluded.map(x=>({name:x.name, arca:x.arca, ich1d:x.ich1d, ich4h:x.ich4h, composite:x.composite, reason:x.reason,
+      manuallyExcluded: x.manual==='exclude'})),
+    btcAlerts:{ kijun1dFlat:g.btc1d?.ich?.kijunFlat||false, kijun1dDevPct:g.btc1d?.ich?.kijunDevPct?.toFixed?.(1)||null,
+      ranging1d:g.btc1d?.ich?.isRanging||false, rsi4h:g.btc4h?.rsi?.value??null,
+      rsiDiv4h:g.btc4h?.rsi?.divergence?.type||null },
+  };
+}
+
+async function runStrategyAI(){
+  if(!sbState||!sbState._render){ initStrategyBuilder().then(()=>setTimeout(runStrategyAI,300)); return; }
+  const btn=document.getElementById('sb-ai-btn');
+  const body=document.getElementById('sb-ai-body');
+  if(btn){ btn.disabled=true; btn.textContent='✦ Thinking…'; }
+  body.innerHTML='<span class="spinner-inline"></span> Generating commentary…';
+
+  const plan=sbBuildPlanJSON();
+  const prompt=`You are a disciplined crypto portfolio analyst commenting on a MECHANICAL DCA plan. The plan below was generated by a deterministic engine. Your job is to COMMENT and EXPLAIN, never to invent or suggest any price level — only reference levels already present in the JSON.
+
+Rules of this strategy (do not contradict):
+- All performance is measured in BTC terms; goal is BTC accumulation toward 2030.
+- ARCA conviction = fundamental quality (drives position size). Ichimoku 1D = structural go/no-go for alts; Ichimoku 4H = entry timing only.
+- Altcoin entries only when the BTC gate is OPEN (BTC 4H≥62 AND 1D≥58), unless gateOverride is set.
+- An alt qualifies only if its Ichimoku 1D is bullish. The 4H does NOT gate — it only flags timing (bull/neutral/bear). An alt can qualify on a strong daily while its 4H is neutral or bearish; in that case prefer entries at the 4H Kijun/cloud rather than chasing.
+- Composite = 0.65*ARCA + 0.35*Ichimoku, where Ichimoku = 0.6*1D + 0.4*4H (daily dominates). Scores shown separately (ARCA, 1D, 4H).
+- Zero subjective levels: every BTC level comes from Ichimoku (Kijun/cloud) or Fibonacci retracement.
+- BTC accumulation is DECOUPLED from the bullish gate: deep structural supports are buy zones regardless of score. The gate only governs altcoins.
+- A zone flagged "confluence" means a Fibonacci level and an Ichimoku level align within 1.5% — the strongest structural signal. Each zone has TWO weights: structuralWeight (its true strength) and allocWeight (structuralWeight × proximityFactor). Allocation is scaled down with distance because a level 30% below spot is structurally strong but statistically less likely to fill. Never describe a deep zone as "weak" — it is strong but discounted for reachability.
+- If gateOverride is true, the user has deliberately forced altcoin entries despite a CLOSED bearish gate. Acknowledge this directly: note they are buying into weakness on purpose, that per-asset filters still applied, and briefly flag the added risk without lecturing.
+- Some positions may carry manuallyForced=true, meaning the user overrode the engine to include an asset that FAILED a filter (forcedAgainstReason says which). Never present these as engine recommendations — name them explicitly as discretionary picks made against the mechanical verdict, and state the objection plainly. Assets with manuallyExcluded=true were removed by choice, not by the rules.
+
+Write concise commentary (max ~230 words), in English, covering:
+1. Macro read: BTC gate state and what the 4H/1D scores imply.
+2. The BTC ladder: which structural supports anchor accumulation. Call out any CONFLUENCE zones (Fibo + Ichimoku aligned) as the highest-conviction bottoms, and note whether weekly or daily.
+3. Eligible alts: read the two scores (e.g. strong fundamentals vs technical catch-up) and note the standouts. Flag any manuallyForced picks separately.
+4. Notable exclusions: 1-2 examples and why.
+5. Any alerts: mean-reversion (Kijun flat + dev), ranging, RSI divergence.
+Plain prose, no markdown headers. Be direct and structural.
+
+PLAN JSON:
+${JSON.stringify(plan,null,2)}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000,
+        messages:[{role:'user', content:prompt}] })
+    });
+    if(!res.ok) throw new Error('API '+res.status);
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    body.innerHTML = text ? text.replace(/\n/g,'<br>') : sbFallbackCommentary(plan);
+  }catch(e){
+    body.innerHTML = sbFallbackCommentary(plan) +
+      `<div style="margin-top:10px;font-size:10px;color:#2e4a60">AI service unavailable (${e.message}) — showing mechanical summary instead.</div>`;
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='✦ Generate commentary'; }
+  }
+}
+
+// Deterministic fallback commentary (no API)
+function sbFallbackCommentary(p){
+  const lines=[];
+  lines.push(`<strong style="color:${p.btc.gateOpen?'#00d98b':'#ff3d5a'}">BTC gate ${p.btc.gateOpen?'OPEN':'CLOSED'}</strong> — 4H ${p.btc.score4H} / 1D ${p.btc.score1D} (composite ${p.btc.gateScore}). ${p.btc.gateOpen?'Altcoin entries are active.':'Only defensive BTC accumulation is permitted; altcoins are suppressed until the daily firms up.'}`);
+  if(p.gateOverride){
+    lines.push(`<span style="color:#f0b840">⚠ Gate override active:</span> you have forced altcoin entries despite the bearish regime. This is buying into weakness deliberately — per-asset filters (composite + alt Ichimoku bullish) still applied, but the macro backdrop adds risk. Size accordingly.`);
+  }
+  if(p.btc.zones.length){
+    const conf=p.btc.zones.filter(z=>z.confluence);
+    const z=p.btc.zones.slice(0,4).map(x=>`${x.source} ${sbMoney(x.level)}`).join('; ');
+    lines.push(`BTC accumulation is anchored on structural supports at/below spot (${sbMoney(p.btc.spot)}): ${z}. Deeper Fibonacci and weekly levels carry more weight.`);
+    if(conf.length){
+      const cz=conf.map(x=>`${sbMoney(x.level)} (${x.source})`).join(', ');
+      lines.push(`<span style="color:#bd8cff">⚡ Confluence zone(s):</span> ${cz} — where Fibonacci and Ichimoku align. These are the highest-conviction bottoms and receive the largest DCA weight.`);
+    }
+  } else {
+    lines.push(`No structural BTC support sits at or below spot right now — the engine waits rather than inventing a level.`);
+  }
+  if(p.eligible.length){
+    const top=p.eligible.slice().sort((a,b)=>b.composite-a.composite)[0];
+    lines.push(`${p.eligible.length} altcoin(s) qualify. Top conviction: <strong>${top.name}</strong> (ARCA ${top.arca} · ICH 1D ${top.ich1d??'—'}/4H ${top.ich4h??'—'} · composite ${top.composite}).`);
+    const cu=p.eligible.find(x=>x.ichCombined>x.arca+10);
+    if(cu) lines.push(`${cu.name} is a technical catch-up (Ichimoku ${cu.ichCombined} > ARCA ${cu.arca}) — timing carries it more than fundamentals.`);
+    const w4h=p.eligible.filter(x=>x.bias4h && x.bias4h!=='BULLISH');
+    if(w4h.length) lines.push(`<span style="color:#f0b840">Timing note:</span> ${w4h.map(x=>x.name).join(', ')} cleared on the daily but ${w4h.length>1?'are':'is'} not yet bullish on the 4H — entries near the 4H Kijun/cloud are preferable to chasing.`);
+  } else if(p.btc.gateOpen){
+    lines.push(`No altcoin clears the composite ≥ ${p.risk.selThreshold} threshold at this risk setting.`);
+  }
+  if(p.excluded.length){
+    const ex=p.excluded.slice(0,2).map(x=>`${x.name} (${x.reason})`).join('; ');
+    lines.push(`Notable exclusions: ${ex}.`);
+  }
+  const al=[];
+  if(p.btcAlerts.kijun1dFlat && Math.abs(parseFloat(p.btcAlerts.kijun1dDevPct))>8) al.push(`1D Kijun flat with ${p.btcAlerts.kijun1dDevPct}% deviation → mean-reversion risk`);
+  if(p.btcAlerts.ranging1d) al.push('BTC 1D is ranging — signals dampened');
+  if(p.btcAlerts.rsiDiv4h) al.push(`4H RSI ${p.btcAlerts.rsiDiv4h} divergence`);
+  if(al.length) lines.push(`<span style="color:#f0b840">Alerts:</span> ${al.join('; ')}.`);
+  return lines.map(l=>`<div style="margin-bottom:8px">${l}</div>`).join('');
+}
+
 </script>
 
 
@@ -6463,7 +6561,6 @@ async function fetchDefiChainTVLs(){
   try {
     const data = await defiSafeFetch('https://api.llama.fi/v2/chains');
     if(!Array.isArray(data)) return;
-    defiChainData._allChainsTvl = data.reduce((s,d)=>s+(d.tvl||0),0); // every chain DefiLlama tracks, not just the 11 below
     DEFI_CHAINS.forEach(ch => {
       const found = data.find(d => d.name?.toLowerCase() === ch.llama.toLowerCase());
       if(found){
@@ -6531,10 +6628,9 @@ async function defiSafeFetch(url){
 
 // ── Render KPIs ───────────────────────────────────────────────
 function renderDefiKPIs(){
-  const trackedTvl = DEFI_CHAINS.reduce((s,c)=>s+(defiChainData[c.id]?.tvl||0),0);
-  const totalTvl = defiChainData._allChainsTvl || trackedTvl;
+  const totalTvl = Object.values(defiChainData).reduce((s,d)=>s+(d.tvl||0),0);
   document.getElementById('kpi-tvl-total').textContent = defiB(totalTvl);
-  document.getElementById('kpi-tvl-sub').textContent = defiChainData._allChainsTvl ? 'All chains · DefiLlama' : `${DEFI_CHAINS.filter(c=>defiChainData[c.id]?.tvl).length} tracked chains only · DefiLlama`;
+  document.getElementById('kpi-tvl-sub').textContent = `${DEFI_CHAINS.filter(c=>defiChainData[c.id]?.tvl).length} chains · DefiLlama`;
   const f24 = defiChainData._totalFees24h||0;
   document.getElementById('kpi-fees-24h').textContent = f24>0?defiB(f24):'—';
   const eth  = defiChainData['ethereum']?.tvl||0;
@@ -6595,8 +6691,7 @@ function renderDefiTvlPeriods(){
 
 // ── Render dominance bar ──────────────────────────────────────
 function renderDefiDomBar(){
-  const trackedTvl = DEFI_CHAINS.reduce((s,c)=>s+(defiChainData[c.id]?.tvl||0),0);
-  const totalTvl = defiChainData._allChainsTvl || trackedTvl;
+  const totalTvl = DEFI_CHAINS.reduce((s,c)=>s+(defiChainData[c.id]?.tvl||0),0);
   if(!totalTvl) return;
   const sorted = [...DEFI_CHAINS].sort((a,b)=>(defiChainData[b.id]?.tvl||0)-(defiChainData[a.id]?.tvl||0));
   const bar = document.getElementById('dom-bar');
@@ -6604,15 +6699,13 @@ function renderDefiDomBar(){
   if(!bar||!legend) return;
   let barHtml='', legendHtml='';
   const topN = sorted.slice(0,7);
-  let shownTvl = 0;
+  const othersRaw = sorted.slice(7).reduce((s,c)=>s+(defiChainData[c.id]?.tvl||0),0);
   topN.forEach(ch => {
     const pct = (defiChainData[ch.id]?.tvl||0)/totalTvl*100;
     if(pct<0.5) return;
-    shownTvl += defiChainData[ch.id]?.tvl||0;
     barHtml += `<div class="dom-bar-seg" style="width:${pct.toFixed(1)}%;background:${ch.color}" title="${ch.name}: ${pct.toFixed(1)}%"></div>`;
     legendHtml += `<div class="dom-legend-item"><div class="dom-legend-dot" style="background:${ch.color}"></div><span style="color:#b8ccd8;font-weight:600">${ch.symbol}</span><span style="color:#3a5a70">${pct.toFixed(1)}%</span></div>`;
   });
-  const othersRaw = totalTvl - shownTvl; // every other chain, tracked or not
   if(othersRaw>0){
     const oPct=(othersRaw/totalTvl*100);
     barHtml += `<div class="dom-bar-seg" style="width:${oPct.toFixed(1)}%;background:#2e4a60"></div>`;
@@ -6624,7 +6717,7 @@ function renderDefiDomBar(){
 // ── Render leaderboard ────────────────────────────────────────
 let defiLeaderRows = [];
 function renderDefiLeaderboard(){
-  const totalTvl = defiChainData._allChainsTvl || DEFI_CHAINS.reduce((s,c)=>s+(defiChainData[c.id]?.tvl||0),0);
+  const totalTvl = DEFI_CHAINS.reduce((s,c)=>s+(defiChainData[c.id]?.tvl||0),0);
   defiLeaderRows = DEFI_CHAINS.map((ch,i) => {
     const d = defiChainData[ch.id]||{};
     return { rank:i+1, id:ch.id, name:ch.name, symbol:ch.symbol, color:ch.color, icon:ch.icon,
