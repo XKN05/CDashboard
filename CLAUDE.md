@@ -58,9 +58,5 @@ Binance et Hyperliquid sont injoignables depuis la sandbox Claude Code : le test
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
 - Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?
 - **Tâche : vue « Prix vs fondamentaux »** — pour chaque token ARCA, variation du revenu 30 j (DefiLlama) vs variation du prix ; faire ressortir les divergences. Validée par Tim le 24 oct. 2026, pas démarrée.
-- **Lot B (méthode, modifie les scores — une décision de Tim par point)** :
-  - Valorisation relative ARCA (±12 pts) basée sur le `localStorage` → score différent selon l'appareil ; `ARCA_REL_SEED` pollué (~20 % de valeurs de repli répétées : TRX, AERO, ENA, MET, PENDLE, RAY, SYRUP).
-  - Real Yield Net du score = `realYield` statique − `inflation` statique alors que `liveRealYield` existe ; `protocolAge` calculé avec `2026` en dur.
-  - Artemis : « DAU Growth » = croissance des frais ; MC/Fees avec la market cap actuelle sur tout l'historique ; historique synthétique fabriqué en repli ; SMA 20W BTC exclut la dernière semaine clôturée.
-  - DeFi : frais par chaîne répartis à parts égales entre les chaînes d'un protocole ; DAU / wallets / devs datés d'avril 2025.
+- Lot B (build `2026-10-24-d`, dans `Test.html`) : valorisation relative ARCA reconstruite en live (DefiLlama + CoinGecko), Real Yield Net sur le rendement live, âge sur l'année en cours, Artemis (Fee Growth, MC/Fees sur la vraie market cap, plus d'historique fictif, SMA 20W corrigée), DeFi (frais réels par chaîne, colonnes DAU/Wallets/Devs retirées). À valider par Tim sur le vrai réseau, notamment la limite de requêtes CoinGecko (≈ 30 appels d'historique) et les noms de chaînes DefiLlama (BSC, Hyperliquid).
 - Pistes hors bug : données SYRUP à revérifier, bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi (pas démarré).
