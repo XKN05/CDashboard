@@ -1752,12 +1752,10 @@ const ARCA_ASSETS = [
     nextUnlock:"Fully vested — supply ~94.9B. Net issuance positive Jul–Oct 2026 (burns covered ~64% of issuance).",
     staticCircSupply:94870e6, staticTotalSupply:94873e6,
     icon:"T", color:"#e8342d", source:"binance", binanceSymbol:"TRXUSDT",
-    staticPE:86, annualRevenue:"~$366M used in the score (manual override, unchanged) — TRON DAO / Token Terminal report ~$600–720M per QUARTER (~$2.4–2.9B/yr) on a broader fee definition. Decision pending.", realYield:"~4%", inflation:"~1% (issuance exceeded burns Jul–Oct 2026; DAO Q2 figure ~0%)", staticTVL:"~$5.1B",
+    staticPE:86, annualRevenue:"Live: DefiLlama Tron chain revenue (narrow, gas-based definition). For reference, TRON DAO / Token Terminal report ~$600–720M per quarter (~$2.4–2.9B/yr) on a broader fee definition.", realYield:"~4%", inflation:"~1% (issuance exceeded burns Jul–Oct 2026; DAO Q2 figure ~0%)", staticTVL:"~$5.1B",
     defillamaSlug:"tron", defillamaChainSlug:"Tron", coingeckoId:"tron",
     useFeesAsRevenue:false,
-    // DefiLlama chain fees = gas only. overrideRevenue forces the economic revenue used for P/E.
-    // Oct 2026: sources now disagree ~7× (366M here vs ~2.4–2.9B/yr per TRON DAO / Token Terminal) — left unchanged pending Tim's decision.
-    overrideRevenue:366e6,
+    // Revenue = live DefiLlama chain revenue (Tim, 25 Oct 2026) — no manual override. Narrower than TRON DAO's figure.
     buybackLevel:"programmatic", buybackNote:"Fee burn on every transaction. USDD stability burns TRX. Tron Inc. treasury accumulating TRX.",
     realYieldSource:"Staking APY from DPoS validators (~4–6%) — a different mechanism than fee-revenue sharing, so this won't switch to 🟢 Live like fee-split tokens.", inflationSource:"CryptoTicker (supply grew every day Jul 1–Oct 16 2026) vs TRON DAO Q2 report (~0.03%)",
     dataDate:"Oct 2026",
@@ -1845,24 +1843,6 @@ const ARCA_ASSETS = [
       { label:"Supply concentration", bizMalus:0, riskMalus:-8, detail:"~70% of LIT sat in 10 wallets (DEXTools, Jul 2026). Thin real float." },
     ]},
 
-  // ── VVV ──────────────────────────────────────────────────────────────────────
-  { id:"VVV", name:"VVV", sector:"AI Inference", sectorPE:[10,30], protocolAge:2024,
-    nextUnlock:"Ongoing staking emissions, cut stepwise (3M → 2.5M → 2M VVV/yr)", staticCircSupply:46e6, staticTotalSupply:80e6,
-    icon:"V", color:"#e2493b", source:"binance_futures", binanceSymbol:"VVVUSDT",
-    staticPE:null, annualRevenue:"~$150M company revenue (CEO, Oct 2026) — only ~10% reached the token via burns in early Oct 2026", realYield:"~2% (est., burns ÷ MC)", inflation:"~4%", staticTVL:"N/A",
-    defillamaSlug:"venice", defillamaSlugAlt:"venice-ai", coingeckoId:"venice-token",
-    useFeesAsRevenue:false,
-    buybackLevel:"opportunistic", buybackNote:"Burn funded by company policy: $5 of every $100 of API credits (since Jul 2026) + part of subscription revenue. Not a holder right; set and changeable by the company.",
-    realYieldSource:"On-chain burns (Tokenomist, Oct 2026) ÷ circulating MC — estimate", inflationSource:"Staking emissions schedule (cut stepwise) — supply figures differ across trackers",
-    dataDate:"Oct 2026",
-    thesis:"Privacy-first AI inference platform with fast-growing, company-reported revenue. The token's link to that revenue is a discretionary burn (~10% of revenue in early October), not a protocol mechanism. Off-chain revenue means DefiLlama may not track it — the score may fall back to 'insufficient data'.",
-    moat:"Privacy-first positioning + uncensored model access + API distribution",
-    riskFlags:[
-      { label:"Off-chain, company-reported revenue", bizMalus:-5, riskMalus:0, detail:"Revenue figures come from company statements, not on-chain data." },
-      { label:"Discretionary burn", bizMalus:0, riskMalus:-8, detail:"The share of revenue reaching VVV is set by company policy; Terms of Service do not mention the token." },
-      { label:"Contract owner privileges", bizMalus:0, riskMalus:-8, detail:"GoPlus: the contract owner can change critical parameters (fees, minting, transfers)." },
-    ]},
-
   // ── DRV ──────────────────────────────────────────────────────────────────────
   { id:"DRV", name:"DRV", sector:"Options DEX", sectorPE:[8,20], protocolAge:2021,
     nextUnlock:"Linear vesting into 2029–2031 (~67% of 1.5B unlocked per Tokenomist) + 100K DRV/week staking emissions",
@@ -1901,7 +1881,7 @@ let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-24-e"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-25-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -4688,7 +4668,7 @@ const SECTOR_ICONS = {
   "DEX / Liquidity":"💧","DEX/Liquidity":"💧",
   "DeFi Lending":"🏦","Institutional Lending":"🏛",
   "Memecoin Launchpad":"🚀","RWA Tokenization":"🏢",
-  "Yield Trading":"📈","Synthetic Dollar":"💲","AI Inference":"🧠","Options DEX":"📊"
+  "Yield Trading":"📈","Synthetic Dollar":"💲","Options DEX":"📊"
 };
 function sectorBadge(sector){
   const icon=SECTOR_ICONS[sector]||'●';
