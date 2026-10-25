@@ -1061,7 +1061,7 @@ tr:last-child td { border-bottom:none; }
         <div class="guide-block">
           <div class="guide-block-title"><div class="gb-dot" style="background:#00d98b"></div>Step 2 — Understand the 3 Factors</div>
           <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Business 60%</span><span>Does the protocol make money? 30-day average revenue (log-scale), TVL, real yield, value accrual.</span></div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Valuation 30%</span><span>Is it cheap? Live P/E vs its sector range, P/S, MC/TVL, multiple vs own 90d median.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Valuation 30%</span><span>Is it cheap? Live P/E, P/S, MC/TVL, multiple vs own 90d median.</span></div>
           <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Capital Risk 10%</span><span>Is dilution eating gains? Net dilution (inflation − value accrual), unlocks, thin-liquidity penalty.</span></div>
         </div>
         <div class="guide-block">
@@ -1528,7 +1528,7 @@ const TOKENS = [
 
 const ARCA_ASSETS = [
   // ── HYPE ─────────────────────────────────────────────────────────────────────
-  { id:"HYPE", name:"HYPE", sector:"Perps DEX", sectorPE:[6,12], protocolAge:2023,
+  { id:"HYPE", name:"HYPE", sector:"Perps DEX",  protocolAge:2023,
     nextUnlock:"Core contributors: 9.92M HYPE/month scheduled (24-month linear from Nov 2025), but actual claims are far lower and rising (0.17M in Mar → 3.75M in Oct 2026, OTC). Next: Nov 6 2026", staticCircSupply:254e6, staticTotalSupply:1000e6,
     icon:"H", color:"#00d4aa", source:"hyperliquid", binanceSymbol:"HYPEUSDT",
     annualRevenue:"~$760M trading fees (~$14.6M/week, Oct 2026) + USDC reserve yield since AQAv2", realYield:"~4%", inflation:"~10% (actual core-contributor claims, rising; scheduled maximum would be far higher)", staticTVL:"~$3.5B",
@@ -1541,7 +1541,7 @@ const ARCA_ASSETS = [
     moat:"Network effect + HLP self-sustaining liquidity + first-mover on-chain perps + Hyperliquid L1 defensibility" },
 
   // ── JUP ──────────────────────────────────────────────────────────────────────
-  { id:"JUP", name:"JUP", sector:"DEX Aggregator", sectorPE:[8,18], protocolAge:2022,
+  { id:"JUP", name:"JUP", sector:"DEX Aggregator",  protocolAge:2022,
     nextUnlock:"~53% of max supply still locked/unvesting — largest overhang of any token in this list", staticCircSupply:3.32e9, staticTotalSupply:7e9,
     icon:"J", color:"#c9a227", source:"binance", binanceSymbol:"JUPUSDT",
     annualRevenue:"~$35M (Aggregator alone, annualized) — Perps/Lend/other products add more, no single combined figure confirmed", realYield:"~3-6%", inflation:"~15-20% (over half of max supply still to unlock)", staticTVL:"~$800M-1.65B (Jupiter Lend) + $519M (Jupiter Staked SOL) — Aggregator itself has no TVL, it's a router",
@@ -1554,7 +1554,7 @@ const ARCA_ASSETS = [
     moat:"80%+ Solana DEX routing share + Perpetuals + Launchpad + DCA + fastest-growing Solana lending market — full-stack aggregation moat with real product diversification beyond just routing." },
 
   // ── UNI ──────────────────────────────────────────────────────────────────────
-  { id:"UNI", name:"UNI", sector:"DEX Protocol", sectorPE:[12,25], protocolAge:2020,
+  { id:"UNI", name:"UNI", sector:"DEX Protocol",  protocolAge:2020,
     nextUnlock:"Fully vested (governance treasury remains)", staticCircSupply:600e6, staticTotalSupply:1000e6,
     icon:"U", color:"#ff007a", source:"binance", binanceSymbol:"UNIUSDT",
     annualRevenue:"~$26-119M (17% fee-switch cut only, NOT total fees — see note)", realYield:"~1-4%", inflation:"~2%", staticTVL:"~$2.3B",
@@ -1569,7 +1569,7 @@ const ARCA_ASSETS = [
     moat:"Brand dominance + multi-chain + Uniswap v4 hooks + institutional liquidity + UniswapX cross-chain routing" },
 
   // ── AAVE ─────────────────────────────────────────────────────────────────────
-  { id:"AAVE", name:"AAVE", sector:"DeFi Lending", sectorPE:[10,20], protocolAge:2020,
+  { id:"AAVE", name:"AAVE", sector:"DeFi Lending",  protocolAge:2020,
     nextUnlock:"Fully vested", staticCircSupply:15e6, staticTotalSupply:16e6,
     icon:"A", color:"#b6509e", source:"binance", binanceSymbol:"AAVEUSDT",
     annualRevenue:"~$134M to the DAO (Aave-branded products, per Kulechov) — ~$400M protocol-level revenue on a broader definition", realYield:"~1%", inflation:"~0.5%", staticTVL:"~$15B",
@@ -1583,7 +1583,7 @@ const ARCA_ASSETS = [
   },
 
   // ── PUMP ─────────────────────────────────────────────────────────────────────
-  { id:"PUMP", name:"PUMP", sector:"Memecoin Launchpad", sectorPE:[3,8], protocolAge:2024,
+  { id:"PUMP", name:"PUMP", sector:"Memecoin Launchpad",  protocolAge:2024,
     nextUnlock:"Jul 12 2026 cliff (~82.5B tokens, passed) · Aug 12 2026 follow-on (~6.875B, passed) · 3yr linear vest ongoing",
     icon:"⬡", color:"#7ceb34", source:"binance", binanceSymbol:"PUMPUSDT",
     annualRevenue:"~$320-356M trailing 2026 run-rate (highly volatile — hit ~$455M annualized in a strong Aug 2026 week, but full-year 2025 was $971M, so this business swings hard both ways)", realYield:"~4%", inflation:"~1%", staticTVL:"N/A",
@@ -1604,7 +1604,7 @@ const ARCA_ASSETS = [
     ]},
 
   // ── ONDO ─────────────────────────────────────────────────────────────────────
-  { id:"ONDO", name:"ONDO", sector:"RWA Tokenization", sectorPE:[15,35], protocolAge:2023,
+  { id:"ONDO", name:"ONDO", sector:"RWA Tokenization",  protocolAge:2023,
     nextUnlock:"Annual January cliffs (1.94B ONDO in Jan 2026); next Jan 2027, vesting through 2028", staticCircSupply:3.2e9, staticTotalSupply:10e9,
     icon:"O", color:"#2775ca", source:"binance", binanceSymbol:"ONDOUSDT",
     annualRevenue:"~$50M (unverified — management fees on ~$3B tokenized Treasuries)", realYield:"0% (fees accrue to Ondo Finance, not to holders)", inflation:"~18%", staticTVL:"~$4B (Oct 2026: Treasuries ~$3B + tokenized stocks/ETFs ~$1.3B)",
@@ -1617,7 +1617,7 @@ const ARCA_ASSETS = [
     moat:"Institutional partnerships + US Treasury tokenization pioneer + BlackRock BUIDL integration + tokenized equities distribution" },
 
   // ── MET ──────────────────────────────────────────────────────────────────────
-  { id:"MET", name:"MET", sector:"DEX / Liquidity", sectorPE:[5,15], protocolAge:2023,
+  { id:"MET", name:"MET", sector:"DEX / Liquidity",  protocolAge:2023,
     nextUnlock:"Team 18% vests linearly 6y from Oct 2025", staticCircSupply:510e6, staticTotalSupply:1000e6,
     icon:"◎", color:"#00e5ff", source:"binance", binanceSymbol:"METUSDT",
     annualRevenue:"~$15-40M (Q1 2026 revenue was $11.4M quarterly and falling — down to a $1.3M/month pace by March; $100M was a 2024-2025 peak figure, not current)", realYield:"~2-4%", inflation:"~3%", staticTVL:"~$329M",
@@ -1630,7 +1630,7 @@ const ARCA_ASSETS = [
     moat:"Solana liquidity infrastructure + DLMM capital efficiency + fair launch credibility + deep Jupiter integration, though competitive intensity from Raydium/Orca/PumpSwap is visibly compressing fees across all Solana DEXs, not just Meteora." },
 
   // ── ASTER ─────────────────────────────────────────────────────────────────────
-  { id:"ASTER", name:"ASTER", sector:"Perps DEX (BNB)", sectorPE:[5,12], protocolAge:2025,
+  { id:"ASTER", name:"ASTER", sector:"Perps DEX (BNB)",  protocolAge:2025,
     nextUnlock:"Team/reserve vest linearly 6y", staticCircSupply:2.5e9, staticTotalSupply:8e9,
     icon:"✦", color:"#e6007a", source:"binance", binanceSymbol:"ASTERUSDT",
     annualRevenue:"~$800M figure could never be independently verified and now looks implausible — 30d DEX volume is only ~$308M (down from a $24.7B single-day peak in Sept 2025), which wouldn't support anywhere near $800M in annual fee revenue at typical perps fee rates. Treat this figure as unreliable until confirmed live.", realYield:"~2-5% (est., unverified)", inflation:"~8%", staticTVL:"~$832M",
@@ -1643,7 +1643,7 @@ const ARCA_ASSETS = [
     moat:"YZi Labs backing + BNB Chain native + hidden orders + multi-chain (BNB/ETH/SOL/ARB) + planned Aster L1, though the moat has proven highly contestable — its brief volume dominance over Hyperliquid in late 2025 did not hold." },
 
   // ── SYRUP ─────────────────────────────────────────────────────────────────────
-  { id:"SYRUP", name:"SYRUP", sector:"Institutional Lending", sectorPE:[10,25], protocolAge:2021,
+  { id:"SYRUP", name:"SYRUP", sector:"Institutional Lending",  protocolAge:2021,
     nextUnlock:"Mostly vested (MPL>SYRUP conversion completed Apr 2025)", staticCircSupply:1.2e9, staticTotalSupply:1.22e9,
     icon:"S", color:"#ff6b35", source:"binance", binanceSymbol:"SYRUPUSDT",
     annualRevenue:"~$19M (Sep 2026 run-rate $1.57M/month; $13.7M YTD)", realYield:"~1%", inflation:"~1%", staticTVL:"~$1.9B deposits ($4.8B AUM)",
@@ -1656,7 +1656,7 @@ const ARCA_ASSETS = [
     moat:"Institutional relationships + credit underwriting expertise + Syrup.fi retail product + near-fully vested supply" },
 
   // ── AERO ─────────────────────────────────────────────────────────────────────
-  { id:"AERO", name:"AERO", sector:"DEX Protocol", sectorPE:[5,15], protocolAge:2023,
+  { id:"AERO", name:"AERO", sector:"DEX Protocol",  protocolAge:2023,
     nextUnlock:"Continuous emissions (~25%/yr inflation)", staticCircSupply:920e6, staticTotalSupply:1.86e9,
     icon:"⬟", color:"#0052ff", source:"binance", binanceSymbol:"AEROUSDT",
     annualRevenue:"~$111M", realYield:"~14%", inflation:"~25%", staticTVL:"~$269M",
@@ -1669,7 +1669,7 @@ const ARCA_ASSETS = [
     moat:"Base chain default DEX + Coinbase ecosystem access + ve(3,3) lock flywheel + Aerodrome v2 concentrated liquidity" },
 
   // ── PENDLE ───────────────────────────────────────────────────────────────────
-  { id:"PENDLE", name:"PENDLE", sector:"Yield Trading", sectorPE:[8,20], protocolAge:2021,
+  { id:"PENDLE", name:"PENDLE", sector:"Yield Trading",  protocolAge:2021,
     nextUnlock:"Emissions ongoing, decreasing schedule", staticCircSupply:258e6, staticTotalSupply:281e6,
     icon:"Ψ", color:"#3BACB6", source:"binance", binanceSymbol:"PENDLEUSDT",
     annualRevenue:"~$19-20M (trailing-year annualized per DefiLlama — down sharply, was overstated at $40M)", realYield:"~5-8%", inflation:"~3%", staticTVL:"~$1.17B (down from a $5.7B 2025 average and $13.4B 2025 peak — TVL has collapsed, not grown)",
@@ -1682,7 +1682,7 @@ const ARCA_ASSETS = [
     moat:"First-mover yield tokenization + expanding asset support + RWA/LRT integration + institutional fixed-rate demand, though the TVL decline suggests the moat alone hasn't been enough to hold assets through this cycle." },
 
   // ── ENA ──────────────────────────────────────────────────────────────────────
-  { id:"ENA", name:"ENA", sector:"Synthetic Dollar", sectorPE:[15,40], protocolAge:2024,
+  { id:"ENA", name:"ENA", sector:"Synthetic Dollar",  protocolAge:2024,
     nextUnlock:"Remaining VC/investor tokens unlock all at once Oct 5 2026 (accelerated, replacing the old monthly schedule) — ~12% of supply left locked, all team/ecosystem/Foundation", staticCircSupply:9.29e9, staticTotalSupply:15e9,
     icon:"E", color:"#7C5CFC", source:"binance", binanceSymbol:"ENAUSDT",
     annualRevenue:"~$230M (2025 total revenue), December 2025 pace was ~$57M/month", realYield:"~0%", inflation:"~12% (until Oct 2026 unlock, then structurally lower)", staticTVL:"~$4.3B (USDe supply — down from a much larger 2025 peak)",
@@ -1695,7 +1695,7 @@ const ARCA_ASSETS = [
     moat:"USDe network effect + delta-neutral funding rate arbitrage + Franklin Templeton/Pantera backing + Converge L1 + Hyena perp DEX" },
 
   // ── RAY ──────────────────────────────────────────────────────────────────────
-  { id:"RAY", name:"RAY", sector:"DEX Protocol (Solana)", sectorPE:[5,15], protocolAge:2021,
+  { id:"RAY", name:"RAY", sector:"DEX Protocol (Solana)",  protocolAge:2021,
     nextUnlock:"Emissions ongoing, 49% circ", staticCircSupply:270e6, staticTotalSupply:555e6,
     icon:"R", color:"#68C5DB", source:"binance", binanceSymbol:"RAYUSDT",
     annualRevenue:"~$94M (sources vary widely, one Jun 2026 estimate cited $655.9M — likely a methodology mismatch, treat with caution and verify live)", realYield:"~12%", inflation:"~5%", staticTVL:"~$1.1B",
@@ -1708,7 +1708,7 @@ const ARCA_ASSETS = [
     moat:"Solana DEX monopoly + LaunchLab launchpad + CLMM concentrated liquidity + deep Solana ecosystem integration + Pump.fun revenue stream" },
 
   // ── MORPHO ───────────────────────────────────────────────────────────────────
-  { id:"MORPHO", name:"MORPHO", sector:"DeFi Lending", sectorPE:[8,20], protocolAge:2022,
+  { id:"MORPHO", name:"MORPHO", sector:"DeFi Lending",  protocolAge:2022,
     nextUnlock:"Ongoing vesting, ~55% circulating", staticCircSupply:550e6, staticTotalSupply:1000e6,
     icon:"◈", color:"#9b5de5", source:"binance", binanceSymbol:"MORPHOUSDT",
     annualRevenue:"~$45M (DISPUTED — see note)", realYield:"~5%", inflation:"~6%", staticTVL:"~$9.4B",
@@ -1725,7 +1725,7 @@ const ARCA_ASSETS = [
     moat:"Modular lending infrastructure + Coinbase integration + MetaMorpho vault ecosystem + capital efficiency vs Aave/Compound" },
 
   // ── MEGA ─────────────────────────────────────────────────────────────────────
-  { id:"MEGA", name:"MEGA", sector:"L2 Infrastructure", sectorPE:[15,40], protocolAge:2026,
+  { id:"MEGA", name:"MEGA", sector:"L2 Infrastructure",  protocolAge:2026,
     nextUnlock:"KPI-gated: 53.3% locked until network milestones hit · Fluffle 50% TGE + 6M vest · Public sale 100% TGE · Team/investors: cliff + 3Y vest · Next unlock: $500M USDM circ. supply (currently ~$62M, 12% of target)",
     staticCircSupply:1130e6, staticTotalSupply:10000e6,
     icon:"⬢", color:"#6c4fff", source:"binance", binanceSymbol:"MEGAUSDT",
@@ -1746,7 +1746,7 @@ const ARCA_ASSETS = [
     ] },
 
   // ── TRX ──────────────────────────────────────────────────────────────────────
-  { id:"TRX", name:"TRX", sector:"L1 Stablecoin Rail", sectorPE:[20,60], protocolAge:2018,
+  { id:"TRX", name:"TRX", sector:"L1 Stablecoin Rail",  protocolAge:2018,
     nextUnlock:"Fully vested — supply ~94.9B. Net issuance positive Jul–Oct 2026 (burns covered ~64% of issuance).",
     staticCircSupply:94870e6, staticTotalSupply:94873e6,
     icon:"T", color:"#e8342d", source:"binance", binanceSymbol:"TRXUSDT",
@@ -1766,7 +1766,7 @@ const ARCA_ASSETS = [
   },
 
   // ── KNTQ ─────────────────────────────────────────────────────────────────────
-  { id:"KNTQ", name:"KNTQ", sector:"Liquid Staking (Hyperliquid)", sectorPE:[8,25], protocolAge:2025,
+  { id:"KNTQ", name:"KNTQ", sector:"Liquid Staking (Hyperliquid)",  protocolAge:2025,
     nextUnlock:"73% supply still locked · 30% protocol growth/rewards (ongoing) · 23.5% core contributors (vesting) · 10% foundation · 7.5% investors · 25% genesis airdrop (distributed Nov 2025)",
     staticCircSupply:270e6, staticTotalSupply:1000e6,
     icon:"K", color:"#00d4aa", source:"coingecko_only", binanceSymbol:null,
@@ -1798,7 +1798,7 @@ const ARCA_ASSETS = [
   },
 
   // ── LDO ──────────────────────────────────────────────────────────────────────
-  { id:"LDO", name:"LDO", sector:"Liquid Staking (Ethereum)", sectorPE:[15,30], protocolAge:2020,
+  { id:"LDO", name:"LDO", sector:"Liquid Staking (Ethereum)",  protocolAge:2020,
     nextUnlock:"Fully vested since 2024 — 1B fixed total/max supply, no further dilution possible",
     staticCircSupply:834e6, staticTotalSupply:1000e6,
     icon:"L", color:"#00a3ff", source:"binance", binanceSymbol:"LDOUSDT",
@@ -1823,7 +1823,7 @@ const ARCA_ASSETS = [
   },
 
   // ── LIT ──────────────────────────────────────────────────────────────────────
-  { id:"LIT", name:"LIT", sector:"Perps DEX", sectorPE:[6,12], protocolAge:2025,
+  { id:"LIT", name:"LIT", sector:"Perps DEX",  protocolAge:2025,
     nextUnlock:"Team/investor cliff late Dec 2026 (50% of supply, 1y lock), then ~3.2M LIT/week linear to ~2030. Ecosystem 25%: no published schedule.",
     staticCircSupply:250e6, staticTotalSupply:1000e6,
     icon:"L", color:"#4f7bff", source:"binance_futures", binanceSymbol:"LITUSDT",
@@ -1840,7 +1840,7 @@ const ARCA_ASSETS = [
     ]},
 
   // ── DRV ──────────────────────────────────────────────────────────────────────
-  { id:"DRV", name:"DRV", sector:"Options DEX", sectorPE:[8,20], protocolAge:2021,
+  { id:"DRV", name:"DRV", sector:"Options DEX",  protocolAge:2021,
     nextUnlock:"Linear vesting into 2029–2031 (~67% of 1.5B unlocked per Tokenomist) + 100K DRV/week staking emissions",
     staticCircSupply:738e6, staticTotalSupply:1500e6,
     icon:"D", color:"#2fd0b5", source:"coingecko_only", binanceSymbol:null,
@@ -1854,7 +1854,7 @@ const ARCA_ASSETS = [
     moat:"Longest-running on-chain options venue + own L2 (Derive Chain)" },
 
   // ── PONS ─────────────────────────────────────────────────────────────────────
-  { id:"PONS", name:"PONS", sector:"Memecoin Launchpad", sectorPE:[3,8], protocolAge:2026,
+  { id:"PONS", name:"PONS", sector:"Memecoin Launchpad",  protocolAge:2026,
     nextUnlock:"Fixed 1B supply, no disclosed team or investor vesting; ~32% burned by Oct 6 2026",
     staticCircSupply:679e6, staticTotalSupply:1000e6,
     icon:"P", color:"#ff4fa3", source:"coingecko_only", binanceSymbol:null,
@@ -1906,7 +1906,7 @@ let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-25-b"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-25-c"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3631,11 +3631,6 @@ function calcDynamicMetrics(a){
     // CoinGecko's 7d sparkline is hourly (~168 points) → annualize by the number of points per day
     if(returns.length>5){const mean=returns.reduce((a,b)=>a+b,0)/returns.length;const variance=returns.reduce((a,r)=>a+Math.pow(r-mean,2),0)/returns.length;const perDay=(spark.length-1)/7;vol7dPct=Math.sqrt(variance)*Math.sqrt(365*perDay)*100;}
   }
-  // Sector P/E target range from asset config
-  const sectorPELow=a.sectorPE?a.sectorPE[0]:8;
-  const sectorPEHigh=a.sectorPE?a.sectorPE[1]:20;
-  // Dynamic strike using sector PE midpoint instead of fixed 10x
-  const sectorPEMid=(sectorPELow+sectorPEHigh)/2;
   // Live Real Yield = holdersRevenue30d × 12 / circMC × 100
   const holdersRev30d=d.fees?.holdersRevenue30d||0;
   const liveRealYield=(holdersRev30d>0&&circMC>0)?Math.round(holdersRev30d*12/circMC*1000)/10:null;
@@ -3648,7 +3643,7 @@ function calcDynamicMetrics(a){
   const emissionsUnlock90dPct=d.emissions?.unlock90dPct??null;
   const emissionsHasData=d.emissions?.hasData||false;
   return{circMC,supply,totalSupply,revAnn30d,feesAnn30d,tvl,pe,ps,mcTvl,revTvl,price,fdv:d.cg?.fdv||0,
-    dynamicStrike,sectorPELow,sectorPEHigh,sectorPEMid,
+    dynamicStrike,
     hasLive:!!(d.fees||d.cg),hasOverride,mcIsLive,revSourceQuality,revIsLive,strikeIsLive,liveState,feesUsedAsRev,realYieldIsLive,
     rev24h:d.fees?.revenue24h||0,fees24h:d.fees?.fees24h||0,rev7d:d.fees?.revenue7d||0,fees7d:d.fees?.fees7d||0,rev1y:d.fees?.revenue1y||0,fees1y:d.fees?.fees1y||0,
     revQuality,feeQuality,priceSource,dataCompleteness,
@@ -3775,14 +3770,12 @@ function getConvictionScore(price, a, m) {
   fBiz = cl(fBiz);
 
   // ═══ PILLAR 2 — VALUATION (30%) ═══
-  // Live P/E only, judged against the token's own sector range [low, high]:
-  //   < low → +10 · < mid → +5 · < high → 0 · < 2×high → −5 · above (or n/m) → −10 · no live P/E → 0
+  // Live P/E only, one grid for every sector (same bands as the P/E legend):
+  //   < 10× → +10 · < 18× → +5 · < 30× → 0 · < 50× → −5 · above (or n/m) → −10 · no live P/E → 0
   const peForScore = m.pe;
-  const [peLo, peHi] = a.sectorPE || [8, 20];
-  const peMid = (peLo + peHi) / 2;
-  const pePts = peForScore==null?0 : peForScore<peLo?10 : peForScore<peMid?5 : peForScore<peHi?0 : peForScore<2*peHi?-5 : -10;
+  const pePts = peForScore==null?0 : peForScore<10?10 : peForScore<18?5 : peForScore<30?0 : peForScore<50?-5 : -10;
   let fVal = 50 + pePts;
-  bVal.push({ label:'P/E vs sector range ('+peLo+'–'+peHi+'×)', value:peForScore==null?'n/a — no live revenue':fmtPE(peForScore), pts:pts(pePts), color:pePts>0?G:pePts<0?R:M });
+  bVal.push({ label:'P/E (live)', value:peForScore==null?'n/a — no live revenue':fmtPE(peForScore), pts:pts(pePts), color:pePts>0?G:pePts<0?R:M });
   if (m.ps != null) {
     const psPts = m.ps<2?15 : m.ps<5?8 : m.ps>40?-15 : m.ps>20?-8 : 0;
     fVal = cl(fVal + psPts);
