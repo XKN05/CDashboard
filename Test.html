@@ -1153,6 +1153,27 @@ tr:last-child td { border-bottom:none; }
     </div>
   </div>
 
+  <!-- Price vs Fundamentals -->
+  <div class="rev-chart-wrap">
+    <div class="rev-chart-header" onclick="var b=document.getElementById('pvf-body');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.pvfchv').textContent=b.style.display==='none'?'\u25b6':'\u25bc'">
+      <div style="width:28px;height:28px;border-radius:50%;background:#3d8bff18;color:#3d8bff;border:1px solid #3d8bff33;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">⇅</div>
+      <div>
+        <div style="font-size:10px;color:#3d8bff;letter-spacing:2px;text-transform:uppercase;font-weight:600">Price vs Fundamentals — 30 Days</div>
+        <div style="font-size:11px;color:#7a9ab0;margin-top:2px">Revenue trend vs price trend: where they diverge</div>
+      </div>
+      <span class="pvfchv" style="color:#3d8bff;font-size:14px;flex-shrink:0;margin-left:auto">▶</span>
+    </div>
+    <div id="pvf-body" style="display:none">
+      <div class="table-wrap">
+        <table style="font-size:11px">
+          <thead><tr><th>Asset</th><th class="r">Price 30d</th><th class="r" title="Last 30 complete days vs the 30 days before (daily average)">Revenue 30d</th><th class="r" title="Revenue change minus price change, in percentage points">Gap</th><th>Reading</th></tr></thead>
+          <tbody id="pvf-rows"><tr><td colspan="5" style="color:#3a5a70;text-align:center;padding:14px">Load ARCA data first</td></tr></tbody>
+        </table>
+      </div>
+      <div style="font-size:9px;color:#2e4a60;margin-top:8px;line-height:1.6">Descriptive only — not used in any score. Revenue = DefiLlama daily revenue (fees where the protocol reports no revenue series, marked <em>fees</em>), last 30 complete days vs the previous 30, daily averages. Price = CoinGecko 30d change. Launchpads and other volatile protocols swing a lot month to month. Not investment advice.</div>
+    </div>
+  </div>
+
   <!-- Sort + Source Status -->
   <div class="arca-sort-bar">
     <label style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px">Sort by</label>
@@ -1508,15 +1529,15 @@ const TOKENS = [
 const ARCA_ASSETS = [
   // ── HYPE ─────────────────────────────────────────────────────────────────────
   { id:"HYPE", name:"HYPE", sector:"Perps DEX", sectorPE:[6,12], protocolAge:2023,
-    nextUnlock:"Ongoing linear vest through 2028", staticCircSupply:333.33e6, staticTotalSupply:1000e6,
+    nextUnlock:"Core contributors: 9.92M HYPE/month scheduled (24-month linear from Nov 2025), but actual claims are far lower and rising (0.17M in Mar → 3.75M in Oct 2026, OTC). Next: Nov 6 2026", staticCircSupply:254e6, staticTotalSupply:1000e6,
     icon:"H", color:"#00d4aa", source:"hyperliquid", binanceSymbol:"HYPEUSDT",
-    staticPE:9.2, annualRevenue:"~$1.2B", realYield:"~10%", inflation:"~2%", staticTVL:"~$3.5B",
+    staticPE:26, annualRevenue:"~$760M trading fees (~$14.6M/week, Oct 2026) + USDC reserve yield since AQAv2", realYield:"~4%", inflation:"~10% (actual core-contributor claims, rising; scheduled maximum would be far higher)", staticTVL:"~$3.5B",
     defillamaSlug:"hyperliquid", defillamaSlugAlt:"hyperliquid-dex", coingeckoId:"hyperliquid",
     useFeesAsRevenue:true, // Hyperliquid retains 100% of trading fees (no LP revenue share)
-    buybackLevel:"programmatic", buybackNote:"HLP vault distributions + programmatic HYPE buybacks from trading fees",
-    realYieldSource:"HLP vault + fee distributions, 2025-2026", inflationSource:"Tokenomics docs",
-    dataDate:"Apr 2026",
-    thesis:"Dominant perps exchange. $1.2B annualised fees, P/E ~9×. Vertically integrated: exchange + chain + vault. Best risk-adjusted entry in the list.",
+    buybackLevel:"programmatic", buybackNote:"97–99% of trading fees → Assistance Fund buys HYPE daily (>48M HYPE held, ~$1.37B spent by Oct 13 2026). AQAv2 adds ~90% of USDC reserve yield to the buybacks.",
+    realYieldSource:"Assistance Fund buybacks ÷ circulating MC, Oct 2026", inflationSource:"Core-contributor claims (Unlocks.app / Tokenomist), Oct 2026 — circulating supply definitions differ (~254M on one Oct 23 snapshot)",
+    dataDate:"Oct 2026",
+    thesis:"Dominant on-chain perps venue. Nearly all trading fees are recycled into daily HYPE buybacks, now topped up by USDC reserve yield. Buybacks have not prevented a ~17% monthly drawdown into October 2026: core-contributor claims are rising and the buyback is a demand source, not a price floor.",
     moat:"Network effect + HLP self-sustaining liquidity + first-mover on-chain perps + Hyperliquid L1 defensibility" },
 
   // ── JUP ──────────────────────────────────────────────────────────────────────
@@ -1551,13 +1572,13 @@ const ARCA_ASSETS = [
   { id:"AAVE", name:"AAVE", sector:"DeFi Lending", sectorPE:[10,20], protocolAge:2020,
     nextUnlock:"Fully vested", staticCircSupply:15e6, staticTotalSupply:16e6,
     icon:"A", color:"#b6509e", source:"binance", binanceSymbol:"AAVEUSDT",
-    staticPE:15.6, annualRevenue:"~$100M", realYield:"~4%", inflation:"~0.5%", staticTVL:"~$15B",
+    staticPE:15.6, annualRevenue:"~$134M to the DAO (Aave-branded products, per Kulechov) — ~$400M protocol-level revenue on a broader definition", realYield:"~1%", inflation:"~0.5%", staticTVL:"~$15B",
     defillamaSlug:"aave", defillamaSlugAlt:"aave-v3", coingeckoId:"aave",
     useFeesAsRevenue:false, // Aave revenue = treasury reserve factor — tracked in revenue30d
-    buybackLevel:"programmatic", buybackNote:"Aave buyback program + Safety Module staking rewards. GHO revenue → AAVE buybacks.",
-    realYieldSource:"Buybacks come from discretionary treasury votes (Safety Module + GHO revenue), not a continuous on-chain fee split — this is why live tracking usually shows ~$0.", inflationSource:"Aave governance — near-zero net inflation",
-    dataDate:"Apr 2026",
-    thesis:"Blue-chip DeFi lender. Deep TVL, multi-chain deployment, GHO stablecoin integration.",
+    buybackLevel:"programmatic", buybackNote:"Aavenomics 3.0 (Jun 2026): buybacks became a protocol default rather than a committee decision; $250K–1.75M weekly. Annual budget reported at $50M (Oct 2026) but a Mar 2026 vote reportedly cut it to $30M — unreconciled.",
+    realYieldSource:"$30–50M/yr buyback budget ÷ circulating MC, Oct 2026", inflationSource:"Aave governance — near-zero net inflation",
+    dataDate:"Oct 2026",
+    thesis:"Blue-chip DeFi lender. Deep TVL, multi-chain deployment, GHO stablecoin. Buybacks are now a protocol default, though the pilot was reported at a ~7% loss and the annual budget figure is disputed between sources.",
     moat:"Brand + TVL depth + multi-chain deployment + regulatory positioning + GHO stablecoin",
   },
 
@@ -1584,16 +1605,16 @@ const ARCA_ASSETS = [
 
   // ── ONDO ─────────────────────────────────────────────────────────────────────
   { id:"ONDO", name:"ONDO", sector:"RWA Tokenization", sectorPE:[15,35], protocolAge:2023,
-    nextUnlock:"Ongoing investor vest through 2028", staticCircSupply:3.2e9, staticTotalSupply:10e9,
+    nextUnlock:"Annual January cliffs (1.94B ONDO in Jan 2026); next Jan 2027, vesting through 2028", staticCircSupply:3.2e9, staticTotalSupply:10e9,
     icon:"O", color:"#2775ca", source:"binance", binanceSymbol:"ONDOUSDT",
-    staticPE:11.5, annualRevenue:"~$50M", realYield:"~1%", inflation:"~18%", staticTVL:"~$2.7B",
+    staticPE:11.5, annualRevenue:"~$50M (unverified — management fees on ~$3B tokenized Treasuries)", realYield:"0% (fees accrue to Ondo Finance, not to holders)", inflation:"~18%", staticTVL:"~$4B (Oct 2026: Treasuries ~$3B + tokenized stocks/ETFs ~$1.3B)",
     defillamaSlug:"ondo-finance", defillamaSlugAlt:"ondo-yield-assets", coingeckoId:"ondo-finance",
     useFeesAsRevenue:true, // DefiLlama reports management fees as fees (not revenue) for RWA protocols
-    buybackLevel:"none", buybackNote:"No buyback program. Revenue retained by Ondo Finance treasury.",
-    realYieldSource:"Estimated from Ondo's stated AUM management fee — not distributed to ONDO holders today, it accrues to the treasury.", inflationSource:"Unlock schedule — 68% still locked, vesting through 2028",
-    dataDate:"Apr 2026",
-    thesis:"RWA narrative leader. $2.7B TVL in tokenized Treasuries. High inflation (-18%/yr) is the key risk. Revenue = management fees on AUM.",
-    moat:"Institutional partnerships + US Treasury tokenization pioneer + BlackRock BUIDL integration + $2.7B TVL" },
+    buybackLevel:"none", buybackNote:"No buyback program and no fee sharing — ONDO is a governance token; revenue stays with Ondo Finance.",
+    realYieldSource:"No distribution to ONDO holders.", inflationSource:"Unlock schedule — large January cliffs through 2028",
+    dataDate:"Oct 2026",
+    thesis:"RWA leader: TVL passed $4B in Oct 2026, with tokenized stocks/ETFs (Ondo Global Markets) now over $1.3B next to ~$3B of tokenized Treasuries. The token captures none of that revenue today, and unlock cliffs have repeatedly weighed on it despite TVL growth.",
+    moat:"Institutional partnerships + US Treasury tokenization pioneer + BlackRock BUIDL integration + tokenized equities distribution" },
 
   // ── MET ──────────────────────────────────────────────────────────────────────
   { id:"MET", name:"MET", sector:"DEX / Liquidity", sectorPE:[5,15], protocolAge:2023,
@@ -1625,13 +1646,13 @@ const ARCA_ASSETS = [
   { id:"SYRUP", name:"SYRUP", sector:"Institutional Lending", sectorPE:[10,25], protocolAge:2021,
     nextUnlock:"Mostly vested (MPL>SYRUP conversion completed Apr 2025)", staticCircSupply:1.2e9, staticTotalSupply:1.22e9,
     icon:"S", color:"#ff6b35", source:"binance", binanceSymbol:"SYRUPUSDT",
-    staticPE:22, annualRevenue:"~$14M", realYield:"~3%", inflation:"~1%", staticTVL:"~$2.2B",
+    staticPE:22, annualRevenue:"~$19M (Sep 2026 run-rate $1.57M/month; $13.7M YTD)", realYield:"~1%", inflation:"~1%", staticTVL:"~$1.9B deposits ($4.8B AUM)",
     defillamaSlug:"maple", defillamaSlugAlt:"maple-finance", coingeckoId:"maple-finance", coingeckoIdAlt:"syrup",
     useFeesAsRevenue:false, // Maple revenue = management + origination fees — tracked in revenue30d
-    buybackLevel:"programmatic", buybackNote:"25% of protocol revenue → SYRUP buybacks (MIP-019). Active since Q3 2024.",
-    realYieldSource:"MIP-019 buyback program, DefiLlama holders revenue, 2025", inflationSource:"Near fully vested — 1.2B/1.22B circ supply",
-    dataDate:"Apr 2026 figures — not independently re-verified in the Aug 2026 audit round, unlike the other 15 tokens. Flagged for next pass.",
-    thesis:"Institutional DeFi lending. $2.2B TVL. Dragonfly-backed. Blue-chip borrowers (Celsius recovery, market makers). Low revenue vs TVL = room to grow.",
+    buybackLevel:"programmatic", buybackNote:"MIP-021 (live Jul 13 2026): SYRUP Strategic Fund buys back 10% of monthly revenue below $1.5M, 20% up to $2.0M, 30% above. 2.9M SYRUP bought in Q3 2026.",
+    realYieldSource:"MIP-021 buybacks (~$2.7M/yr at the Q3 pace) ÷ circulating MC, Oct 2026", inflationSource:"Near fully vested — 1.2B/1.22B circ supply",
+    dataDate:"Oct 2026",
+    thesis:"Institutional on-chain credit. AUM $4.8B (+47% YoY), loans outstanding $1.7B, revenue ~$1.5M/month and rising — yet SYRUP fell ~24% in one week in early October. Buybacks are tiered on revenue, so they scale only as revenue crosses the $1.5M/$2M monthly thresholds.",
     moat:"Institutional relationships + credit underwriting expertise + Syrup.fi retail product + near-fully vested supply" },
 
   // ── AERO ─────────────────────────────────────────────────────────────────────
@@ -1728,20 +1749,18 @@ const ARCA_ASSETS = [
 
   // ── TRX ──────────────────────────────────────────────────────────────────────
   { id:"TRX", name:"TRX", sector:"L1 Stablecoin Rail", sectorPE:[20,60], protocolAge:2018,
-    nextUnlock:"Fully vested — supply ~95B/95B max. Deflationary via fee burn.",
-    staticCircSupply:94900e6, staticTotalSupply:95000e6,
+    nextUnlock:"Fully vested — supply ~94.9B. Net issuance positive Jul–Oct 2026 (burns covered ~64% of issuance).",
+    staticCircSupply:94870e6, staticTotalSupply:94873e6,
     icon:"T", color:"#e8342d", source:"binance", binanceSymbol:"TRXUSDT",
-    staticPE:86, annualRevenue:"~$366M", realYield:"~4%", inflation:"~0%", staticTVL:"~$5.1B",
+    staticPE:86, annualRevenue:"Live: DefiLlama Tron chain revenue (narrow, gas-based definition). For reference, TRON DAO / Token Terminal report ~$600–720M per quarter (~$2.4–2.9B/yr) on a broader fee definition.", realYield:"~4%", inflation:"~1% (issuance exceeded burns Jul–Oct 2026; DAO Q2 figure ~0%)", staticTVL:"~$5.1B",
     defillamaSlug:"tron", defillamaChainSlug:"Tron", coingeckoId:"tron",
     useFeesAsRevenue:false,
-    // DefiLlama chain fees = ~$70M (gas only). True revenue = $366M (bandwidth + energy + USDT settlement).
-    // overrideRevenue forces correct economic revenue. Chain slug used for TVL only.
-    overrideRevenue:366e6,
-    buybackLevel:"programmatic", buybackNote:"Fee burn on every transaction. USDD stability burns TRX. Tron Inc. treasury accumulating 693M+ TRX.",
-    realYieldSource:"Staking APY from DPoS validators — a different mechanism than fee-revenue sharing, so this won't switch to 🟢 Live like fee-split tokens.", inflationSource:"Near-zero net inflation — fee burn offsets issuance. Fully vested.",
-    dataDate:"Apr 2026",
-    thesis:"World's largest stablecoin rail: $86.7B USDT on TRON (~50% global supply). $366M ann. revenue, 3.2M DAU. Fully vested, deflationary. High PE but structural revenue.",
-    moat:"USDT infrastructure monopoly + lowest global transfer fees + 3.2M DAU + MetaMask/Mastercard integration + quantum-resistant roadmap",
+    // Revenue = live DefiLlama chain revenue (Tim, 25 Oct 2026) — no manual override. Narrower than TRON DAO's figure.
+    buybackLevel:"programmatic", buybackNote:"Fee burn on every transaction. USDD stability burns TRX. Tron Inc. treasury accumulating TRX.",
+    realYieldSource:"Staking APY from DPoS validators (~4–6%) — a different mechanism than fee-revenue sharing, so this won't switch to 🟢 Live like fee-split tokens.", inflationSource:"CryptoTicker (supply grew every day Jul 1–Oct 16 2026) vs TRON DAO Q2 report (~0.03%)",
+    dataDate:"Oct 2026",
+    thesis:"World's largest stablecoin rail: ~$94B of USDT/USDD on TRON at Q3 2026, $2.1T USDT moved in Q2. Fully vested. Revenue fell after Proposal #104 cut energy prices, and issuance has recently outpaced burns.",
+    moat:"USDT infrastructure monopoly + lowest global transfer fees + MetaMask/Mastercard integration + quantum-resistant roadmap",
     riskFlags:[
       { label:"Regulatory — Justin Sun", bizMalus:-10, riskMalus:-12, detail:"SEC civil fraud charges (2023, ongoing). U.S. Treasury froze $344M USDT on TRON (Apr 2026) — Iran sanctions link. Centralized DPoS governance." },
       { label:"Centralization — DPoS", bizMalus:-5, riskMalus:-8, detail:"27 Super Representatives control block production. Censorship risk if SRs coordinate. Not trustlessly decentralized." },
@@ -1806,13 +1825,63 @@ const ARCA_ASSETS = [
         detail:"NEST buyback requires ETH>$3,000 AND revenue>$40M annualized simultaneously — as of the most recent data, ETH has traded well under $3,000 through most of 2026, so this remains inactive." },
     ],
   },
+
+  // ── LIT ──────────────────────────────────────────────────────────────────────
+  { id:"LIT", name:"LIT", sector:"Perps DEX", sectorPE:[6,12], protocolAge:2025,
+    nextUnlock:"Team/investor cliff late Dec 2026 (50% of supply, 1y lock), then ~3.2M LIT/week linear to ~2030. Ecosystem 25%: no published schedule.",
+    staticCircSupply:250e6, staticTotalSupply:1000e6,
+    icon:"L", color:"#4f7bff", source:"binance_futures", binanceSymbol:"LITUSDT",
+    staticPE:null, annualRevenue:"~$22–34M (DefiLlama 30d revenue $1.85–2.8M depending on page/snapshot)", realYield:"~4% (est.)", inflation:"~55% (forward 12m: Dec 2026 cliff then ~3.2M/week + staking paid from reserve, on a 25% float)", staticTVL:"N/A",
+    defillamaSlug:"lighter", defillamaSlugAlt:"lighter-perps", coingeckoId:"lighter",
+    useFeesAsRevenue:false,
+    buybackLevel:"programmatic", buybackNote:"Trading revenue funds LIT buybacks; since mid-2026 repurchased LIT is burned (~15.5M bought since TGE). Staking yield is paid from the 250M ecosystem reserve, which partly offsets the burns.",
+    realYieldSource:"Revenue-funded buybacks ÷ circulating MC — estimate, Oct 2026", inflationSource:"Tokenomist / DefiLlama unlocks — cliff date differs by source (Dec 27–29 2026 or Jan 28 2027)",
+    dataDate:"Oct 2026",
+    thesis:"ZK-rollup perps DEX that launched LIT in Dec 2025 with a 25% float. Revenue-funded buybacks are now burned. The defining event is the team/investor cliff around end-2026: from then on, scheduled unlocks dwarf the burn.",
+    moat:"ZK order-book perps + zero-fee retail model + Robinhood Chain deployment",
+    riskFlags:[
+      { label:"Supply concentration", bizMalus:0, riskMalus:-8, detail:"~70% of LIT sat in 10 wallets (DEXTools, Jul 2026). Thin real float." },
+    ]},
+
+  // ── DRV ──────────────────────────────────────────────────────────────────────
+  { id:"DRV", name:"DRV", sector:"Options DEX", sectorPE:[8,20], protocolAge:2021,
+    nextUnlock:"Linear vesting into 2029–2031 (~67% of 1.5B unlocked per Tokenomist) + 100K DRV/week staking emissions",
+    staticCircSupply:738e6, staticTotalSupply:1500e6,
+    icon:"D", color:"#2fd0b5", source:"coingecko_only", binanceSymbol:null,
+    staticPE:null, annualRevenue:"~$6M (Q2 2026 $1.47M/quarter)", realYield:"~2% (est.)", inflation:"~12% (est.)", staticTVL:"N/A",
+    defillamaSlug:"derive", defillamaSlugAlt:"derive-v2", coingeckoId:"derive",
+    useFeesAsRevenue:false,
+    buybackLevel:"programmatic", buybackNote:"35% of protocol revenue → weekly DRV buybacks since Apr 2026 (was 25%); a vote to raise it to 50% was pending.",
+    realYieldSource:"35% of revenue in buybacks ÷ circulating MC — estimate", inflationSource:"Tokenomist / Tokenomics.com — total supply 1.5B (docs) vs 1B (older pages)",
+    dataDate:"Oct 2026",
+    thesis:"On-chain options and perps (formerly Lyra). Programmatic buybacks from trading, gas and liquidation fees, but the revenue base is small (~$6M/yr) and supply keeps vesting for years. Not on Binance: no Ichimoku / Strategy Builder coverage.",
+    moat:"Longest-running on-chain options venue + own L2 (Derive Chain)" },
+
+  // ── PONS ─────────────────────────────────────────────────────────────────────
+  { id:"PONS", name:"PONS", sector:"Memecoin Launchpad", sectorPE:[3,8], protocolAge:2026,
+    nextUnlock:"Fixed 1B supply, no disclosed team or investor vesting; ~32% burned by Oct 6 2026",
+    staticCircSupply:679e6, staticTotalSupply:1000e6,
+    icon:"P", color:"#ff4fa3", source:"coingecko_only", binanceSymbol:null,
+    staticPE:null, annualRevenue:"~$45M annualized from DefiLlama 30d ($3.85M) — very volatile: ~$2M/day late Aug → ~$240K/day early Oct 2026", realYield:"N/A", inflation:"~0% (fixed supply, net deflationary through burns)", staticTVL:"N/A",
+    defillamaSlug:"pons", defillamaSlugAlt:"pons-v1", coingeckoId:"pons",
+    useFeesAsRevenue:true, // launchpad fees = protocol revenue
+    buybackLevel:"programmatic", buybackNote:"~80% of fee revenue buys PONS on the open market and burns it. Run by the team today, not immutable — automation/decentralization announced for a future release.",
+    realYieldSource:"Live holders revenue when DefiLlama reports it", inflationSource:"Fixed 1B supply; burns ~32% (team, Oct 6 2026)",
+    dataDate:"Oct 2026",
+    thesis:"Launchpad on Robinhood Chain that filled the gap left by Noxa.fun in July 2026. Very high buyback ratio, but revenue is tied to a single chain's memecoin activity and has already fallen ~85% from its peak. Not on Binance: no Ichimoku / Strategy Builder coverage.",
+    moat:"First-mover launchpad on Robinhood Chain + aggressive burn",
+    riskFlags:[
+      { label:"Team-run buyback", bizMalus:0, riskMalus:-8, detail:"The 80% buyback is executed by the team and is not immutable." },
+      { label:"Revenue collapse from peak", bizMalus:-5, riskMalus:0, detail:"Daily revenue fell from ~$2M (late Aug) to ~$240K (early Oct 2026)." },
+      { label:"Single-chain dependency", bizMalus:0, riskMalus:-5, detail:"All activity depends on Robinhood Chain memecoin flows." },
+    ]},
 ];
 
 let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-24-d"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-25-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3388,11 +3457,11 @@ async function fetchArcaData(){
         arcaDynamic[a.id].priceSource='CoinGecko (DEX aggregated)';
         // Price will be set from cgHit.current_price in the CoinGecko block below
       } else if(a.source==="binance_futures"){
-        // Futures-only token (pre-market spot listing)
+        // Futures-only token (no Binance spot pair)
         try {
           const r=await fetchWithTimeout('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol='+a.binanceSymbol,6000);
           const d=await r.json();
-          if(d.lastPrice){arcaPrices[a.id]=parseFloat(d.lastPrice);arcaChanges[a.id]=parseFloat(d.priceChangePercent);arcaDynamic[a.id].priceSource='Binance Futures (pre-market)';arcaSources.bn=Date.now();}
+          if(d.lastPrice){arcaPrices[a.id]=parseFloat(d.lastPrice);arcaChanges[a.id]=parseFloat(d.priceChangePercent);arcaDynamic[a.id].priceSource='Binance Futures';arcaSources.bn=Date.now();}
         } catch {
           // Fallback: try spot in case it listed
           try {
@@ -3470,7 +3539,7 @@ async function fetchArcaData(){
   await Promise.allSettled(ARCA_ASSETS.map(a=>fetchArcaRelHistory(a)));
 
   updateSourceUI();
-  try{renderArcaGrid();renderRevChart();renderDormanMatrix();}catch(e){console.error('renderArcaGrid error:',e);document.getElementById('arca-grid').innerHTML='<div style="color:#ff3d5a;padding:20px;text-align:center">Render error: '+e.message+'</div>';}
+  try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();}catch(e){console.error('renderArcaGrid error:',e);document.getElementById('arca-grid').innerHTML='<div style="color:#ff3d5a;padding:20px;text-align:center">Render error: '+e.message+'</div>';}
   const states=ARCA_ASSETS.map(a=>calcDynamicMetrics(a).liveState);
   const liveCount=states.filter(x=>x==='live').length, partialCount=states.filter(x=>x==='partial').length;
   document.getElementById("arca-update").innerHTML=`<span style="color:#00d98b">${liveCount}/${ARCA_ASSETS.length} live</span>${partialCount?` \u00b7 <span style="color:#f0b840">${partialCount} partial</span>`:''} \u00b7 ${new Date().toLocaleTimeString("en-GB")}`;
@@ -3604,6 +3673,7 @@ async function fetchArcaRelHistory(a){
   const d=arcaDynamic[a.id]; if(!d) return;
   d.relMedian=null; d.relStatus='history unavailable';
   const m=calcDynamicMetrics(a), basis=arcaRelBasis(a,m);
+  d.fundSeries=d.fees?.feesChart?.length ? {kind:'fees', data:d.fees.feesChart} : null; // default for Price vs Fundamentals
   if(!basis){ d.relStatus='no live multiple'; return; }
   if(!a.coingeckoId) return;
   let series=null;
@@ -3615,6 +3685,7 @@ async function fetchArcaRelHistory(a){
       try{ const r=await cachedFetch('https://api.llama.fi/summary/fees/'+sl+'?dataType=dailyRevenue',3600); if(r?.totalDataChart?.length) series=r.totalDataChart; }catch(e){}
     }
   }
+  if(series?.length) d.fundSeries={kind: basis==='rev'?'revenue':'fees', data:series};
   if(basis!=='override' && !series?.length) return;
   let mcHist;
   try{ mcHist=await fetchMcHistory(a.coingeckoId); }catch(e){ console.warn('ARCA relative history:',a.id,e.message); return; }
@@ -4586,7 +4657,7 @@ function cx(usd){
 function cxSym(){return arcaCurrency==='CHF'?'CHF ':'$';}
 
 function rerenderArca(){
-  try{renderArcaGrid();renderRevChart();renderDormanMatrix();}catch(e){console.error('Rerender error:',e);}
+  try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();}catch(e){console.error('Rerender error:',e);}
   try{renderArcaSummary();}catch(e){}
   try{renderDormanAlloc();}catch(e){}
 }
@@ -4597,11 +4668,50 @@ const SECTOR_ICONS = {
   "DEX / Liquidity":"💧","DEX/Liquidity":"💧",
   "DeFi Lending":"🏦","Institutional Lending":"🏛",
   "Memecoin Launchpad":"🚀","RWA Tokenization":"🏢",
-  "Yield Trading":"📈","Synthetic Dollar":"💲"
+  "Yield Trading":"📈","Synthetic Dollar":"💲","Options DEX":"📊"
 };
 function sectorBadge(sector){
   const icon=SECTOR_ICONS[sector]||'●';
   return `<span style="font-size:10px;margin-right:2px" title="${sector}">${icon}</span>`;
+}
+
+// ===================== PRICE VS FUNDAMENTALS =====================
+// Daily-average revenue of the last 30 complete days vs the 30 before; null if either window has < 25 days of data.
+function calcRevChange30(series){
+  if(!series?.length) return null;
+  const daily={}; series.forEach(pt=>{ daily[Math.floor(pt[0]/86400)]=+pt[1]||0; });
+  const last=Math.floor(Date.now()/864e5)-1; // today is incomplete
+  const win=(from,to)=>{ let sum=0,n=0; for(let k=from;k<=to;k++){ if(daily[k]!=null){ sum+=daily[k]; n++; } } return n>=25?sum/n:null; };
+  const cur=win(last-29,last), prev=win(last-59,last-30);
+  return (cur!=null&&prev>0) ? (cur/prev-1)*100 : null;
+}
+function pvfReading(rev, px){
+  const T=5; // ±5% = flat
+  if(rev>=T && px<=-T) return {text:'Fundamentals up, price down', color:'#00d98b'};
+  if(rev>=T)           return {text:'Fundamentals up, price following', color:'#3d8bff'};
+  if(rev<=-T && px>=T) return {text:'Price up, fundamentals down', color:'#ff3d5a'};
+  if(rev<=-T)          return {text:'Both down', color:'#ff8c00'};
+  return {text:'Fundamentals flat', color:'#7a9ab0'};
+}
+function renderPriceVsFund(){
+  const el=document.getElementById('pvf-rows'); if(!el) return;
+  const rows=ARCA_ASSETS.map(a=>{
+    const d=arcaDynamic[a.id]||{}, fs=d.fundSeries;
+    const px=d.cg&&!d.cg.isFallback ? d.cg.pctChg30d : null;
+    const rev=fs ? calcRevChange30(fs.data) : null;
+    return {a, px, rev, kind:fs?.kind};
+  });
+  const ok=rows.filter(r=>r.px!=null&&r.rev!=null).map(r=>({...r, gap:r.rev-r.px})).sort((x,y)=>y.gap-x.gap);
+  const missing=rows.filter(r=>r.px==null||r.rev==null).map(r=>r.a.id);
+  const pct=v=>`<span style="color:${v>=0?'#00d98b':'#ff3d5a'}">${v>=0?'+':''}${v.toFixed(1)}%</span>`;
+  el.innerHTML=(ok.length?ok.map(r=>{
+    const rd=pvfReading(r.rev,r.px);
+    return `<tr><td><strong style="color:${r.a.color}">${r.a.name}</strong></td><td class="r" style="font-family:'IBM Plex Mono',monospace">${pct(r.px)}</td>
+      <td class="r" style="font-family:'IBM Plex Mono',monospace">${pct(r.rev)}${r.kind==='fees'?' <span style="color:#3a5a70;font-size:8px">fees</span>':''}</td>
+      <td class="r" style="font-family:'IBM Plex Mono',monospace;color:#b8ccd8">${r.gap>=0?'+':''}${r.gap.toFixed(0)} pts</td>
+      <td style="color:${rd.color}">${rd.text}</td></tr>`;}).join('')
+    :'<tr><td colspan="5" style="color:#3a5a70;text-align:center;padding:14px">No token has both a 60-day revenue series and a live 30d price change yet</td></tr>')
+    +(missing.length?`<tr><td colspan="5" style="color:#2e4a60;font-size:9px;padding-top:8px">Not enough data: ${missing.join(', ')}</td></tr>`:'');
 }
 
 // ===================== REVENUE COMPARISON CHART =====================

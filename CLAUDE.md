@@ -57,6 +57,8 @@ Binance et Hyperliquid sont injoignables depuis la sandbox Claude Code : le test
 - Retry sur 429/418 dans `fetchBinanceCandles` absent du build actuel : à remettre si les « — » persistent sur les badges multi-TF.
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
 - Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?
-- **Tâche : vue « Prix vs fondamentaux »** — pour chaque token ARCA, variation du revenu 30 j (DefiLlama) vs variation du prix ; faire ressortir les divergences. Validée par Tim le 24 oct. 2026, pas démarrée.
-- Lot B (build `2026-10-24-d`, dans `Test.html`) : valorisation relative ARCA reconstruite en live (DefiLlama + CoinGecko), Real Yield Net sur le rendement live, âge sur l'année en cours, Artemis (Fee Growth, MC/Fees sur la vraie market cap, plus d'historique fictif, SMA 20W corrigée), DeFi (frais réels par chaîne, colonnes DAU/Wallets/Devs retirées). À valider par Tim sur le vrai réseau, notamment la limite de requêtes CoinGecko (≈ 30 appels d'historique) et les noms de chaînes DefiLlama (BSC, Hyperliquid).
-- Pistes hors bug : données SYRUP à revérifier, bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi (pas démarré).
+- Vue « Price vs Fundamentals » (page ARCA, descriptive, hors score) : en essai dans `Test.html` (build `2026-10-25-a`).
+- Build `2026-10-25-a` (`Test.html`) : ajout de LIT, DRV, PONS (pas TAO : aucun revenu aux holders ; VVV retiré par Tim le 25 oct. : revenus hors chaîne) ; données manuelles rafraîchies en Oct 2026 pour HYPE, AAVE, ONDO, SYRUP, TRX. DRV et PONS n'ont pas de bougies Binance (pas d'Ichimoku / Strategy Builder). Identifiants DefiLlama / CoinGecko des nouveaux tokens à confirmer sur le vrai réseau.
+- TRX : revenu = revenu de chaîne DefiLlama en live (décision de Tim, 25 oct. 2026), plus d'`overrideRevenue`. Définition étroite (gas) : bien plus bas que les ~2,4–2,9 Md$/an de TRON DAO.
+- `arca_snapshot.py` : prochaine synchro à prévoir — scoring modifié (lot B), 3 nouveaux tokens et revenu TRX en live depuis le 24 oct. 2026.
+- Pistes hors bug : bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi (pas démarré).
