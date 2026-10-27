@@ -729,7 +729,7 @@ tr:last-child td { border-bottom:none; }
           <span class="home-card-tag">Conviction Score</span>
           <span class="home-card-tag">Live P/E · P/S</span>
           <span class="home-card-tag">DefiLlama</span>
-          <span class="home-card-tag">Buyback</span>
+          <span class="home-card-tag">Value Accrual</span>
           <span class="home-card-tag">CHF Toggle</span>
           <span class="home-card-tag">Dorman Model</span>
         </div>
@@ -1060,9 +1060,9 @@ tr:last-child td { border-bottom:none; }
         </div>
         <div class="guide-block">
           <div class="guide-block-title"><div class="gb-dot" style="background:#00d98b"></div>Step 2 — Understand the 3 Factors</div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Business 60%</span><span>Does the protocol make money? 30-day average revenue (log-scale), TVL, real yield, buyback.</span></div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Valuation 30%</span><span>Is it cheap? P/E live, P/S, MC/TVL, multiple vs own 90d median.</span></div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Capital Risk 10%</span><span>Is dilution eating gains? Net dilution (inflation − buyback), unlocks, thin-liquidity penalty.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Business 60%</span><span>Does the protocol make money? 30-day average revenue (log-scale), TVL, real yield, value accrual.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Valuation 30%</span><span>Is it cheap? Live P/E, P/S, MC/TVL, multiple vs own 90d median.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Capital Risk 10%</span><span>Is dilution eating gains? Net dilution (inflation − value accrual), unlocks, thin-liquidity penalty.</span></div>
         </div>
         <div class="guide-block">
           <div class="guide-block-title"><div class="gb-dot" style="background:#f0b840"></div>Step 3 — Check Revenue Chart</div>
@@ -1072,7 +1072,7 @@ tr:last-child td { border-bottom:none; }
         <div class="guide-block">
           <div class="guide-block-title"><div class="gb-dot" style="background:#9945ff"></div>Step 4 — Key Principles</div>
           <div class="guide-row"><strong style="color:#b8ccd8">Revenue is king</strong> — Only invest in protocols generating real on-chain fees.</div>
-          <div class="guide-row"><strong style="color:#b8ccd8">Buybacks matter</strong> — No buyback = -12 pts. Programmatic buyback = +12 pts, opportunistic = +4.</div>
+          <div class="guide-row"><strong style="color:#b8ccd8">Value accrual matters</strong> — Hardcoded (buyback, burn or fee distribution set by protocol/DAO rules) = +12 pts, discretionary (company or team policy) = +4, none = -12.</div>
           <div class="guide-row"><strong style="color:#b8ccd8">Deep drawdowns = opportunity</strong> — Drawdown &gt;80% from ATH is a contrarian buy signal.</div>
         </div>
       </div>
@@ -1099,7 +1099,7 @@ tr:last-child td { border-bottom:none; }
         <div style="font-size:9px;color:#9945ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600">Dorman's Core Rules</div>
         <div style="font-size:10px;color:#7a9ab0;line-height:1.7">
           1. Revenue > Narrative — only invest in protocols generating real fees<br>
-          2. Buyback = conviction — teams buying their own token signal belief<br>
+          2. Value must reach the token — hardcoded buybacks, burns or fee distribution; discretionary programs count less<br>
           3. Circulating MC, not FDV — valuation based on actual float<br>
           4. Diversify by function — DEX, lending, RWA, infrastructure<br>
           5. Risk-adjust by P/E zone — heavier in Deep Value, lighter in Premium
@@ -1184,11 +1184,11 @@ tr:last-child td { border-bottom:none; }
       <option value="name">Name (A-Z)</option>
       <option value="change">24h Change</option>
     </select>
-    <label style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-left:10px" title="In scope = annualized 30d revenue ≥ $5M + active buyback (programmatic or opportunistic)">Scope</label>
+    <label style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-left:10px" title="In scope = annualized 30d revenue ≥ $5M + value accrual (hardcoded or discretionary)">Scope</label>
     <select id="arca-filter-scope" onchange="arcaSaveFilters();renderArcaGrid()">
       <option value="all">All</option>
-      <option value="scope">In scope (revenue + buyback)</option>
-      <option value="rev_only">Revenue, no buyback</option>
+      <option value="scope">In scope (revenue + value accrual)</option>
+      <option value="rev_only">Revenue, no value accrual</option>
       <option value="watch">Watchlist (revenue &lt; $5M)</option>
     </select>
     <label style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-left:10px">Signal</label>
@@ -1528,54 +1528,54 @@ const TOKENS = [
 
 const ARCA_ASSETS = [
   // ── HYPE ─────────────────────────────────────────────────────────────────────
-  { id:"HYPE", name:"HYPE", sector:"Perps DEX", sectorPE:[6,12], protocolAge:2023,
+  { id:"HYPE", name:"HYPE", sector:"Perps DEX",  protocolAge:2023,
     nextUnlock:"Core contributors: 9.92M HYPE/month scheduled (24-month linear from Nov 2025), but actual claims are far lower and rising (0.17M in Mar → 3.75M in Oct 2026, OTC). Next: Nov 6 2026", staticCircSupply:254e6, staticTotalSupply:1000e6,
     icon:"H", color:"#00d4aa", source:"hyperliquid", binanceSymbol:"HYPEUSDT",
-    staticPE:26, annualRevenue:"~$760M trading fees (~$14.6M/week, Oct 2026) + USDC reserve yield since AQAv2", realYield:"~4%", inflation:"~10% (actual core-contributor claims, rising; scheduled maximum would be far higher)", staticTVL:"~$3.5B",
+    annualRevenue:"~$760M trading fees (~$14.6M/week, Oct 2026) + USDC reserve yield since AQAv2", realYield:"~4%", inflation:"~10% (actual core-contributor claims, rising; scheduled maximum would be far higher)", staticTVL:"~$3.5B",
     defillamaSlug:"hyperliquid", defillamaSlugAlt:"hyperliquid-dex", coingeckoId:"hyperliquid",
     useFeesAsRevenue:true, // Hyperliquid retains 100% of trading fees (no LP revenue share)
-    buybackLevel:"programmatic", buybackNote:"97–99% of trading fees → Assistance Fund buys HYPE daily (>48M HYPE held, ~$1.37B spent by Oct 13 2026). AQAv2 adds ~90% of USDC reserve yield to the buybacks.",
+    buybackNote:"97–99% of trading fees → Assistance Fund buys HYPE daily (>48M HYPE held, ~$1.37B spent by Oct 13 2026). AQAv2 adds ~90% of USDC reserve yield to the buybacks.",
     realYieldSource:"Assistance Fund buybacks ÷ circulating MC, Oct 2026", inflationSource:"Core-contributor claims (Unlocks.app / Tokenomist), Oct 2026 — circulating supply definitions differ (~254M on one Oct 23 snapshot)",
     dataDate:"Oct 2026",
     thesis:"Dominant on-chain perps venue. Nearly all trading fees are recycled into daily HYPE buybacks, now topped up by USDC reserve yield. Buybacks have not prevented a ~17% monthly drawdown into October 2026: core-contributor claims are rising and the buyback is a demand source, not a price floor.",
     moat:"Network effect + HLP self-sustaining liquidity + first-mover on-chain perps + Hyperliquid L1 defensibility" },
 
   // ── JUP ──────────────────────────────────────────────────────────────────────
-  { id:"JUP", name:"JUP", sector:"DEX Aggregator", sectorPE:[8,18], protocolAge:2022,
+  { id:"JUP", name:"JUP", sector:"DEX Aggregator",  protocolAge:2022,
     nextUnlock:"~53% of max supply still locked/unvesting — largest overhang of any token in this list", staticCircSupply:3.32e9, staticTotalSupply:7e9,
     icon:"J", color:"#c9a227", source:"binance", binanceSymbol:"JUPUSDT",
-    staticPE:16, annualRevenue:"~$35M (Aggregator alone, annualized) — Perps/Lend/other products add more, no single combined figure confirmed", realYield:"~3-6%", inflation:"~15-20% (over half of max supply still to unlock)", staticTVL:"~$800M-1.65B (Jupiter Lend) + $519M (Jupiter Staked SOL) — Aggregator itself has no TVL, it's a router",
+    annualRevenue:"~$35M (Aggregator alone, annualized) — Perps/Lend/other products add more, no single combined figure confirmed", realYield:"~3-6%", inflation:"~15-20% (over half of max supply still to unlock)", staticTVL:"~$800M-1.65B (Jupiter Lend) + $519M (Jupiter Staked SOL) — Aggregator itself has no TVL, it's a router",
     defillamaSlug:"jupiter", defillamaSlugAlt:"jupiter-aggregator", coingeckoId:"jupiter-exchange-solana",
     useFeesAsRevenue:true, // Jupiter fee switch active — routing fees flow to JUP stakers
-    buybackLevel:"programmatic", buybackNote:"50% of protocol fees → Litterbox Trust (JUP buyback) under the Feb 2026 Net-Zero Emissions model. Buybacks were halted in early Jan 2026 after $70M spent in 2025 with little price effect, then reinstated. May 2026 forum proposal to raise the share to 70% (verified Oct 5 2026, medium confidence).",
+    buybackNote:"50% of protocol fees → Litterbox Trust (JUP buyback) under the Feb 2026 Net-Zero Emissions model. Buybacks were halted in early Jan 2026 after $70M spent in 2025 with little price effect, then reinstated. May 2026 forum proposal to raise the share to 70% (verified Oct 5 2026, medium confidence).",
     realYieldSource:"DefiLlama holders revenue, tracked per-product since Feb 2025 fee switch.", inflationSource:"Only 47.4% of the 7B max supply is unlocked — largest remaining unlock overhang of any token in this dashboard, released via cliffs (notably 'Jupuary' allocations).",
     dataDate:"Aug 2026",
     thesis:"Solana's dominant DEX aggregator, now a broader 'super-app' spanning Aggregator, Perps, Lend ($800M-1.65B TVL, 2nd-largest Solana lending market), Staked SOL, and mobile (1M+ downloads). 50% revenue buyback is one of the most extensive fee-switch programs in DeFi, running across nearly every product line. The real risk is supply: only 47.4% of the 7B max supply is unlocked — more dilution is coming than for almost any other token here, which the buyback has to outrun.",
     moat:"80%+ Solana DEX routing share + Perpetuals + Launchpad + DCA + fastest-growing Solana lending market — full-stack aggregation moat with real product diversification beyond just routing." },
 
   // ── UNI ──────────────────────────────────────────────────────────────────────
-  { id:"UNI", name:"UNI", sector:"DEX Protocol", sectorPE:[12,25], protocolAge:2020,
+  { id:"UNI", name:"UNI", sector:"DEX Protocol",  protocolAge:2020,
     nextUnlock:"Fully vested (governance treasury remains)", staticCircSupply:600e6, staticTotalSupply:1000e6,
     icon:"U", color:"#ff007a", source:"binance", binanceSymbol:"UNIUSDT",
-    staticPE:22, annualRevenue:"~$26-119M (17% fee-switch cut only, NOT total fees — see note)", realYield:"~1-4%", inflation:"~2%", staticTVL:"~$2.3B",
+    annualRevenue:"~$26-119M (17% fee-switch cut only, NOT total fees — see note)", realYield:"~1-4%", inflation:"~2%", staticTVL:"~$2.3B",
     defillamaSlug:"uniswap", defillamaSlugAlt:"uniswap-v3", coingeckoId:"uniswap",
     useFeesAsRevenue:false, // CRITICAL: DefiLlama's dedicated revenue30d field for "uniswap" already
     // isolates the 17% fee-switch cut from total swap fees (~$845M/yr). Total fees ≠ UNI holder revenue.
     // If live fetch ever falls back to fees, it will overstate revenue by ~7-30x. Verify on deploy.
-    buybackLevel:"programmatic", buybackNote:"17% of protocol fees (not all fees) → UNI buyback+burn since Dec 2025, expanded to 7 chains by Jul 2026.",
+    buybackNote:"17% of protocol fees (not all fees) → UNI buyback+burn since Dec 2025, expanded to 7 chains by Jul 2026.",
     realYieldSource:"17% fee switch → buyback+burn. DefiLlama revenue30d tracks only this cut, not total fees.", inflationSource:"Governance proposal — fixed 2% inflation from treasury grants",
     dataDate:"Aug 2026",
     thesis:"Largest DEX by cumulative volume. Fee switch activated Dec 2025 — 17% of fees → UNI buyback+burn. Uniswap v4 hooks ecosystem expanding.",
     moat:"Brand dominance + multi-chain + Uniswap v4 hooks + institutional liquidity + UniswapX cross-chain routing" },
 
   // ── AAVE ─────────────────────────────────────────────────────────────────────
-  { id:"AAVE", name:"AAVE", sector:"DeFi Lending", sectorPE:[10,20], protocolAge:2020,
+  { id:"AAVE", name:"AAVE", sector:"DeFi Lending",  protocolAge:2020,
     nextUnlock:"Fully vested", staticCircSupply:15e6, staticTotalSupply:16e6,
     icon:"A", color:"#b6509e", source:"binance", binanceSymbol:"AAVEUSDT",
-    staticPE:15.6, annualRevenue:"~$134M to the DAO (Aave-branded products, per Kulechov) — ~$400M protocol-level revenue on a broader definition", realYield:"~1%", inflation:"~0.5%", staticTVL:"~$15B",
+    annualRevenue:"~$134M to the DAO (Aave-branded products, per Kulechov) — ~$400M protocol-level revenue on a broader definition", realYield:"~1%", inflation:"~0.5%", staticTVL:"~$15B",
     defillamaSlug:"aave", defillamaSlugAlt:"aave-v3", coingeckoId:"aave",
     useFeesAsRevenue:false, // Aave revenue = treasury reserve factor — tracked in revenue30d
-    buybackLevel:"programmatic", buybackNote:"Aavenomics 3.0 (Jun 2026): buybacks became a protocol default rather than a committee decision; $250K–1.75M weekly. Annual budget reported at $50M (Oct 2026) but a Mar 2026 vote reportedly cut it to $30M — unreconciled.",
+    buybackNote:"Aavenomics 3.0 (Jun 2026): buybacks became a protocol default rather than a committee decision; $250K–1.75M weekly. Annual budget reported at $50M (Oct 2026) but a Mar 2026 vote reportedly cut it to $30M — unreconciled.",
     realYieldSource:"$30–50M/yr buyback budget ÷ circulating MC, Oct 2026", inflationSource:"Aave governance — near-zero net inflation",
     dataDate:"Oct 2026",
     thesis:"Blue-chip DeFi lender. Deep TVL, multi-chain deployment, GHO stablecoin. Buybacks are now a protocol default, though the pilot was reported at a ~7% loss and the annual budget figure is disputed between sources.",
@@ -1583,14 +1583,14 @@ const ARCA_ASSETS = [
   },
 
   // ── PUMP ─────────────────────────────────────────────────────────────────────
-  { id:"PUMP", name:"PUMP", sector:"Memecoin Launchpad", sectorPE:[3,8], protocolAge:2024,
+  { id:"PUMP", name:"PUMP", sector:"Memecoin Launchpad",  protocolAge:2024,
     nextUnlock:"Jul 12 2026 cliff (~82.5B tokens, passed) · Aug 12 2026 follow-on (~6.875B, passed) · 3yr linear vest ongoing",
     icon:"⬡", color:"#7ceb34", source:"binance", binanceSymbol:"PUMPUSDT",
-    staticPE:null, annualRevenue:"~$320-356M trailing 2026 run-rate (highly volatile — hit ~$455M annualized in a strong Aug 2026 week, but full-year 2025 was $971M, so this business swings hard both ways)", realYield:"~4%", inflation:"~1%", staticTVL:"N/A",
+    annualRevenue:"~$320-356M trailing 2026 run-rate (highly volatile — hit ~$455M annualized in a strong Aug 2026 week, but full-year 2025 was $971M, so this business swings hard both ways)", realYield:"~4%", inflation:"~1%", staticTVL:"N/A",
     staticCircSupply:590e9, staticTotalSupply:1000e9,
     defillamaSlug:"pump-fun", defillamaSlugAlt:"pump.fun", coingeckoId:"pump-fun",
     useFeesAsRevenue:true, // 100% of launchpad fees = protocol revenue
-    buybackLevel:"programmatic", buybackNote:"50% of revenue → PUMP buyback+burn, smart-contract-locked for 1yr — CHANGED Apr 28 2026 from the original 100% policy (the other 50% now funds company opex: product, hiring, marketing, M&A). Second-largest crypto buyback program by dollar volume in 2026 (~$400M+ cumulative) after Hyperliquid.",
+    buybackNote:"50% of revenue → PUMP buyback+burn, smart-contract-locked for 1yr — CHANGED Apr 28 2026 from the original 100% policy (the other 50% now funds company opex: product, hiring, marketing, M&A). Second-largest crypto buyback program by dollar volume in 2026 (~$400M+ cumulative) after Hyperliquid.",
     realYieldSource:"On-chain buyback data, DefiLlama fees, Aug 2026", inflationSource:"Team/investor cliff passed Jul-Aug 2026 (~89B combined, smaller than earlier 410B estimate). 3yr linear vest ongoing on remainder.",
     dataDate:"Aug 2026",
     thesis:"Memecoin launchpad. Regained ~73-90% market share vs LetsBonk after losing it mid-2026 — the competitive picture flips quickly in this sector and should be reassessed each cycle. The buyback mechanism is real and large (2nd biggest in crypto by $ volume), but Jeff Dorman's Token Investability Matrix places Pump.fun in the 'value trap' quadrant, and pump.fun's own token page states the reason plainly: 'The $PUMP token does not represent a right to revenues or any other distribution... references to token purchases... only describe historical activity.' The 100%→50% policy cut on Apr 28 2026 is the concrete proof this is a revocable company decision, not a token holder right — unlike UNI's DAO-governed fee switch.",
@@ -1604,137 +1604,135 @@ const ARCA_ASSETS = [
     ]},
 
   // ── ONDO ─────────────────────────────────────────────────────────────────────
-  { id:"ONDO", name:"ONDO", sector:"RWA Tokenization", sectorPE:[15,35], protocolAge:2023,
+  { id:"ONDO", name:"ONDO", sector:"RWA Tokenization",  protocolAge:2023,
     nextUnlock:"Annual January cliffs (1.94B ONDO in Jan 2026); next Jan 2027, vesting through 2028", staticCircSupply:3.2e9, staticTotalSupply:10e9,
     icon:"O", color:"#2775ca", source:"binance", binanceSymbol:"ONDOUSDT",
-    staticPE:11.5, annualRevenue:"~$50M (unverified — management fees on ~$3B tokenized Treasuries)", realYield:"0% (fees accrue to Ondo Finance, not to holders)", inflation:"~18%", staticTVL:"~$4B (Oct 2026: Treasuries ~$3B + tokenized stocks/ETFs ~$1.3B)",
+    annualRevenue:"~$50M (unverified — management fees on ~$3B tokenized Treasuries)", realYield:"0% (fees accrue to Ondo Finance, not to holders)", inflation:"~18%", staticTVL:"~$4B (Oct 2026: Treasuries ~$3B + tokenized stocks/ETFs ~$1.3B)",
     defillamaSlug:"ondo-finance", defillamaSlugAlt:"ondo-yield-assets", coingeckoId:"ondo-finance",
     useFeesAsRevenue:true, // DefiLlama reports management fees as fees (not revenue) for RWA protocols
-    buybackLevel:"none", buybackNote:"No buyback program and no fee sharing — ONDO is a governance token; revenue stays with Ondo Finance.",
+    buybackNote:"No buyback program and no fee sharing — ONDO is a governance token; revenue stays with Ondo Finance.",
     realYieldSource:"No distribution to ONDO holders.", inflationSource:"Unlock schedule — large January cliffs through 2028",
     dataDate:"Oct 2026",
     thesis:"RWA leader: TVL passed $4B in Oct 2026, with tokenized stocks/ETFs (Ondo Global Markets) now over $1.3B next to ~$3B of tokenized Treasuries. The token captures none of that revenue today, and unlock cliffs have repeatedly weighed on it despite TVL growth.",
     moat:"Institutional partnerships + US Treasury tokenization pioneer + BlackRock BUIDL integration + tokenized equities distribution" },
 
   // ── MET ──────────────────────────────────────────────────────────────────────
-  { id:"MET", name:"MET", sector:"DEX / Liquidity", sectorPE:[5,15], protocolAge:2023,
+  { id:"MET", name:"MET", sector:"DEX / Liquidity",  protocolAge:2023,
     nextUnlock:"Team 18% vests linearly 6y from Oct 2025", staticCircSupply:510e6, staticTotalSupply:1000e6,
     icon:"◎", color:"#00e5ff", source:"binance", binanceSymbol:"METUSDT",
-    staticPE:1.5, annualRevenue:"~$15-40M (Q1 2026 revenue was $11.4M quarterly and falling — down to a $1.3M/month pace by March; $100M was a 2024-2025 peak figure, not current)", realYield:"~2-4%", inflation:"~3%", staticTVL:"~$329M",
+    annualRevenue:"~$15-40M (Q1 2026 revenue was $11.4M quarterly and falling — down to a $1.3M/month pace by March; $100M was a 2024-2025 peak figure, not current)", realYield:"~2-4%", inflation:"~3%", staticTVL:"~$329M",
     defillamaSlug:"meteora", defillamaSlugAlt:"meteora-ag", coingeckoId:"meteora",
     useFeesAsRevenue:true, // Protocol fees flow to MET stakers — DefiLlama tracks as fees
-    buybackLevel:"none", buybackNote:"Dorman's Token Investability Matrix names Meteora a 'value trap' explicitly for this reason: pool fees route to liquidity providers (LPs), not to compressing or buying back circulating MET. No confirmed programmatic mechanism gets fees to MET holders as such.",
+    buybackNote:"Dorman's Token Investability Matrix names Meteora a 'value trap' explicitly for this reason: pool fees route to liquidity providers (LPs), not to compressing or buying back circulating MET. No confirmed programmatic mechanism gets fees to MET holders as such.",
     realYieldSource:"DefiLlama doesn't consistently report a holders-revenue split for Meteora — treat this figure as directional, not exact.", inflationSource:"100% unlocked at TGE except team 18% (6y linear vest)",
     dataDate:"Aug 2026",
     thesis:"Solana's #2-3 DEX by volume (DLMM + DAMM v1/v2). Revenue has fallen sharply through 2026 — Q1 2026 revenue was $11.4M, down 35% QoQ, with core LP revenue (stripping a one-off Jan 2026 launchpad windfall) down 65% to its weakest quarter on record. One $1.5M social-engineering security incident (Jan 17 2026). This is a much weaker fundamental picture than the dashboard previously showed — re-verify the live P/E before sizing.",
     moat:"Solana liquidity infrastructure + DLMM capital efficiency + fair launch credibility + deep Jupiter integration, though competitive intensity from Raydium/Orca/PumpSwap is visibly compressing fees across all Solana DEXs, not just Meteora." },
 
   // ── ASTER ─────────────────────────────────────────────────────────────────────
-  { id:"ASTER", name:"ASTER", sector:"Perps DEX (BNB)", sectorPE:[5,12], protocolAge:2025,
+  { id:"ASTER", name:"ASTER", sector:"Perps DEX (BNB)",  protocolAge:2025,
     nextUnlock:"Team/reserve vest linearly 6y", staticCircSupply:2.5e9, staticTotalSupply:8e9,
     icon:"✦", color:"#e6007a", source:"binance", binanceSymbol:"ASTERUSDT",
-    staticPE:6, annualRevenue:"~$800M figure could never be independently verified and now looks implausible — 30d DEX volume is only ~$308M (down from a $24.7B single-day peak in Sept 2025), which wouldn't support anywhere near $800M in annual fee revenue at typical perps fee rates. Treat this figure as unreliable until confirmed live.", realYield:"~2-5% (est., unverified)", inflation:"~8%", staticTVL:"~$832M",
+    annualRevenue:"~$800M figure could never be independently verified and now looks implausible — 30d DEX volume is only ~$308M (down from a $24.7B single-day peak in Sept 2025), which wouldn't support anywhere near $800M in annual fee revenue at typical perps fee rates. Treat this figure as unreliable until confirmed live.", realYield:"~2-5% (est., unverified)", inflation:"~8%", staticTVL:"~$832M",
     defillamaSlug:"aster-perps", defillamaSlugAlt:"aster", coingeckoId:"aster-2",
     useFeesAsRevenue:true, // Perps exchange — trading fees are the revenue
-    buybackLevel:"programmatic", buybackNote:"Mechanism changed Jun 17 2026: 99% of daily platform fees now buy back ASTER via TWAP and are distributed to veASTER stakers (previously fees were simply burned pre-Feb 2026). This is a real, recent structural upgrade worth tracking.",
+    buybackNote:"Mechanism changed Jun 17 2026: 99% of daily platform fees now buy back ASTER via TWAP and are distributed to veASTER stakers (previously fees were simply burned pre-Feb 2026). This is a real, recent structural upgrade worth tracking.",
     realYieldSource:"Buyback program data — mechanism changed Jun 2026, verify current payout live rather than relying on this static figure.", inflationSource:"Tokenomics — TGE Sep 2025, 6y vest schedule",
     dataDate:"Aug 2026",
     thesis:"CZ/YZi-backed perps DEX on BNB Chain. Had a spectacular but short-lived volume spike in Sept-Oct 2025 (briefly ~70% of global perp DEX volume, $24.7B in a single day), but activity has fallen enormously since — 30-day volume is now ~$308M, and Hyperliquid reasserted dominance by Jan 2026 (~$40.7B/week). TVL of $832M is a fraction of the ~$2B Nov 2025 peak. The buyback mechanism just upgraded (Jun 2026) to route 99% of fees to veASTER stakers via TWAP, which is a genuine improvement in value accrual — but the previous $800M revenue claim on this dashboard was never independently confirmed and does not square with current activity levels. Score/valuation here should lean heavily on live data, not this thesis.",
     moat:"YZi Labs backing + BNB Chain native + hidden orders + multi-chain (BNB/ETH/SOL/ARB) + planned Aster L1, though the moat has proven highly contestable — its brief volume dominance over Hyperliquid in late 2025 did not hold." },
 
   // ── SYRUP ─────────────────────────────────────────────────────────────────────
-  { id:"SYRUP", name:"SYRUP", sector:"Institutional Lending", sectorPE:[10,25], protocolAge:2021,
+  { id:"SYRUP", name:"SYRUP", sector:"Institutional Lending",  protocolAge:2021,
     nextUnlock:"Mostly vested (MPL>SYRUP conversion completed Apr 2025)", staticCircSupply:1.2e9, staticTotalSupply:1.22e9,
     icon:"S", color:"#ff6b35", source:"binance", binanceSymbol:"SYRUPUSDT",
-    staticPE:22, annualRevenue:"~$19M (Sep 2026 run-rate $1.57M/month; $13.7M YTD)", realYield:"~1%", inflation:"~1%", staticTVL:"~$1.9B deposits ($4.8B AUM)",
+    annualRevenue:"~$19M (Sep 2026 run-rate $1.57M/month; $13.7M YTD)", realYield:"~1%", inflation:"~1%", staticTVL:"~$1.9B deposits ($4.8B AUM)",
     defillamaSlug:"maple", defillamaSlugAlt:"maple-finance", coingeckoId:"maple-finance", coingeckoIdAlt:"syrup",
     useFeesAsRevenue:false, // Maple revenue = management + origination fees — tracked in revenue30d
-    buybackLevel:"programmatic", buybackNote:"MIP-021 (live Jul 13 2026): SYRUP Strategic Fund buys back 10% of monthly revenue below $1.5M, 20% up to $2.0M, 30% above. 2.9M SYRUP bought in Q3 2026.",
+    buybackNote:"MIP-021 (live Jul 13 2026): SYRUP Strategic Fund buys back 10% of monthly revenue below $1.5M, 20% up to $2.0M, 30% above. 2.9M SYRUP bought in Q3 2026.",
     realYieldSource:"MIP-021 buybacks (~$2.7M/yr at the Q3 pace) ÷ circulating MC, Oct 2026", inflationSource:"Near fully vested — 1.2B/1.22B circ supply",
     dataDate:"Oct 2026",
     thesis:"Institutional on-chain credit. AUM $4.8B (+47% YoY), loans outstanding $1.7B, revenue ~$1.5M/month and rising — yet SYRUP fell ~24% in one week in early October. Buybacks are tiered on revenue, so they scale only as revenue crosses the $1.5M/$2M monthly thresholds.",
     moat:"Institutional relationships + credit underwriting expertise + Syrup.fi retail product + near-fully vested supply" },
 
   // ── AERO ─────────────────────────────────────────────────────────────────────
-  { id:"AERO", name:"AERO", sector:"DEX Protocol", sectorPE:[5,15], protocolAge:2023,
+  { id:"AERO", name:"AERO", sector:"DEX Protocol",  protocolAge:2023,
     nextUnlock:"Continuous emissions (~25%/yr inflation)", staticCircSupply:920e6, staticTotalSupply:1.86e9,
     icon:"⬟", color:"#0052ff", source:"binance", binanceSymbol:"AEROUSDT",
-    staticPE:10, annualRevenue:"~$111M", realYield:"~14%", inflation:"~25%", staticTVL:"~$269M",
+    annualRevenue:"~$111M", realYield:"~14%", inflation:"~25%", staticTVL:"~$269M",
     defillamaSlug:"aerodrome", defillamaSlugAlt:"aerodrome-finance", coingeckoId:"aerodrome-finance",
     useFeesAsRevenue:false, // veAERO voters receive trading fees as bribes — tracked in revenue30d
-    buybackLevel:"none", buybackNote:"No token buyback (corrected Oct 5 2026): ve(3,3) model — trading fees go to veAERO voters as bribes/fees, AERO is not repurchased. Aero merger (Aerodrome + Velodrome) scheduled Oct 2026 — re-check tokenomics after launch.",
+    buybackNote:"No token buyback (corrected Oct 5 2026): ve(3,3) model — trading fees go to veAERO voters as bribes/fees, AERO is not repurchased. Aero merger (Aerodrome + Velodrome) scheduled Oct 2026 — re-check tokenomics after launch.",
     realYieldSource:"veAERO bribe distributions, DefiLlama holders revenue, Aug 2026", inflationSource:"Continuous ve(3,3) emissions — ~25%/yr, partially offset by locking",
     dataDate:"Aug 2026",
     thesis:"Base chain dominant DEX. TVL dropped sharply from ~$1.2-1.3B (early-mid 2026 peak) to ~$269M by Aug 2026 — verify current live TVL before sizing, this is the single most volatile field on this token. ~$111M ann. revenue. High inflation risk but veAERO lock mechanism partially offsets. Pending Q2 2026 Velodrome merger (Aero/MetaDEX03) could reshape TVL again.",
     moat:"Base chain default DEX + Coinbase ecosystem access + ve(3,3) lock flywheel + Aerodrome v2 concentrated liquidity" },
 
   // ── PENDLE ───────────────────────────────────────────────────────────────────
-  { id:"PENDLE", name:"PENDLE", sector:"Yield Trading", sectorPE:[8,20], protocolAge:2021,
+  { id:"PENDLE", name:"PENDLE", sector:"Yield Trading",  protocolAge:2021,
     nextUnlock:"Emissions ongoing, decreasing schedule", staticCircSupply:258e6, staticTotalSupply:281e6,
     icon:"Ψ", color:"#3BACB6", source:"binance", binanceSymbol:"PENDLEUSDT",
-    staticPE:12, annualRevenue:"~$19-20M (trailing-year annualized per DefiLlama — down sharply, was overstated at $40M)", realYield:"~5-8%", inflation:"~3%", staticTVL:"~$1.17B (down from a $5.7B 2025 average and $13.4B 2025 peak — TVL has collapsed, not grown)",
+    annualRevenue:"~$19-20M (trailing-year annualized per DefiLlama — down sharply, was overstated at $40M)", realYield:"~5-8%", inflation:"~3%", staticTVL:"~$1.17B (down from a $5.7B 2025 average and $13.4B 2025 peak — TVL has collapsed, not grown)",
     defillamaSlug:"pendle", defillamaSlugAlt:"pendle-finance", coingeckoId:"pendle",
     useFeesAsRevenue:false, // 3% swap fee → protocol treasury + vePENDLE holders — in revenue30d
-    buybackLevel:"programmatic", buybackNote:"Since Jan 29 2026 (sPENDLE replaces vePENDLE): up to 80% of protocol revenue → PENDLE buybacks, distributed to sPENDLE stakers (verified Oct 5 2026).",
+    buybackNote:"Since Jan 29 2026 (sPENDLE replaces vePENDLE): up to 80% of protocol revenue → PENDLE buybacks, distributed to sPENDLE stakers (verified Oct 5 2026).",
     realYieldSource:"sPENDLE fee distributions — 80% yield + swap fees to lockers (was 100% before Sept 2025).", inflationSource:"Decreasing emission schedule — near fully circulating by 2027",
     dataDate:"Aug 2026",
     thesis:"Yield tokenization infrastructure. TVL has fallen sharply from a $13.4B 2025 peak ($5.7B 2025 average) to $1.17B currently — this is a major, confirmed decline, not the growth story the dashboard previously implied. Revenue similarly down to ~$19-20M annualized trailing year, about half of what was previously shown. Payout ratio to sPENDLE holders was also cut from 100% to 80% post-Sept 2025. Boros (rates trading) reached $6.9B open interest 4 months after launch — the one clear growth vector left. Re-verify current TVL/revenue live before sizing; this token has moved a lot.",
     moat:"First-mover yield tokenization + expanding asset support + RWA/LRT integration + institutional fixed-rate demand, though the TVL decline suggests the moat alone hasn't been enough to hold assets through this cycle." },
 
   // ── ENA ──────────────────────────────────────────────────────────────────────
-  { id:"ENA", name:"ENA", sector:"Synthetic Dollar", sectorPE:[15,40], protocolAge:2024,
+  { id:"ENA", name:"ENA", sector:"Synthetic Dollar",  protocolAge:2024,
     nextUnlock:"Remaining VC/investor tokens unlock all at once Oct 5 2026 (accelerated, replacing the old monthly schedule) — ~12% of supply left locked, all team/ecosystem/Foundation", staticCircSupply:9.29e9, staticTotalSupply:15e9,
     icon:"E", color:"#7C5CFC", source:"binance", binanceSymbol:"ENAUSDT",
-    staticPE:7, annualRevenue:"~$230M (2025 total revenue), December 2025 pace was ~$57M/month", realYield:"~0%", inflation:"~12% (until Oct 2026 unlock, then structurally lower)", staticTVL:"~$4.3B (USDe supply — down from a much larger 2025 peak)",
+    annualRevenue:"~$230M (2025 total revenue), December 2025 pace was ~$57M/month", realYield:"~0%", inflation:"~12% (until Oct 2026 unlock, then structurally lower)", staticTVL:"~$4.3B (USDe supply — down from a much larger 2025 peak)",
     defillamaSlug:"ethena", defillamaSlugAlt:"ethena-usde", coingeckoId:"ethena",
     useFeesAsRevenue:true, // USDe delta-neutral strategy generates funding fees — Ethena captures these
-    buybackLevel:"none", buybackNote:"No buyback active yet. Fee switch APPROVED by Snapshot on Sep 8 2026: open-market ENA buybacks from net revenue, tiered 5% at $7.5B USDe supply → 20%+ at higher tiers. Inactive until USDe 14d-avg supply ≥ $7.5B (~$4.1B in Aug 2026).",
+    buybackNote:"No buyback active yet. Fee switch APPROVED by Snapshot on Sep 8 2026: open-market ENA buybacks from net revenue, tiered 5% at $7.5B USDe supply → 20%+ at higher tiers. Inactive until USDe 14d-avg supply ≥ $7.5B (~$4.1B in Aug 2026).",
     realYieldSource:"Fee switch not active — 80% of USDe yield goes to USDe stakers, not ENA holders. The $890M 2025 buyback was a one-off Foundation/DAT program, not a standing mechanism.", inflationSource:"~62% unlocked. Remaining investor tokens unlock all at once Oct 5 2026 (Ethena bought out some early sellers to reduce the shock). Team/Foundation holdings stay on their original schedule.",
     dataDate:"Aug 2026",
     thesis:"3rd-largest synthetic dollar (USDe). Same structural gap as LDO: $0 of protocol revenue reaches ENA holders today, purely a governance token. The difference is timing — a concrete fee-switch proposal is mid-vote right now (closes Sep 2 2026), with a clear, disclosed activation threshold (USDe > $7.5B) rather than LDO's vaguer ETH-price trigger. Worth monitoring closely given how close this is to the point of the conversation.",
     moat:"USDe network effect + delta-neutral funding rate arbitrage + Franklin Templeton/Pantera backing + Converge L1 + Hyena perp DEX" },
 
   // ── RAY ──────────────────────────────────────────────────────────────────────
-  { id:"RAY", name:"RAY", sector:"DEX Protocol (Solana)", sectorPE:[5,15], protocolAge:2021,
+  { id:"RAY", name:"RAY", sector:"DEX Protocol (Solana)",  protocolAge:2021,
     nextUnlock:"Emissions ongoing, 49% circ", staticCircSupply:270e6, staticTotalSupply:555e6,
     icon:"R", color:"#68C5DB", source:"binance", binanceSymbol:"RAYUSDT",
-    staticPE:2, annualRevenue:"~$94M (sources vary widely, one Jun 2026 estimate cited $655.9M — likely a methodology mismatch, treat with caution and verify live)", realYield:"~12%", inflation:"~5%", staticTVL:"~$1.1B",
+    annualRevenue:"~$94M (sources vary widely, one Jun 2026 estimate cited $655.9M — likely a methodology mismatch, treat with caution and verify live)", realYield:"~12%", inflation:"~5%", staticTVL:"~$1.1B",
     defillamaSlug:"raydium", defillamaSlugAlt:"raydium-amm", coingeckoId:"raydium",
     useFeesAsRevenue:true, // 12% of all trading fees → RAY buyback+burn (= protocol revenue to holders)
-    buybackLevel:"programmatic", buybackNote:"12% of all trading fees → RAY buyback+burn. $196M cumulative burned (~26% of circ supply).",
+    buybackNote:"12% of all trading fees → RAY buyback+burn. $196M cumulative burned (~26% of circ supply).",
     realYieldSource:"12% automatic fee buyback across all pool types — on-chain verifiable", inflationSource:"Low emissions, most vesting complete — 49% circ",
     dataDate:"Aug 2026",
     thesis:"Dominant Solana DEX AMM, TVL confirmed at $1.105B (+36.3% in 30d). 12% auto buyback+burn every trade — $196M cumulative burned. LaunchLab as Pump.fun competitor. One security incident Jun 10 2026 ($1.34M, token/share accounting) — minor relative to TVL. Revenue figures across sources range from $94M to $655.9M annualized; the wide spread suggests inconsistent methodology somewhere — verify against the live P/E badge rather than trusting either figure blindly.",
     moat:"Solana DEX monopoly + LaunchLab launchpad + CLMM concentrated liquidity + deep Solana ecosystem integration + Pump.fun revenue stream" },
 
   // ── MORPHO ───────────────────────────────────────────────────────────────────
-  { id:"MORPHO", name:"MORPHO", sector:"DeFi Lending", sectorPE:[8,20], protocolAge:2022,
+  { id:"MORPHO", name:"MORPHO", sector:"DeFi Lending",  protocolAge:2022,
     nextUnlock:"Ongoing vesting, ~55% circulating", staticCircSupply:550e6, staticTotalSupply:1000e6,
     icon:"◈", color:"#9b5de5", source:"binance", binanceSymbol:"MORPHOUSDT",
-    staticPE:18, annualRevenue:"~$45M (DISPUTED — see note)", realYield:"~5%", inflation:"~6%", staticTVL:"~$9.4B",
+    annualRevenue:"~$45M (DISPUTED — see note)", realYield:"~5%", inflation:"~6%", staticTVL:"~$9.4B",
     defillamaSlug:"morpho", defillamaSlugAlt:"morpho-blue", coingeckoId:"morpho",
     useFeesAsRevenue:false, // corrected Oct 5 2026: was true — fees (~$240M/yr) go to lenders, protocol revenue is $0. DefiLlama: "No revenue for Morpho protocol" under
     // its base fee methodology (borrow interest goes entirely to lenders, not MORPHO holders).
     // A separate Aug 2026 source cited ~$48.6M Q2 gross protocol revenue (~$194M annualized) —
     // the two figures are NOT reconciled. If the live 🟢 badge shows nothing for Real Yield on
     // this token, that is likely correct (protocol genuinely retains ~$0 per DefiLlama's own rules).
-    buybackLevel:"none", buybackNote:"No active buyback — fee switch governance vote pending. Revenue goes to protocol treasury, methodology disputed (see note above).",
+    buybackNote:"No active buyback — fee switch governance vote pending. Revenue goes to protocol treasury, methodology disputed (see note above).",
     realYieldSource:"Interest paid by borrowers goes to lenders, not MORPHO holders — DefiLlama reports ~$0 protocol revenue under this model. Fee switch proposed, not yet active.", inflationSource:"~55% circulating, ongoing team/investor vesting through 2026-2027",
     dataDate:"Aug 2026",
     thesis:"Next-gen modular lending. TVL roughly doubled since spring 2026 (~$4.5B→~$9.4B) driven by Coinbase crypto-backed loans and the Jul 2026 Uniswap Earn integration routing deposits into Morpho vaults. Morpho Blue vaults architecture. Fee switch incoming = catalyst, but current holder revenue is close to zero either way.",
     moat:"Modular lending infrastructure + Coinbase integration + MetaMorpho vault ecosystem + capital efficiency vs Aave/Compound" },
 
   // ── MEGA ─────────────────────────────────────────────────────────────────────
-  { id:"MEGA", name:"MEGA", sector:"L2 Infrastructure", sectorPE:[15,40], protocolAge:2026,
+  { id:"MEGA", name:"MEGA", sector:"L2 Infrastructure",  protocolAge:2026,
     nextUnlock:"KPI-gated: 53.3% locked until network milestones hit · Fluffle 50% TGE + 6M vest · Public sale 100% TGE · Team/investors: cliff + 3Y vest · Next unlock: $500M USDM circ. supply (currently ~$62M, 12% of target)",
     staticCircSupply:1130e6, staticTotalSupply:10000e6,
     icon:"⬢", color:"#6c4fff", source:"binance", binanceSymbol:"MEGAUSDT",
-    staticPE:9,
     annualRevenue:"~$15.5M (chain fees ann. — DefiLlama)", realYield:"0% — no holder distribution yet", inflation:"~8% est. (KPI unlock-dependent)",
     staticTVL:"~$721M (chain TVL — DefiLlama)",
     defillamaSlug:null, defillamaChainSlug:"MegaETH", coingeckoId:"megaeth",
     useFeesAsRevenue:false,
-    buybackLevel:"none",
     buybackNote:"Buyback NOT yet active — USDM must reach $500M circ. supply (currently ~$62M, 12% of target) to trigger MEGA buybacks via Ethena yield. Penalized in score until milestone hit.",
     realYieldSource:"No holder distribution yet — chain fees currently go to the sequencer. Buyback activates once USDM stablecoin supply reaches $500M.",
     inflationSource:"10B total · 53.3% KPI staking (locked) · 14.7% VC · 9.5% team · 7.5% foundation · 5% public · 5% Echo · 2.5% Fluffle · 2.5% bonus",
@@ -1748,15 +1746,15 @@ const ARCA_ASSETS = [
     ] },
 
   // ── TRX ──────────────────────────────────────────────────────────────────────
-  { id:"TRX", name:"TRX", sector:"L1 Stablecoin Rail", sectorPE:[20,60], protocolAge:2018,
+  { id:"TRX", name:"TRX", sector:"L1 Stablecoin Rail",  protocolAge:2018,
     nextUnlock:"Fully vested — supply ~94.9B. Net issuance positive Jul–Oct 2026 (burns covered ~64% of issuance).",
     staticCircSupply:94870e6, staticTotalSupply:94873e6,
     icon:"T", color:"#e8342d", source:"binance", binanceSymbol:"TRXUSDT",
-    staticPE:86, annualRevenue:"Live: DefiLlama Tron chain revenue (narrow, gas-based definition). For reference, TRON DAO / Token Terminal report ~$600–720M per quarter (~$2.4–2.9B/yr) on a broader fee definition.", realYield:"~4%", inflation:"~1% (issuance exceeded burns Jul–Oct 2026; DAO Q2 figure ~0%)", staticTVL:"~$5.1B",
+    annualRevenue:"Live: DefiLlama Tron chain revenue (narrow, gas-based definition). For reference, TRON DAO / Token Terminal report ~$600–720M per quarter (~$2.4–2.9B/yr) on a broader fee definition.", realYield:"~4%", inflation:"~1% (issuance exceeded burns Jul–Oct 2026; DAO Q2 figure ~0%)", staticTVL:"~$5.1B",
     defillamaSlug:"tron", defillamaChainSlug:"Tron", coingeckoId:"tron",
     useFeesAsRevenue:false,
     // Revenue = live DefiLlama chain revenue (Tim, 25 Oct 2026) — no manual override. Narrower than TRON DAO's figure.
-    buybackLevel:"programmatic", buybackNote:"Fee burn on every transaction. USDD stability burns TRX. Tron Inc. treasury accumulating TRX.",
+    buybackNote:"Fee burn on every transaction. USDD stability burns TRX. Tron Inc. treasury accumulating TRX.",
     realYieldSource:"Staking APY from DPoS validators (~4–6%) — a different mechanism than fee-revenue sharing, so this won't switch to 🟢 Live like fee-split tokens.", inflationSource:"CryptoTicker (supply grew every day Jul 1–Oct 16 2026) vs TRON DAO Q2 report (~0.03%)",
     dataDate:"Oct 2026",
     thesis:"World's largest stablecoin rail: ~$94B of USDT/USDD on TRON at Q3 2026, $2.1T USDT moved in Q2. Fully vested. Revenue fell after Proposal #104 cut energy prices, and issuance has recently outpaced burns.",
@@ -1768,11 +1766,10 @@ const ARCA_ASSETS = [
   },
 
   // ── KNTQ ─────────────────────────────────────────────────────────────────────
-  { id:"KNTQ", name:"KNTQ", sector:"Liquid Staking (Hyperliquid)", sectorPE:[8,25], protocolAge:2025,
+  { id:"KNTQ", name:"KNTQ", sector:"Liquid Staking (Hyperliquid)",  protocolAge:2025,
     nextUnlock:"73% supply still locked · 30% protocol growth/rewards (ongoing) · 23.5% core contributors (vesting) · 10% foundation · 7.5% investors · 25% genesis airdrop (distributed Nov 2025)",
     staticCircSupply:270e6, staticTotalSupply:1000e6,
     icon:"K", color:"#00d4aa", source:"coingecko_only", binanceSymbol:null,
-    staticPE:16.8,
     annualRevenue:"~$2.8M (protocol revenue ann. — DefiLlama)", realYield:"~4.64%", inflation:"~25%",
     staticTVL:"~$860M (kHYPE TVL — DefiLlama)",
     defillamaSlug:"kinetiq", defillamaSlugAlt:"kinetiq-markets", coingeckoId:"kinetiq",
@@ -1780,7 +1777,6 @@ const ARCA_ASSETS = [
     // Revenue sources: 70% of 10% performance fees on kHYPE staking rewards + Kinetiq Markets (km) fees
     // + 10% of KIP-3 Launch deployer revenue (royalties on each new HIP-3 exchange deployed)
     // DefiLlama aggregates both kHYPE and kinetiq-markets into /protocol/kinetiq
-    buybackLevel:"programmatic",
     buybackNote:"70% of performance fees (10% of kHYPE staking rewards) → KNTQ buyback → distributed to sKNTQ holders (since Apr 9 2026). 100% of Kinetiq Markets (km) income → KNTQ buybacks. 10% of KIP-3 Launch deployer revenue in perpetuity → KNTQ buybacks.",
     realYield:"~4.64%",
     realYieldSource:"kHYPE staking APY 2.0% on $764M TVL + sKNTQ revenue share from buybacks. Net of inflation: ~−20%. Source: DefiLlama, May 2026.",
@@ -1802,16 +1798,16 @@ const ARCA_ASSETS = [
   },
 
   // ── LDO ──────────────────────────────────────────────────────────────────────
-  { id:"LDO", name:"LDO", sector:"Liquid Staking (Ethereum)", sectorPE:[15,30], protocolAge:2020,
+  { id:"LDO", name:"LDO", sector:"Liquid Staking (Ethereum)",  protocolAge:2020,
     nextUnlock:"Fully vested since 2024 — 1B fixed total/max supply, no further dilution possible",
     staticCircSupply:834e6, staticTotalSupply:1000e6,
     icon:"L", color:"#00a3ff", source:"binance", binanceSymbol:"LDOUSDT",
-    staticPE:7.3, annualRevenue:"~$37-40M (2025 revenue $40.5M, down 23% YoY, still declining)", realYield:"~0% (buyback not yet active)", inflation:"0% (fully vested, fixed max supply)", staticTVL:"~$15B (highly ETH-price-sensitive, seen $18-26B earlier in 2026)",
+    annualRevenue:"~$37-40M (2025 revenue $40.5M, down 23% YoY, still declining)", realYield:"~0% (buyback not yet active)", inflation:"0% (fully vested, fixed max supply)", staticTVL:"~$15B (highly ETH-price-sensitive, seen $18-26B earlier in 2026)",
     defillamaSlug:"lido", defillamaSlugAlt:"lido-dao", coingeckoId:"lido-dao",
     useFeesAsRevenue:false, // Lido's DefiLlama "fees" line reflects gross staking rewards flow
     // (~$1M+/day), NOT the DAO's actual 10% cut. Revenue field should track the real cut.
     // Verify live badge — this token is a strong candidate for a wrong-field bug if EST persists.
-    buybackLevel:"none", buybackNote:"NEST framework buyback (capped $10M/yr) only activates when ETH > $3,000 AND annualized DAO revenue > $40M — neither condition reliably met through 2026. A separate one-off $20M buyback was proposed Mar 2026 (governance vote, not a standing mechanism).",
+    buybackNote:"NEST framework buyback (capped $10M/yr) only activates when ETH > $3,000 AND annualized DAO revenue > $40M — neither condition reliably met through 2026. A separate one-off $20M buyback was proposed Mar 2026 (governance vote, not a standing mechanism).",
     realYieldSource:"No standing distribution to LDO holders yet — buyback trigger conditions (ETH price + revenue threshold) have not been durably met in 2026. Revenue currently just funds treasury/opex.", inflationSource:"1B fixed max supply, 100% unlocked since 2024 — structurally the lowest dilution risk token in this list.",
     dataDate:"Aug 2026",
     thesis:"#1 liquid staking protocol by TVL — 46.4% share of the entire $50.7B liquid-staking category tracked by DefiLlama, dominant on Ethereum. The bear case for the token (not the protocol) is real: revenue fell 23% in 2025 to $40.5M and kept declining through early 2026 as ETH staking APR compressed, and LDO holders capture ~$0 of the ~$288M in cumulative protocol revenue generated since 2021 — pure governance token, no cash-flow claim today. The bull case is entirely the catalyst: a buyback framework (NEST) already exists and is governance-approved in principle, just gated on ETH>$3,000 and revenue>$40M. If either activates durably, this repricing could be significant given LDO trades at a market cap roughly 7x cumulative-ever revenue. Treasury also absorbed ~$20M+ of exposure from the Apr 2026 Kelp DAO/rsETH exploit (same incident that hit Aave), a real but likely now-priced-in one-off hit.",
@@ -1827,14 +1823,14 @@ const ARCA_ASSETS = [
   },
 
   // ── LIT ──────────────────────────────────────────────────────────────────────
-  { id:"LIT", name:"LIT", sector:"Perps DEX", sectorPE:[6,12], protocolAge:2025,
+  { id:"LIT", name:"LIT", sector:"Perps DEX",  protocolAge:2025,
     nextUnlock:"Team/investor cliff late Dec 2026 (50% of supply, 1y lock), then ~3.2M LIT/week linear to ~2030. Ecosystem 25%: no published schedule.",
     staticCircSupply:250e6, staticTotalSupply:1000e6,
     icon:"L", color:"#4f7bff", source:"binance_futures", binanceSymbol:"LITUSDT",
-    staticPE:null, annualRevenue:"~$22–34M (DefiLlama 30d revenue $1.85–2.8M depending on page/snapshot)", realYield:"~4% (est.)", inflation:"~55% (forward 12m: Dec 2026 cliff then ~3.2M/week + staking paid from reserve, on a 25% float)", staticTVL:"N/A",
+    annualRevenue:"~$22–34M (DefiLlama 30d revenue $1.85–2.8M depending on page/snapshot)", realYield:"~4% (est.)", inflation:"~55% (forward 12m: Dec 2026 cliff then ~3.2M/week + staking paid from reserve, on a 25% float)", staticTVL:"N/A",
     defillamaSlug:"lighter", defillamaSlugAlt:"lighter-perps", coingeckoId:"lighter",
     useFeesAsRevenue:false,
-    buybackLevel:"programmatic", buybackNote:"Trading revenue funds LIT buybacks; since mid-2026 repurchased LIT is burned (~15.5M bought since TGE). Staking yield is paid from the 250M ecosystem reserve, which partly offsets the burns.",
+    buybackNote:"Trading revenue funds LIT buybacks; since mid-2026 repurchased LIT is burned (~15.5M bought since TGE). Staking yield is paid from the 250M ecosystem reserve, which partly offsets the burns.",
     realYieldSource:"Revenue-funded buybacks ÷ circulating MC — estimate, Oct 2026", inflationSource:"Tokenomist / DefiLlama unlocks — cliff date differs by source (Dec 27–29 2026 or Jan 28 2027)",
     dataDate:"Oct 2026",
     thesis:"ZK-rollup perps DEX that launched LIT in Dec 2025 with a 25% float. Revenue-funded buybacks are now burned. The defining event is the team/investor cliff around end-2026: from then on, scheduled unlocks dwarf the burn.",
@@ -1844,28 +1840,28 @@ const ARCA_ASSETS = [
     ]},
 
   // ── DRV ──────────────────────────────────────────────────────────────────────
-  { id:"DRV", name:"DRV", sector:"Options DEX", sectorPE:[8,20], protocolAge:2021,
+  { id:"DRV", name:"DRV", sector:"Options DEX",  protocolAge:2021,
     nextUnlock:"Linear vesting into 2029–2031 (~67% of 1.5B unlocked per Tokenomist) + 100K DRV/week staking emissions",
     staticCircSupply:738e6, staticTotalSupply:1500e6,
     icon:"D", color:"#2fd0b5", source:"coingecko_only", binanceSymbol:null,
-    staticPE:null, annualRevenue:"~$6M (Q2 2026 $1.47M/quarter)", realYield:"~2% (est.)", inflation:"~12% (est.)", staticTVL:"N/A",
+    annualRevenue:"~$6M (Q2 2026 $1.47M/quarter)", realYield:"~2% (est.)", inflation:"~12% (est.)", staticTVL:"N/A",
     defillamaSlug:"derive", defillamaSlugAlt:"derive-v2", coingeckoId:"derive",
     useFeesAsRevenue:false,
-    buybackLevel:"programmatic", buybackNote:"35% of protocol revenue → weekly DRV buybacks since Apr 2026 (was 25%); a vote to raise it to 50% was pending.",
+    buybackNote:"35% of protocol revenue → weekly DRV buybacks since Apr 2026 (was 25%); a vote to raise it to 50% was pending.",
     realYieldSource:"35% of revenue in buybacks ÷ circulating MC — estimate", inflationSource:"Tokenomist / Tokenomics.com — total supply 1.5B (docs) vs 1B (older pages)",
     dataDate:"Oct 2026",
     thesis:"On-chain options and perps (formerly Lyra). Programmatic buybacks from trading, gas and liquidation fees, but the revenue base is small (~$6M/yr) and supply keeps vesting for years. Not on Binance: no Ichimoku / Strategy Builder coverage.",
     moat:"Longest-running on-chain options venue + own L2 (Derive Chain)" },
 
   // ── PONS ─────────────────────────────────────────────────────────────────────
-  { id:"PONS", name:"PONS", sector:"Memecoin Launchpad", sectorPE:[3,8], protocolAge:2026,
+  { id:"PONS", name:"PONS", sector:"Memecoin Launchpad",  protocolAge:2026,
     nextUnlock:"Fixed 1B supply, no disclosed team or investor vesting; ~32% burned by Oct 6 2026",
     staticCircSupply:679e6, staticTotalSupply:1000e6,
     icon:"P", color:"#ff4fa3", source:"coingecko_only", binanceSymbol:null,
-    staticPE:null, annualRevenue:"~$45M annualized from DefiLlama 30d ($3.85M) — very volatile: ~$2M/day late Aug → ~$240K/day early Oct 2026", realYield:"N/A", inflation:"~0% (fixed supply, net deflationary through burns)", staticTVL:"N/A",
+    annualRevenue:"~$45M annualized from DefiLlama 30d ($3.85M) — very volatile: ~$2M/day late Aug → ~$240K/day early Oct 2026", realYield:"N/A", inflation:"~0% (fixed supply, net deflationary through burns)", staticTVL:"N/A",
     defillamaSlug:"pons", defillamaSlugAlt:"pons-v1", coingeckoId:"pons",
     useFeesAsRevenue:true, // launchpad fees = protocol revenue
-    buybackLevel:"programmatic", buybackNote:"~80% of fee revenue buys PONS on the open market and burns it. Run by the team today, not immutable — automation/decentralization announced for a future release.",
+    buybackNote:"~80% of fee revenue buys PONS on the open market and burns it. Run by the team today, not immutable — automation/decentralization announced for a future release.",
     realYieldSource:"Live holders revenue when DefiLlama reports it", inflationSource:"Fixed 1B supply; burns ~32% (team, Oct 6 2026)",
     dataDate:"Oct 2026",
     thesis:"Launchpad on Robinhood Chain that filled the gap left by Noxa.fun in July 2026. Very high buyback ratio, but revenue is tied to a single chain's memecoin activity and has already fallen ~85% from its peak. Not on Binance: no Ichimoku / Strategy Builder coverage.",
@@ -1877,11 +1873,40 @@ const ARCA_ASSETS = [
     ]},
 ];
 
+// ── Value accrual (Jeff Dorman's "proper token design") — how protocol value reaches the token ──
+//   hardcoded     : protocol / DAO rule — buyback, burn or direct fee distribution (incl. ve-lockers)
+//   discretionary : company or team policy that has changed, or can change, at will
+//   none          : no channel from protocol revenue to holders
+const ARCA_VALUE_ACCRUAL = {
+  HYPE:'hardcoded',      // ~97–99% of fees → Assistance Fund buybacks
+  JUP:'discretionary',   // 50% fee buyback, halted by the team in Jan 2026 then reinstated
+  UNI:'hardcoded',       // DAO fee switch, 17% of fees → buyback+burn
+  AAVE:'hardcoded',      // Aavenomics 3.0: buybacks are a protocol default
+  PUMP:'discretionary',  // company policy, cut 100% → 50% in Apr 2026; no holder right
+  ONDO:'none',
+  MET:'none',            // fees go to LPs
+  ASTER:'discretionary', // mechanism changed by the team twice in 2026
+  SYRUP:'hardcoded',     // MIP-021 governance rule
+  AERO:'hardcoded',      // ve(3,3): 100% of trading fees to veAERO lockers
+  PENDLE:'hardcoded',    // sPENDLE: up to 80% of revenue → buybacks to stakers
+  ENA:'none',            // fee switch approved but inactive below $7.5B USDe
+  RAY:'hardcoded',       // 12% of every trade fee → buyback+burn, in protocol code
+  MORPHO:'none',         // fee switch not active
+  MEGA:'none',           // buyback gated on a USDM milestone not reached
+  TRX:'hardcoded',       // fee burn on every transaction
+  KNTQ:'hardcoded',      // 70% of performance fees → buybacks to sKNTQ
+  LDO:'none',            // NEST trigger conditions not met
+  LIT:'discretionary',   // company-run buybacks from revenue, burned
+  DRV:'hardcoded',       // DAO-voted 35% of revenue → weekly buybacks
+  PONS:'discretionary',  // team-run 80% buyback, not immutable
+};
+ARCA_ASSETS.forEach(a=>{ a.valueAccrual = ARCA_VALUE_ACCRUAL[a.id] || 'none'; });
+
 let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-25-a"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-25-c"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3568,9 +3593,7 @@ function calcDynamicMetrics(a){
   const revTvl=revAnn30d>0&&tvl>0?revAnn30d/tvl:null;
   const dynamicStrike=(()=>{
     if(revAnn30d>0&&supply>0) return (revAnn30d/supply)*10;
-    // Fallback: derive from staticPE and current price (PE = MC/Rev → Rev = MC/PE → Strike = Rev/supply × 10)
-    if(a.staticPE&&circMC>0&&supply>0) return (circMC/a.staticPE/supply)*10;
-    return null;
+    return null; // no live revenue → no strike (no static fallback)
   })();
   // §4.2: quality flags
   const revQuality=d.fees?.revQuality||'missing';
@@ -3608,11 +3631,6 @@ function calcDynamicMetrics(a){
     // CoinGecko's 7d sparkline is hourly (~168 points) → annualize by the number of points per day
     if(returns.length>5){const mean=returns.reduce((a,b)=>a+b,0)/returns.length;const variance=returns.reduce((a,r)=>a+Math.pow(r-mean,2),0)/returns.length;const perDay=(spark.length-1)/7;vol7dPct=Math.sqrt(variance)*Math.sqrt(365*perDay)*100;}
   }
-  // Sector P/E target range from asset config
-  const sectorPELow=a.sectorPE?a.sectorPE[0]:8;
-  const sectorPEHigh=a.sectorPE?a.sectorPE[1]:20;
-  // Dynamic strike using sector PE midpoint instead of fixed 10x
-  const sectorPEMid=(sectorPELow+sectorPEHigh)/2;
   // Live Real Yield = holdersRevenue30d × 12 / circMC × 100
   const holdersRev30d=d.fees?.holdersRevenue30d||0;
   const liveRealYield=(holdersRev30d>0&&circMC>0)?Math.round(holdersRev30d*12/circMC*1000)/10:null;
@@ -3625,7 +3643,7 @@ function calcDynamicMetrics(a){
   const emissionsUnlock90dPct=d.emissions?.unlock90dPct??null;
   const emissionsHasData=d.emissions?.hasData||false;
   return{circMC,supply,totalSupply,revAnn30d,feesAnn30d,tvl,pe,ps,mcTvl,revTvl,price,fdv:d.cg?.fdv||0,
-    dynamicStrike,sectorPELow,sectorPEHigh,sectorPEMid,
+    dynamicStrike,
     hasLive:!!(d.fees||d.cg),hasOverride,mcIsLive,revSourceQuality,revIsLive,strikeIsLive,liveState,feesUsedAsRev,realYieldIsLive,
     rev24h:d.fees?.revenue24h||0,fees24h:d.fees?.fees24h||0,rev7d:d.fees?.revenue7d||0,fees7d:d.fees?.fees7d||0,rev1y:d.fees?.revenue1y||0,fees1y:d.fees?.fees1y||0,
     revQuality,feeQuality,priceSource,dataCompleteness,
@@ -3634,6 +3652,9 @@ function calcDynamicMetrics(a){
 }
 
 // P/E zone classification
+// P/E display: live only. Above 100× the protocol keeps almost none of its activity as revenue → not meaningful.
+const PE_NM = 100;
+function fmtPE(pe){ if(pe==null||!isFinite(pe)) return 'n/a'; return pe>PE_NM ? '>'+PE_NM+'× (n/m)' : pe.toFixed(1)+'×'; }
 function getPEZone(pe){
   if(pe===null) return{label:"N/A",cls:"",color:"#3a5a70",action:""};
   if(pe<10) return{label:"Deep Value",cls:"signal-strong-buy",color:"#00d98b",action:"Aggressive buy"};
@@ -3742,17 +3763,19 @@ function getConvictionScore(price, a, m) {
   const ryPts = m.realYieldNet>10?10 : m.realYieldNet>5?6 : m.realYieldNet>0?2 : m.realYieldNet<-10?-10 : m.realYieldNet<-5?-5 : m.realYieldNet<0?-2 : 0;
   fBiz += ryPts;
   bBiz.push({ label:'Real Yield Net'+(m.realYieldIsLive?' (live yield − est. inflation)':' (estimate)'), value:(m.realYieldNet>0?'+':'')+(m.realYieldNet||0).toFixed(1)+'%', pts:pts(ryPts), color:ryPts>=4?G:ryPts>=0?Y:R });
-  const bbPts = a.buybackLevel==='programmatic'?12 : a.buybackLevel==='opportunistic'?4 : -12;
+  const bbPts = a.valueAccrual==='hardcoded'?12 : a.valueAccrual==='discretionary'?4 : -12;
   fBiz += bbPts;
-  bBiz.push({ label:'Buyback Program', value:a.buybackLevel==='programmatic'?'Programmatic':a.buybackLevel==='opportunistic'?'Opportunistic':'None', pts:pts(bbPts), color:bbPts>=8?G:bbPts>=0?Y:R });
+  bBiz.push({ label:'Value Accrual', value:accrualLabel(a.valueAccrual).text, pts:pts(bbPts), color:bbPts>=8?G:bbPts>=0?Y:R });
   if (a.riskFlags?.length) a.riskFlags.forEach(rf=>{ if(rf.bizMalus){ fBiz+=rf.bizMalus; bBiz.push({label:'⚠ '+rf.label,value:rf.detail,pts:pts(rf.bizMalus),color:R}); } });
   fBiz = cl(fBiz);
 
   // ═══ PILLAR 2 — VALUATION (30%) ═══
-  const peForScore = m.pe != null ? m.pe : (a.staticPE != null ? a.staticPE : null);
+  // Live P/E only, one grid for every sector (same bands as the P/E legend):
+  //   < 10× → +10 · < 18× → +5 · < 30× → 0 · < 50× → −5 · above (or n/m) → −10 · no live P/E → 0
+  const peForScore = m.pe;
   const pePts = peForScore==null?0 : peForScore<10?10 : peForScore<18?5 : peForScore<30?0 : peForScore<50?-5 : -10;
   let fVal = 50 + pePts;
-  bVal.push({ label: peForScore==null?'P/E':(m.pe!=null?'P/E (live)':'P/E (static est.)'), value:peForScore==null?'N/A':peForScore.toFixed(1)+'×', pts:pts(pePts), color:pePts>0?G:pePts<0?R:M });
+  bVal.push({ label:'P/E (live)', value:peForScore==null?'n/a — no live revenue':fmtPE(peForScore), pts:pts(pePts), color:pePts>0?G:pePts<0?R:M });
   if (m.ps != null) {
     const psPts = m.ps<2?15 : m.ps<5?8 : m.ps>40?-15 : m.ps>20?-8 : 0;
     fVal = cl(fVal + psPts);
@@ -3780,11 +3803,11 @@ function getConvictionScore(price, a, m) {
   // ═══ PILLAR 3 — CAPITAL RISK (10%) ═══
   let fRisk = 55;
   const inflationPct  = parseNum(a.inflation);
-  const buybackOffset = a.buybackLevel==='programmatic'?6 : a.buybackLevel==='opportunistic'?2 : 0;
+  const buybackOffset = a.valueAccrual==='hardcoded'?6 : a.valueAccrual==='discretionary'?2 : 0;
   const netDilution   = Math.max(0, inflationPct - buybackOffset);
   const dilPts = netDilution<2?15 : netDilution<5?8 : netDilution<10?0 : netDilution<20?-10 : -20;
   fRisk += dilPts;
-  bRisk.push({ label:'Net Dilution (inflation − buyback)', value:netDilution.toFixed(1)+'%/yr', pts:pts(dilPts), color:dilPts>=8?G:dilPts>=0?Y:R });
+  bRisk.push({ label:'Net Dilution (inflation − value accrual)', value:netDilution.toFixed(1)+'%/yr', pts:pts(dilPts), color:dilPts>=8?G:dilPts>=0?Y:R });
   if (m.emissionsUnlock30dPct != null) {
     const emPts = m.emissionsUnlock30dPct<0.5?8 : m.emissionsUnlock30dPct<2?-5 : m.emissionsUnlock30dPct>5?-18 : -8;
     fRisk += emPts;
@@ -3806,7 +3829,7 @@ function getConvictionScore(price, a, m) {
   const total = Math.round(cl(fBiz*0.60 + fVal*0.30 + fRisk*0.10));
   const col = x => x>=60?G:x>=40?Y:R;
   const factors = [
-    { name:'Business Quality', score:Math.round(fBiz),  weight:'60%', color:col(fBiz),  desc:'Revenue (30d) · TVL · Yield · Buyback', breakdown:bBiz },
+    { name:'Business Quality', score:Math.round(fBiz),  weight:'60%', color:col(fBiz),  desc:'Revenue (30d) · TVL · Yield · Value accrual', breakdown:bBiz },
     { name:'Valuation',        score:Math.round(fVal),  weight:'30%', color:col(fVal),  desc:'P/E · P/S · MC/TVL · Relative valuation', breakdown:bVal },
     { name:'Capital Risk',     score:Math.round(fRisk), weight:'10%', color:col(fRisk), desc:'Net Dilution · Unlocks · Liquidity · Protocol Age', breakdown:bRisk },
   ];
@@ -3869,7 +3892,7 @@ function getBuySignal(price, strike, livePe, convScore) {
 
 function arcaFmtPrice(p){if(!p&&p!==0)return"\u2014";const v=cx(p);const s=cxSym();if(v<0.001)return s+v.toFixed(6);if(v<0.01)return s+v.toFixed(5);if(v<1)return s+v.toFixed(4);if(v<100)return s+v.toFixed(2);return s+fmt(v);}
 function qualityBadge(q){if(q==='manual')return'<span title="Manual revenue estimate (analyst input), not live" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udccb EST</span>';if(q==='direct30d')return'<span title="Direct 30d data from DefiLlama" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2</span>';if(q==='from_chain_fees')return'<span title="Chain-level fees from DefiLlama /overview/fees" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2 ⛓</span>';if(q==='from7d')return'<span title="Estimated from 7d data" style="color:#f0b840;font-size:8px;cursor:help">\ud83d\udfe1 EST</span>';if(q==='from24h'||q==='estimated')return'<span title="Estimated from 24h data" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udfe0 EST</span>';return'<span title="No live data" style="color:#ff3d5a;font-size:8px;cursor:help">\ud83d\udd34</span>';}
-function buybackLabel(level){if(level==='programmatic')return{text:'Programmatic',color:'#00d98b',icon:'\u2713\u2713'};if(level==='opportunistic')return{text:'Opportunistic',color:'#f0b840',icon:'\u2713'};return{text:'None',color:'#ff3d5a',icon:'\u2717'};}
+function accrualLabel(level){if(level==='hardcoded')return{text:'Hardcoded',color:'#00d98b',icon:'\u2713\u2713'};if(level==='discretionary')return{text:'Discretionary',color:'#f0b840',icon:'\u2713'};return{text:'None',color:'#ff3d5a',icon:'\u2717'};}
 
 // ── Dorman Token Investability Matrix ───────────────────────────────────────
 // Jeff Dorman (CIO, Arca): tokens are only "investable" if protocol success is
@@ -3879,16 +3902,16 @@ function buybackLabel(level){if(level==='programmatic')return{text:'Programmatic
 // own as its live real yield or business score change. Dorman's own paper
 // (Aug 2026) is used only to calibrate these thresholds, not as a data source.
 function calcDesignScore(a, m){
-  const bb = a.buybackLevel;
+  const va = a.valueAccrual;
   const liveYield = m?.liveRealYield;
-  if (bb === 'programmatic'){
-    // Mechanism claimed AND proven live (>0.5%) = proper design, Dorman's Q1 bar.
-    // Claimed but never confirmed live = the exact MET/PUMP tension — partial credit only.
+  if (va === 'hardcoded'){
+    // Rule-based channel AND proven live (>0.5%) = proper design, Dorman's Q1 bar.
+    // Rule exists but no live holder revenue yet = partial credit only.
     return (liveYield != null && liveYield > 0.5) ? 85 : 45;
   }
-  if (bb === 'opportunistic') return 35;
-  if (bb === 'none') return 15;
-  return 25; // buybackLevel not set — missing data, treated cautiously rather than as proven absence
+  if (va === 'discretionary') return 35; // company/team policy = not proper design, however large (Dorman: Pump.fun is a value trap)
+  if (va === 'none') return 15;
+  return 25; // not set — missing data, treated cautiously rather than as proven absence
 }
 function calcDormanQuadrant(businessScore, designScore){
   const highBiz = businessScore >= 50;
@@ -3963,13 +3986,13 @@ function renderDormanMatrix(){
 // ── ARCA filters: revenue + buyback scope, signal ─────────────
 const ARCA_SCOPE_MIN_REV = 5e6; // minimum annualized 30d revenue to be "in scope"
 const ARCA_SCOPE_META = {
-  scope:    { label:'SCOPE',    color:'#00d98b', title:'Revenue ≥ $5M/yr + active buyback' },
-  rev_only: { label:'REV ONLY', color:'#f0b840', title:'Revenue ≥ $5M/yr, no buyback' },
+  scope:    { label:'SCOPE',    color:'#00d98b', title:'Revenue ≥ $5M/yr + value accrual (hardcoded or discretionary)' },
+  rev_only: { label:'REV ONLY', color:'#f0b840', title:'Revenue ≥ $5M/yr, no value accrual' },
   watch:    { label:'WATCH',    color:'#3a5a70', title:'Revenue < $5M/yr' },
 };
 function arcaScopeOf(a, m){
   if ((m.revAnn30d||0) < ARCA_SCOPE_MIN_REV) return 'watch';
-  return (a.buybackLevel==='programmatic'||a.buybackLevel==='opportunistic') ? 'scope' : 'rev_only';
+  return (a.valueAccrual==='hardcoded'||a.valueAccrual==='discretionary') ? 'scope' : 'rev_only';
 }
 function arcaScopeBadge(a, m){
   const k=arcaScopeOf(a,m), x=ARCA_SCOPE_META[k];
@@ -4029,11 +4052,11 @@ function renderArcaGrid(){
     const m=calcDynamicMetrics(a);
     const strike=m.dynamicStrike;
     const hasStrike=strike!==null&&strike>0;
-    // §3.2: Live PE for signals, display PE includes static fallback with label
+    // Live P/E only — no static fallback anywhere (it used to show and score analyst guesses)
     const livePe=m.pe;
-    const displayPe=livePe!=null?livePe:a.staticPE;
+    const displayPe=livePe;
     const peIsLive=livePe!=null;
-    const peLabel=peIsLive?'P/E (30d ann.)':'P/E (STATIC EST.)';
+    const peLabel='P/E (30d ann.)';
     const peZone=getPEZone(displayPe);
     const liveZone=getPEZone(livePe); // for signal: only live
     const conv=getConvictionScore(price,a,m);
@@ -4043,7 +4066,7 @@ function renderArcaGrid(){
     const convCol=a.isPreMarket ? '#6c4fff' : convictionColor(conv.total);
     const liveState=m.liveState;
     const liveCol=liveState==='live'?'#00d98b':liveState==='partial'?'#f0b840':'#ff8c00';
-    const peDisplay=displayPe!=null?((typeof displayPe==='number'&&isFinite(displayPe))?displayPe.toFixed(1):(displayPe||'—'))+'\u00d7':'\u2014';
+    const peDisplay=fmtPE(displayPe);
 
     let distText="\u2014",distColor="#3a5a70",distSign="";
     if(hasPrice&&hasStrike){
@@ -4051,8 +4074,9 @@ function renderArcaGrid(){
       else{const pct=((price-strike)/strike*100);distText=pct.toFixed(1)+"% above";distColor=pct<80?"#3d8bff":pct<200?"#f0b840":pct<500?"#ff8c00":"#ff3d5a";distSign="\u2191";}
     }
     let markerLeft=50;if(displayPe!=null){markerLeft=Math.min(98,Math.max(2,(displayPe/80)*100));}
+    const markerStyle=displayPe!=null?`left:${markerLeft}%`:'display:none'; // no live P/E → no position on the bar
     const borderColors={"BUY":"#00d98b40","NEUTRAL":"#f0b84040","AVOID":"#ff3d5a33","NOT RATED":"#3a5a7033","\u2014":"#162030"};
-    const bb=buybackLabel(a.buybackLevel);
+    const bb=accrualLabel(a.valueAccrual);
     const dcPct=Math.round(m.dataCompleteness*100);
     const dcCol=dcPct>=70?'#00d98b':dcPct>=40?'#f0b840':'#ff3d5a';
     const designScore=calcDesignScore(a,m);
@@ -4117,7 +4141,7 @@ function renderArcaGrid(){
             <div class="arca-metric-sub">MegaETH L2 chain</div>
           </div>
         ` : `
-        <div class="arca-metric ${peIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip(peLabel,'Circ. MC ÷ (Revenue 30d × 12)','How many years of current revenue the market is pricing in.',peIsLive?(displayPe<10?'Deep Value — market severely underprices revenue.':displayPe<18?'Fair Value — reasonable for proven revenue.':displayPe<30?'Growth — paying premium for expected growth.':'Expensive — priced for perfection.'):'Static estimate — no live signal.')} ${qualityBadge(m.revSourceQuality)}${peIsLive&&!m.mcIsLive?' <span style="color:#ff8c00;font-size:7px" title="Market cap from static supply">EST</span>':''}</div><div class="arca-metric-value" style="color:${peZone.color}">${peDisplay}</div><div class="arca-metric-sub">${peZone.label} · ${peZone.action}</div></div>
+        <div class="arca-metric ${peIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip(peLabel,'Circ. MC ÷ (Revenue 30d × 12)','How many years of current revenue the market is pricing in.',peIsLive?(displayPe<10?'Deep Value — market severely underprices revenue.':displayPe<18?'Fair Value — reasonable for proven revenue.':displayPe<30?'Growth — paying premium for expected growth.':'Expensive — priced for perfection.'):'No live protocol revenue — P/E not available.')} ${qualityBadge(m.revSourceQuality)}${peIsLive&&!m.mcIsLive?' <span style="color:#ff8c00;font-size:7px" title="Market cap from static supply">EST</span>':''}</div><div class="arca-metric-value" style="color:${peZone.color}" title="${displayPe>PE_NM?'Not meaningful: the protocol keeps almost none of its activity as revenue':''}">${peDisplay}</div><div class="arca-metric-sub">${displayPe==null?'No live revenue':displayPe>PE_NM?'Not meaningful — protocol keeps almost no revenue':peZone.label+' · '+peZone.action}</div></div>
         ${m.ps!=null?`<div class="arca-metric ${m.mcIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip('P/S (30d ann.)','Circ. MC ÷ (Total Fees 30d × 12)','Price-to-Sales: total fees collected vs market cap. Lower = cheaper.',m.ps<5?'Very cheap relative to fee generation.':m.ps<15?'Reasonable valuation vs fees.':'Expensive — fees don\'t justify market cap.')} ${qualityBadge(m.feeQuality)}</div><div class="arca-metric-value">${sf(m.ps,1)}×</div><div class="arca-metric-sub">Circ.MC / Total Fees</div></div>`:''}
         ${m.circMC>0?`<div class="arca-metric ${m.mcIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("Circ. Market Cap","Price × Circulating Supply","Total value of all freely tradeable tokens.",m.circMC>1e9?"Large cap — more stable, less upside.":"Small/mid cap — higher volatility, more upside potential.")} ${m.hasOverride?'<span style="color:#ff8c00;font-size:7px">OVERRIDE</span>':m.mcIsLive?'🟢':'<span style="color:#ff8c00;font-size:7px" title="Price × static circulating supply">EST</span>'}</div><div class="arca-metric-value" style="font-size:11px">${fmtCompact(m.circMC)}</div></div>`:''}
         <div class="arca-metric ${m.tvl>0?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("TVL","Sum of assets deposited in protocol smart contracts","Total Value Locked: measures capital trust.",m.tvl>1e9?"Strong capital base.":m.tvl>100e6?"Moderate TVL.":"Low TVL.")} ${m.tvl>0?'🟢':''}</div><div class="arca-metric-value" style="font-size:11px;color:#b8ccd8">${m.tvl>0?fmtCompact(m.tvl):a.staticTVL}</div></div>
@@ -4131,7 +4155,7 @@ function renderArcaGrid(){
         ${!m.ps?`<div class="arca-metric arca-static"><div class="arca-metric-label">Revenue (EST)</div><div class="arca-metric-value" style="font-size:11px;color:#b8ccd8">${a.annualRevenue}</div></div>`:''}
         <div class="arca-metric ${m.liveRealYield!==null?'arca-live':'arca-static'}"><div class="arca-metric-label">Real Yield ${m.liveRealYield!==null?'🟢':'(EST)'}</div><div class="arca-metric-value" style="color:${(m.liveRealYield??parseFloat((a.realYield||'0').replace(/[^0-9.-]/g,'')))>5?'#00d98b':(m.liveRealYield??parseFloat((a.realYield||'0').replace(/[^0-9.-]/g,'')))>2?'#f0b840':'#ff3d5a'}">${m.liveRealYield!==null?m.liveRealYield.toFixed(1)+'%':(a.realYield==='N/A'?'<span style="color:#3a5a70">N/A</span>':a.realYield)}</div>${m.liveRealYield!==null?'<div class="arca-metric-sub">holdersRev30d×12/MC · Live</div>':(a.realYieldSource?'<div class="arca-metric-sub" style="line-height:1.4">'+a.realYieldSource+'</div>':'')}</div>
         <div class="arca-metric arca-static"><div class="arca-metric-label">Inflation (EST) <span style="cursor:help;color:#3a5a70" title="${a.inflationSource||'No source'}">i</span></div><div class="arca-metric-value" style="color:${a.inflation==='N/A'?'#3a5a70':parseFloat((a.inflation||'0').replace(/[^0-9.-]/g,''))<3?'#00d98b':parseFloat((a.inflation||'0').replace(/[^0-9.-]/g,''))<6?'#f0b840':'#ff3d5a'}">${a.inflation}</div></div>
-        <div class="arca-metric arca-static"><div class="arca-metric-label">Buyback</div><div class="arca-metric-value" style="font-size:12px;color:${bb.color}">${bb.icon} ${bb.text}</div><div class="arca-metric-sub" style="font-size:8px">${a.buybackNote}</div></div>
+        <div class="arca-metric arca-static"><div class="arca-metric-label">Value Accrual</div><div class="arca-metric-value" style="font-size:12px;color:${bb.color}">${bb.icon} ${bb.text}</div><div class="arca-metric-sub" style="font-size:8px">${a.buybackNote}</div></div>
       </div>
 
       <!-- Token Unlock Donut -->
@@ -4185,7 +4209,7 @@ function renderArcaGrid(){
             <div class="ez-zone" style="width:37.5%;background:#ff8c0018;color:#ff8c00">PREMIUM</div>
             <div class="ez-zone" style="flex:1;background:#ff3d5a18;color:#ff3d5a">\ud83d\udd25</div>
           </div>
-          <div class="ez-marker" style="left:${markerLeft}%"></div>
+          <div class="ez-marker" style="${markerStyle}"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:9px;color:#2e4a60;margin-top:4px">
           <span style="color:#00d98b">0\u00d7</span><span style="color:#00d98b">10\u00d7</span><span style="color:#3d8bff">18\u00d7</span><span style="color:#f0b840">30\u00d7</span><span style="color:#ff8c00">60\u00d7</span><span style="color:#ff3d5a">80\u00d7+</span>
@@ -4204,10 +4228,10 @@ function renderArcaGrid(){
   // Summary table — §2.2: tooltips for P/E and P/S
   tbody.innerHTML=(visibleAssets.length?'':'<tr><td colspan="13" style="text-align:center;color:#3a5a70;padding:14px">No token matches the filters</td></tr>')+visibleAssets.map(a=>{
     const price=arcaPrices[a.id];const hasPrice=price>0;const m=calcDynamicMetrics(a);
-    const strike=m.dynamicStrike;const livePe=m.pe;const displayPe=livePe!=null?livePe:a.staticPE;
+    const strike=m.dynamicStrike;const livePe=m.pe;const displayPe=livePe;
     const peZone=getPEZone(displayPe);const conv=getConvictionScore(price,a,m);const sig=getBuySignal(price,strike,livePe,conv.total);const convCol=convictionColor(conv.total);
-    const peDisplay=livePe!=null?sf(livePe,1)+'\u00d7':a.staticPE+'\u00d7';
-    const peTag=(livePe!=null&&m.revIsLive&&m.mcIsLive)?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>';
+    const peDisplay=fmtPE(livePe);
+    const peTag=livePe==null?'':(m.revIsLive&&m.mcIsLive)?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>';
     let distHtml="\u2014";
     if(hasPrice&&strike>0){
       if(price<strike){const pct=((strike-price)/strike*100);distHtml=`<span style="color:#00d98b">\u2193${pct.toFixed(1)}%</span>`;}
@@ -4286,7 +4310,7 @@ function renderArcaSummary(){
   const el=document.getElementById("arca-signal-cards");if(!el)return;
   el.innerHTML=arcaFilteredAssets().map(a=>{
     const price=arcaPrices[a.id];const change=arcaChanges[a.id];const hasPrice=price>0;
-    const m=calcDynamicMetrics(a);const livePe=m.pe;const displayPe=livePe!=null?livePe:a.staticPE;
+    const m=calcDynamicMetrics(a);const livePe=m.pe;const displayPe=livePe;
     const peZone=getPEZone(displayPe);
 
     // Pre-market override — no score, no signal
@@ -4328,7 +4352,7 @@ function renderArcaSummary(){
         <span style="font-size:13px;font-weight:700;color:${sc};letter-spacing:0.5px">${sig.icon} ${sig.label}</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:9px;color:#3a5a70">
-        <span>${isPreMkt?'<span style="color:#6c4fff;font-weight:600">Futures only</span>':isEarlyStg?'P/E <span style="color:#f0b840;font-weight:600">Early</span>':'P/E <span style="color:'+peZone.color+';font-weight:600">'+(displayPe!=null?sf(displayPe,1)+'×':'—')+'</span> <span style="color:'+peZone.color+';font-size:7px">'+( displayPe!=null?peZone.label:'')+'</span>'+(livePe==null&&!isPreMkt&&!isEarlyStg?' <span style="color:#ff8c00;font-size:7px">EST</span>':'')}</span>
+        <span>${isPreMkt?'<span style="color:#6c4fff;font-weight:600">Futures only</span>':isEarlyStg?'P/E <span style="color:#f0b840;font-weight:600">Early</span>':'P/E <span style="color:'+peZone.color+';font-weight:600">'+fmtPE(displayPe)+'</span> <span style="color:'+peZone.color+';font-size:7px">'+( displayPe!=null&&displayPe<=PE_NM?peZone.label:'')+'</span>'}</span>
         <span>${(()=>{const sp=arcaDynamic[a.id]?.cg?.sparkline||[];return sp.length>3?miniSparkline(sp,change>=0?'#00d98b':'#ff3d5a'):'';})()}</span>
         <span>${isPreMkt?'<span style="color:#2e4a60">Score —</span>':'Score <span style="color:'+convCol+';font-weight:600">'+(conv.total??'—')+'</span>'+(isEarlyStg?' <span style="color:#f0b840;font-size:7px">⚡</span>':'')}</span>
       </div>
@@ -4355,15 +4379,15 @@ function renderDormanAlloc(){
 
   let raw=ARCA_ASSETS.map(a=>{
     const m=calcDynamicMetrics(a);
-    const livePe=m.pe;const displayPe=livePe!=null?livePe:a.staticPE;
+    const livePe=m.pe;const displayPe=livePe; // no live P/E → zero weight (no static fallback)
     const convObj=getConvictionScore(arcaPrices[a.id],a,m);const conv=convObj.total;
     // §6.3: Base weight by P/E zone ONLY (conviction does NOT include P/E)
     let w=0;
     if(displayPe!=null){
       if(displayPe<10) w=30;else if(displayPe<18) w=15;else if(displayPe<30) w=8;else if(displayPe<60) w=3;else w=0;
     }
-    // §5.3: Buyback level bonus
-    if(a.buybackLevel==='programmatic') w*=1.2;else if(a.buybackLevel==='opportunistic') w*=1.05;
+    // §5.3: Value accrual bonus
+    if(a.valueAccrual==='hardcoded') w*=1.2;else if(a.valueAccrual==='discretionary') w*=1.05;
     // Conviction multiplier (§6.3: conv no longer has P/E, so no double-count)
     w*=(conv/60);
     // §6.2: Zero weight for low conviction
