@@ -1177,10 +1177,10 @@ tr:last-child td { border-bottom:none; }
   <!-- Sort + Source Status -->
   <div class="arca-sort-bar">
     <label style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px">Sort by</label>
-    <select id="arca-sort" onchange="renderArcaGrid()">
+    <select id="arca-sort" autocomplete="off" onchange="renderArcaGrid()">
+      <option value="signal" selected>Signal (Buy → Neutral → Avoid)</option>
       <option value="score">Score (highest first)</option>
       <option value="pe">P/E (lowest first)</option>
-      <option value="signal">Signal strength</option>
       <option value="name">Name (A-Z)</option>
       <option value="change">24h Change</option>
     </select>
@@ -1906,7 +1906,7 @@ let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-25-c"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-27-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -4024,26 +4024,37 @@ function arcaRestoreFilters(){
 }
 document.addEventListener('DOMContentLoaded', arcaRestoreFilters);
 
+// Default order: BUY → NEUTRAL → AVOID, highest score first inside each group.
+// Scores are computed once per token (the old comparator recomputed them on every comparison).
+const ARCA_SIGNAL_ORDER={"BUY":0,"NEUTRAL":1,"AVOID":2,"NOT RATED":3,"—":3};
+function arcaSortAssets(list, key='signal'){
+  const rows=list.map(a=>{
+    let total=null, label='—', pe=null;
+    try{
+      const m=calcDynamicMetrics(a), c=getConvictionScore(arcaPrices[a.id]||0,a,m);
+      total=c.total; pe=m.pe; label=a.isPreMarket?'NOT RATED':getBuySignal(arcaPrices[a.id],m.dynamicStrike,m.pe,c.total).label;
+    }catch(e){ console.warn('Sort error:',a.id,e); }
+    return {a,total,label,pe};
+  });
+  const byScore=(x,y)=>(y.total??-1)-(x.total??-1) || x.a.name.localeCompare(y.a.name);
+  const cmp={
+    signal:(x,y)=>((ARCA_SIGNAL_ORDER[x.label]??5)-(ARCA_SIGNAL_ORDER[y.label]??5)) || byScore(x,y),
+    score:byScore,
+    pe:(x,y)=>(x.pe??Infinity)-(y.pe??Infinity) || byScore(x,y),
+    name:(x,y)=>x.a.name.localeCompare(y.a.name),
+    change:(x,y)=>(arcaChanges[y.a.id]||0)-(arcaChanges[x.a.id]||0),
+  }[key]||byScore;
+  return rows.sort(cmp).map(r=>r.a);
+}
 function renderArcaGrid(){
   const grid=document.getElementById("arca-grid");
   const tbody=document.getElementById("arca-table-body");
 
   // Sort assets
-  const sortKey=document.getElementById('arca-sort')?.value||'score';
+  const sortKey=document.getElementById('arca-sort')?.value||'signal';
   const visibleAssets=arcaFilteredAssets();
   const cnt=document.getElementById('arca-filter-count'); if(cnt) cnt.textContent=visibleAssets.length+'/'+ARCA_ASSETS.length+' tokens';
-  const sortedAssets=[...visibleAssets].sort((a,b)=>{
-    try{
-      const ma=calcDynamicMetrics(a),mb=calcDynamicMetrics(b);
-      const ca=getConvictionScore(arcaPrices[a.id]||0,a,ma),cb=getConvictionScore(arcaPrices[b.id]||0,b,mb);
-      if(sortKey==='score') return (cb.total||0)-(ca.total||0);
-      if(sortKey==='pe') return (ma.pe||999)-(mb.pe||999);
-      if(sortKey==='signal'){const ord={"BUY":0,"NEUTRAL":1,"AVOID":2,"NOT RATED":3,"—":3};const ca=getConvictionScore(arcaPrices[a.id]||0,a,ma),cb=getConvictionScore(arcaPrices[b.id]||0,b,mb);return (ord[getBuySignal(arcaPrices[a.id],ma.dynamicStrike,ma.pe,ca.total).label]??5)-(ord[getBuySignal(arcaPrices[b.id],mb.dynamicStrike,mb.pe,cb.total).label]??5);}
-      if(sortKey==='name') return a.name.localeCompare(b.name);
-      if(sortKey==='change') return (arcaChanges[b.id]||0)-(arcaChanges[a.id]||0);
-    }catch(e){console.warn('Sort error:',e);}
-    return 0;
-  });
+  const sortedAssets=arcaSortAssets(visibleAssets, sortKey);
   if(!sortedAssets.length){ grid.innerHTML='<div style="color:#3a5a70;font-size:12px;padding:20px;text-align:center">No token matches the filters</div>'; }
   else grid.innerHTML=sortedAssets.map(a=>{
     const price=arcaPrices[a.id];
@@ -4226,7 +4237,7 @@ function renderArcaGrid(){
   }).join("");
 
   // Summary table — §2.2: tooltips for P/E and P/S
-  tbody.innerHTML=(visibleAssets.length?'':'<tr><td colspan="13" style="text-align:center;color:#3a5a70;padding:14px">No token matches the filters</td></tr>')+visibleAssets.map(a=>{
+  tbody.innerHTML=(visibleAssets.length?'':'<tr><td colspan="13" style="text-align:center;color:#3a5a70;padding:14px">No token matches the filters</td></tr>')+sortedAssets.map(a=>{
     const price=arcaPrices[a.id];const hasPrice=price>0;const m=calcDynamicMetrics(a);
     const strike=m.dynamicStrike;const livePe=m.pe;const displayPe=livePe;
     const peZone=getPEZone(displayPe);const conv=getConvictionScore(price,a,m);const sig=getBuySignal(price,strike,livePe,conv.total);const convCol=convictionColor(conv.total);
@@ -4308,7 +4319,7 @@ function _doScrollToCard(id){
 
 function renderArcaSummary(){
   const el=document.getElementById("arca-signal-cards");if(!el)return;
-  el.innerHTML=arcaFilteredAssets().map(a=>{
+  el.innerHTML=arcaSortAssets(arcaFilteredAssets(), document.getElementById('arca-sort')?.value||'signal').map(a=>{
     const price=arcaPrices[a.id];const change=arcaChanges[a.id];const hasPrice=price>0;
     const m=calcDynamicMetrics(a);const livePe=m.pe;const displayPe=livePe;
     const peZone=getPEZone(displayPe);
