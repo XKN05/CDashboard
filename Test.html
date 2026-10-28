@@ -724,7 +724,7 @@ tr:last-child td { border-bottom:none; }
       <div class="home-card home-card-arca" onclick="showPage('arca')">
         <div class="home-card-icon">$</div>
         <div class="home-card-title">ARCA Fundamentals</div>
-        <div class="home-card-desc">Conviction scoring in 3 pillars: Business Quality (60%), Valuation (30%), Capital Risk (10%). 30d log-scale revenue, live P/E, relative valuation, buyback — Dorman/Arca methodology with no double-counting.</div>
+        <div class="home-card-desc">Conviction scoring in 3 pillars: Business Quality (45%), Valuation (40%), Capital Risk (15%). 30d log-scale revenue, live P/E, relative valuation, buyback — Dorman/Arca methodology with no double-counting.</div>
         <div class="home-card-tags">
           <span class="home-card-tag">Conviction Score</span>
           <span class="home-card-tag">Live P/E · P/S</span>
@@ -1060,9 +1060,9 @@ tr:last-child td { border-bottom:none; }
         </div>
         <div class="guide-block">
           <div class="guide-block-title"><div class="gb-dot" style="background:#00d98b"></div>Step 2 — Understand the 3 Factors</div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Business 60%</span><span>Does the protocol make money? 30-day average revenue (log-scale), TVL, real yield, value accrual.</span></div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Valuation 30%</span><span>Is it cheap? Live P/E, P/S, MC/TVL, multiple vs own 90d median.</span></div>
-          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Capital Risk 10%</span><span>Is dilution eating gains? Net dilution (inflation − value accrual), unlocks, thin-liquidity penalty.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Business 45%</span><span>Does the protocol make money? 30-day average revenue (log-scale), TVL, real yield, value accrual.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Valuation 40%</span><span>Is it cheap? Live P/E, P/S, MC/TVL, multiple vs own 90d median.</span></div>
+          <div class="guide-row"><span style="color:#3d8bff;font-weight:700;min-width:90px">Capital Risk 15%</span><span>Is dilution eating gains? Net dilution (inflation − value accrual), unlocks, thin-liquidity penalty.</span></div>
         </div>
         <div class="guide-block">
           <div class="guide-block-title"><div class="gb-dot" style="background:#f0b840"></div>Step 3 — Check Revenue Chart</div>
@@ -1253,7 +1253,7 @@ tr:last-child td { border-bottom:none; }
   <div class="card" style="margin-top:4px">
     <div class="card-title">Summary — Live Fundamentals</div>
     <div class="table-wrap">
-      <table><thead><tr><th>Asset</th><th>Price</th><th>Strike (P/E=10×)</th><th>vs Strike</th><th title="P/E = Circ. Market Cap / (Protocol Revenue 30d × 12)">P/E <span style="color:#3a5a70;cursor:help;font-size:9px">i</span></th><th title="P/S = Circ. Market Cap / (Total Fees 30d × 12)">P/S <span style="color:#3a5a70;cursor:help;font-size:9px">i</span></th><th>Circ.MC/TVL</th><th title="Yield (live holders revenue when available, else analyst estimate) minus estimated inflation">Net Yield</th><th title="Annualized volatility from 7d returns">Vol</th><th>Signal</th><th title="Composite: Business Quality 60% + Valuation 30% + Capital Risk 10%">Score</th><th title="Business / Valuation / Capital Risk sub-scores">B/V/R</th></tr></thead><tbody id="arca-table-body"></tbody></table>
+      <table><thead><tr><th>Asset</th><th>Price</th><th>Strike (P/E=10×)</th><th>vs Strike</th><th title="P/E = Circ. Market Cap / (Protocol Revenue 30d × 12)">P/E <span style="color:#3a5a70;cursor:help;font-size:9px">i</span></th><th title="P/S = Circ. Market Cap / (Total Fees 30d × 12)">P/S <span style="color:#3a5a70;cursor:help;font-size:9px">i</span></th><th>Circ.MC/TVL</th><th title="Yield (live holders revenue when available, else analyst estimate) minus estimated inflation">Net Yield</th><th title="Annualized volatility from 7d returns">Vol</th><th>Signal</th><th title="Composite: Business Quality 45% + Valuation 40% + Capital Risk 15%">Score</th><th title="Business / Valuation / Capital Risk sub-scores">B/V/R</th></tr></thead><tbody id="arca-table-body"></tbody></table>
     </div>
     <div style="font-size:10px;color:#2e4a60;margin-top:10px">Sources: DefiLlama (protocol revenue, total fees, TVL — 30d annualized) · CoinGecko (circulating market cap, supply) · Binance/Hyperliquid (prices) · ARCA analyst (real yield, inflation, tokenomics)</div>
   </div>
@@ -1787,7 +1787,7 @@ const ARCA_ASSETS = [
     moat:"76% Hyperliquid LST market share + only tokenized HIP-3 RWA revenue exposure + KIP-3 Launch (Exchange-as-a-Service) royalties + kHYPE DeFi integrations (Pendle, Valantis) + institutional iHYPE product",
     riskFlags:[
       { label:"Revenue below threshold", bizMalus:-15, riskMalus:0,
-        detail:"Revenue $7.6K/day — well below $50K/day scoring threshold. Score will improve mechanically as kHYPE TVL × HYPE staking yield × fees grow." },
+        detail:"Revenue $7.6K/day — below the $10K/day scoring threshold. Score will improve mechanically as kHYPE TVL × HYPE staking yield × fees grow." },
       { label:"Inflation 25% annual", bizMalus:-5, riskMalus:-10,
         detail:"73% of supply still to unlock. Net real yield = 4.64% − 25% = −20.4%. Significant dilution risk until buyback pressure scales with revenue." },
       { label:"HYPE correlation", bizMalus:0, riskMalus:-8,
@@ -1906,7 +1906,7 @@ let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-27-a"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-28-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3665,7 +3665,7 @@ function getPEZone(pe){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// CONVICTION SCORE — 3 pillars: BUSINESS QUALITY 60% · VALUATION 30% · CAPITAL RISK 10%
+// CONVICTION SCORE — 3 pillars: BUSINESS QUALITY 45% · VALUATION 40% · CAPITAL RISK 15%
 // Computed live in the browser. arca_snapshot.py mirrors these rules but is re-synced deliberately, every 3–6 months,
 // so its datasets stay consistent for analysis — the dashboard itself can evolve between syncs.
 //   Business     : 30d average revenue (log-scale), TVL, real yield, buyback, risk flags
@@ -3747,13 +3747,13 @@ function getConvictionScore(price, a, m) {
   const G='#00d98b', Y='#f0b840', R='#ff3d5a', M='#3a5a70';
   const bBiz=[], bVal=[], bRisk=[];
 
-  // ═══ PILLAR 1 — BUSINESS QUALITY (60%) ═══
+  // ═══ PILLAR 1 — BUSINESS QUALITY (45%) ═══
   let fBiz = 30;
   if ((m.revAnn30d||0) <= 0) {
     fBiz -= 15;
     bBiz.push({ label:'Annual Revenue', value:'None', pts:'-15', color:R });
   } else {
-    const revPts = Math.round(logScore(m.revAnn30d/365, 50000, 28, 55));
+    const revPts = Math.round(logScore(m.revAnn30d/365, 10000, 22, 55)); // points from $10K/day (~$3.65M/yr), was $50K/day
     fBiz += revPts;
     bBiz.push({ label:'Daily Revenue (30d avg)', value:fmtM(m.revAnn30d/365), pts:pts(revPts), color:revPts>=35?G:revPts>=15?Y:R });
   }
@@ -3769,7 +3769,7 @@ function getConvictionScore(price, a, m) {
   if (a.riskFlags?.length) a.riskFlags.forEach(rf=>{ if(rf.bizMalus){ fBiz+=rf.bizMalus; bBiz.push({label:'⚠ '+rf.label,value:rf.detail,pts:pts(rf.bizMalus),color:R}); } });
   fBiz = cl(fBiz);
 
-  // ═══ PILLAR 2 — VALUATION (30%) ═══
+  // ═══ PILLAR 2 — VALUATION (40%) ═══
   // Live P/E only, one grid for every sector (same bands as the P/E legend):
   //   < 10× → +10 · < 18× → +5 · < 30× → 0 · < 50× → −5 · above (or n/m) → −10 · no live P/E → 0
   const peForScore = m.pe;
@@ -3800,7 +3800,7 @@ function getConvictionScore(price, a, m) {
   }
   fVal = cl(fVal);
 
-  // ═══ PILLAR 3 — CAPITAL RISK (10%) ═══
+  // ═══ PILLAR 3 — CAPITAL RISK (15%) ═══
   let fRisk = 55;
   const inflationPct  = parseNum(a.inflation);
   const buybackOffset = a.valueAccrual==='hardcoded'?6 : a.valueAccrual==='discretionary'?2 : 0;
@@ -3826,12 +3826,12 @@ function getConvictionScore(price, a, m) {
   fRisk = cl(fRisk);
 
   // ═══ COMPOSITE ═══
-  const total = Math.round(cl(fBiz*0.60 + fVal*0.30 + fRisk*0.10));
+  const total = Math.round(cl(fBiz*0.45 + fVal*0.40 + fRisk*0.15)); // rebalanced Oct 28 2026 (was 60/30/10): valuation must matter as much as size
   const col = x => x>=60?G:x>=40?Y:R;
   const factors = [
-    { name:'Business Quality', score:Math.round(fBiz),  weight:'60%', color:col(fBiz),  desc:'Revenue (30d) · TVL · Yield · Value accrual', breakdown:bBiz },
-    { name:'Valuation',        score:Math.round(fVal),  weight:'30%', color:col(fVal),  desc:'P/E · P/S · MC/TVL · Relative valuation', breakdown:bVal },
-    { name:'Capital Risk',     score:Math.round(fRisk), weight:'10%', color:col(fRisk), desc:'Net Dilution · Unlocks · Liquidity · Protocol Age', breakdown:bRisk },
+    { name:'Business Quality', score:Math.round(fBiz),  weight:'45%', color:col(fBiz),  desc:'Revenue (30d) · TVL · Yield · Value accrual', breakdown:bBiz },
+    { name:'Valuation',        score:Math.round(fVal),  weight:'40%', color:col(fVal),  desc:'P/E · P/S · MC/TVL · Relative valuation', breakdown:bVal },
+    { name:'Capital Risk',     score:Math.round(fRisk), weight:'15%', color:col(fRisk), desc:'Net Dilution · Unlocks · Liquidity · Protocol Age', breakdown:bRisk },
   ];
   return { total, business:Math.round(fBiz), valuation:Math.round(fVal), capitalRisk:Math.round(fRisk), relRatio, relPts, factors };
 }
