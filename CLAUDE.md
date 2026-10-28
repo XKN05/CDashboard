@@ -58,7 +58,8 @@ Binance et Hyperliquid sont injoignables depuis la sandbox Claude Code : le test
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
 - Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?
 - En ligne sur `index.html` depuis le 27 oct. 2026 (build `2026-10-27-a`) : nouveaux tokens LIT / DRV / PONS (VVV retiré, TAO non ajouté), données manuelles Oct 2026, TRX sur revenu DefiLlama live, vue « Price vs Fundamentals », P/E live uniquement (« >100× (n/m) », grille unique <10/18/30/50×), « Value accrual » (table `ARCA_VALUE_ACCRUAL`), tri ARCA par défaut BUY → NEUTRAL → AVOID (score décroissant dans chaque groupe).
+- En test sur `Test.html` (build `2026-10-28-a`) : S1 piliers 45 / 40 / 15 (au lieu de 60 / 30 / 10) et S2 points de revenu dès $10K/jour (~3,65 M$/an, pente 22) au lieu de $50K/jour. But : le score ne doit plus récompenser surtout la taille du revenu. `index.html` garde l'ancien calcul → comparaison côte à côte.
 - À confirmer par Tim : JUP et ASTER classés « discretionary » (mécanisme suspendu / modifié par l'équipe en 2026).
 - Alignement Dorman (axe design) : 10/11 tokens communs conformes ; MORPHO volontairement en « none » (fee switch inactif) alors que Dorman le place en Q2. Identifiants DefiLlama / CoinGecko de LIT, DRV, PONS à surveiller.
-- `arca_snapshot.py` : prochaine synchro à prévoir — scoring modifié (lot B, P1/P2), 3 nouveaux tokens et revenu TRX en live depuis le 24 oct. 2026.
+- `arca_snapshot.py` : prochaine synchro à prévoir — scoring modifié (lot B, P1/P2, S1/S2 si validés), 3 nouveaux tokens et revenu TRX en live depuis le 24 oct. 2026.
 - Pistes hors bug : bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi (pas démarré).
