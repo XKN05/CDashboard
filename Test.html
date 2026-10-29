@@ -1935,28 +1935,28 @@ ARCA_ASSETS.forEach(a=>{ a.valueAccrual = ARCA_VALUE_ACCRUAL[a.id] || 'none'; })
 //         when DefiLlama has no live holders revenue for the token. null = not applicable / not verifiable.
 //   infNote / ryNote : shown to users behind the "+" on each card (why a figure is limited)
 const ARCA_SUPPLY_YIELD = {
-  HYPE:{inf:10, ry:4, infNote:"", ryNote:""},
-  JUP:{inf:17.5, ry:4.5, infNote:"", ryNote:""},
-  UNI:{inf:2, ry:2.5, infNote:"", ryNote:""},
-  AAVE:{inf:0.5, ry:1, infNote:"", ryNote:""},
-  PUMP:{inf:1, ry:4, infNote:"", ryNote:""},
-  ONDO:{inf:18, ry:0, infNote:"", ryNote:""},
-  MET:{inf:3, ry:3, infNote:"", ryNote:""},
-  ASTER:{inf:8, ry:3.5, infNote:"", ryNote:""},
-  SYRUP:{inf:1, ry:1, infNote:"", ryNote:""},
-  AERO:{inf:25, ry:14, infNote:"", ryNote:""},
-  PENDLE:{inf:3, ry:6.5, infNote:"", ryNote:""},
-  ENA:{inf:12, ry:0, infNote:"", ryNote:""},
-  RAY:{inf:5, ry:12, infNote:"", ryNote:""},
-  MORPHO:{inf:6, ry:0, infNote:"", ryNote:""},
-  MEGA:{inf:8, ry:0, infNote:"", ryNote:""},
-  TRX:{inf:1, ry:4, infNote:"", ryNote:""},
-  KNTQ:{inf:25, ry:4.6, infNote:"", ryNote:""},
-  LDO:{inf:0, ry:0, infNote:"", ryNote:""},
-  LIT:{inf:55, ry:4, infNote:"", ryNote:""},
-  DRV:{inf:12, ry:2, infNote:"", ryNote:""},
-  PONS:{inf:0, ry:null, infNote:"", ryNote:""},
-  SKY:{inf:7, ry:null, infNote:"", ryNote:""}
+  HYPE:{inf:10, ry:4, infNote:"Not verifiable as one number: team unlocks are ~25–50%/yr on paper, but few are claimed; ~10% reflects realized dilution. Circulating supply differs by source (222M–299M).", ryNote:"Trading fees → Assistance Fund buybacks (~$780M/yr, Oct 2026)."},
+  JUP:{inf:3, ry:2, infNote:"Emissions paused by DAO vote (Feb 2026, 'Net-Zero'); an older schedule still lists ~200M JUP in Jan 2027. Sources conflict — range 0–6%.", ryNote:"50% of revenue → Litterbox buybacks (Oct 2026 pace); paused Jan 2026, so the trailing year is lower."},
+  UNI:{inf:2, ry:2.5, infNote:"20M UNI/yr growth budget partly offset by fee burns (~15M/yr). Circulating supply figures conflict.", ryNote:"Fee-switch burns (TokenJar/Firepit) since Dec 2025, one-off 100M treasury burn excluded."},
+  AAVE:{inf:0.5, ry:1, infNote:"~15.2M of 16M max supply already circulating.", ryNote:"Trailing 12 months. On-chain trackers show no buybacks since Jun 24, 2026 despite Aavenomics 3.0 — unreconciled."},
+  PUMP:{inf:3, ry:12, infNote:"Net of burns: team/investor unlocks (~19%/yr gross) since mid-2026 vs buyback-and-burn. Very price-sensitive.", ryNote:"50% of revenue → daily buyback-and-burn since Apr 2026 (~$280M/yr pace), committed for one year."},
+  ONDO:{inf:35, ry:0, infNote:"Next annual cliff ~1.71B ONDO (Jan 2027) on ~4.9B circulating.", ryNote:"No buyback, fee switch or revenue share: ONDO is governance-only."},
+  MET:{inf:15, ry:3, infNote:"Team and reserve vest ~7.2M MET/month until 2031.", ryNote:"Not verifiable: buyback data stops at Q1 2026 and staker USDC rewards (since Sep 2026) are not quantified. 3% is a floor."},
+  ASTER:{inf:8, ry:3, infNote:"Not verifiable: linear vesting ended Jan 2026 and no forward schedule is published. Kept as an estimate.", ryNote:"99% of fees → buybacks since Jun 2026; bought ASTER goes to veASTER stakers only. Mechanism changed twice in 2026."},
+  SYRUP:{inf:1, ry:2, infNote:"Supply almost fully circulating; staking emissions ended (MIP-019).", ryNote:"10–30% of revenue → buybacks (MIP-021). Bought SYRUP is held by Maple's Strategic Fund, not distributed."},
+  AERO:{inf:20, ry:14, infNote:"On circulating supply. Aero's own 8–11% is on total supply. New emission model since the Velodrome merger (Oct 22, 2026), capped at 20%/yr.", ryNote:"Fees only, staked AERO (sAERO) only. With bribes it would be far higher."},
+  PENDLE:{inf:1, ry:3.5, infNote:"Emissions cut ~90% in 2026; buybacks run several times emissions.", ryNote:"Up to 80% of revenue → buybacks to sPENDLE stakers only (~36% of supply). Revenue is volatile."},
+  ENA:{inf:15, ry:0, infNote:"Team/foundation vesting ~134M ENA/month to 2028. Circulating supply differs widely by tracker (9–13B); could be ~30% on another reading.", ryNote:"Fee switch approved but off until USDe reaches $7.5B (~$4–5B in Oct 2026)."},
+  RAY:{inf:1, ry:3.5, infNote:"~1.9M RAY/yr of mining emissions; vesting ended Feb 2024.", ryNote:"12% of trading fees buy RAY (~$18M over 12 months). Bought RAY is held in a wallet, not burned; pace swings month to month."},
+  MORPHO:{inf:17.5, ry:0, infNote:"Insider/investor vesting ~11.6M MORPHO/month to 2028. Trackers disagree on size and end date (range 15–20%).", ryNote:"Fee switch never activated (DefiLlama token rights, 2026)."},
+  MEGA:{inf:8, ry:0, infNote:"Not verifiable: 53% of supply unlocks on KPI milestones, not dates; team/investor terms unpublished. On an ~11% float, it could be far higher.", ryNote:"Buybacks funded by USDm yield exist since May 2026, but amounts are undisclosed — shown as 0 until published."},
+  TRX:{inf:0.5, ry:1, infNote:"Issuance exceeded burns in Q1–Q3 2026 (TRON DAO / Messari quarterly data).", ryNote:"Fee burns only (~1B TRX/yr). Staking rewards are new issuance and are not counted."},
+  KNTQ:{inf:50, ry:3, infNote:"Insider vesting started late Oct 2026 (~13M KNTQ/month) on ~280–335M circulating. Foundation and growth allocations have no schedule.", ryNote:"Buybacks now go to the Hyperliquid Assistance Fund (KIP-5). Small vs market cap."},
+  LDO:{inf:0, ry:0, infNote:"Fully unlocked; only DAO treasury spending could add supply.", ryNote:"NEST buyback is live but only triggers above $40M/yr revenue — nothing bought as of mid-Oct 2026."},
+  LIT:{inf:55, ry:4, infNote:"Team/investor cliff Dec 27, 2026, then ~13.9M LIT/month on ~235M circulating. Could be higher if part releases at the cliff.", ryNote:"Trailing estimate; buyback size is discretionary and revenue is falling (Q3 far below Q2), so the current pace is likely lower."},
+  DRV:{inf:12, ry:1, infNote:"Not verifiable: trackers disagree on remaining vesting (to 2029 or 2031) and circulating supply. Staking emissions alone are <1%/yr.", ryNote:"35% of revenue → weekly buybacks (~$0.8M/yr), small vs market cap."},
+  PONS:{inf:0, ry:null, infNote:"Fixed 1B supply, no unlocks; burns make supply shrink (shown as 0).", ryNote:"Under 4 months of history and fees fell ~85% from the Aug peak: not annualized."},
+  SKY:{inf:0, ry:null, infNote:"No new SKY minted. The 2026 staking rewards (~7%/yr pace) came from treasury SKY and the stream ended ~Aug 29, 2026.", ryNote:"Not verifiable: buybacks cut ~87% in Mar 2026; only small monthly burns since (~$0.5M). Revenue-funded staking rewards not quantified."}
 };
 function arcaInflation(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.inf!=null ? e.inf : null; }
 function arcaStaticYield(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.ry!=null ? e.ry : null; }
@@ -4328,7 +4328,7 @@ function renderArcaGrid(){
           ${note(`Value delivered to holders from revenue (buybacks, burns, fee share) ÷ circulating market cap. Token emissions are not counted.<br>${ryLimit}<br>ARCA median: ${sfPct(peers.ry.med)}.`)}</div>
         <div class="arca-metric arca-static"><div class="arca-metric-label">Inflation <span style="color:#ff8c00;font-size:7px">EST</span> ${arcaPlus}</div>
           <div class="arca-metric-value" style="color:${infCol}">${inf==null?'N/A':'~'+sfPct(inf)}${rankBadge(peers.inf.rank[a.id],peers.inf.n,infCol)}</div>
-          ${note(`Expected growth of circulating supply over the next 12 months (unlocks + emissions − burns). #1 = lowest dilution.<br>${e.infNote||a.inflation}<br>Source: ${a.inflationSource||'analyst estimate'}. ARCA median: ${sfPct(peers.inf.med)}.`)}</div>
+          ${note(`Expected growth of circulating supply over the next 12 months (unlocks + emissions − burns). #1 = lowest dilution.<br>${e.infNote||a.inflation}<br>ARCA median: ${sfPct(peers.inf.med)}.`)}</div>
         <div class="arca-metric ${P.ryLive?'arca-live':'arca-static'}"><div class="arca-metric-label">Net Yield ${arcaPlus}</div>
           <div class="arca-metric-value" style="color:${netTag?netTag[1]:'#3a5a70'}">${net==null?'N/A':(net>0?'+':'')+sfPct(net)}${netTag?`<span style="font-size:8px;color:${netTag[1]};margin-left:5px">${netTag[0]}</span>`:''}</div>
           ${note(`Real yield − inflation: what a holder earns after dilution. Accretive above +1%, dilutive below −1%. Feeds the ARCA score (Business pillar, "Real Yield Net").${net==null?'<br>Not computed: one of the two inputs is not available.':''} ARCA median: ${peers.net.med==null?'N/A':(peers.net.med>0?'+':'')+sfPct(peers.net.med)}.`)}</div>
