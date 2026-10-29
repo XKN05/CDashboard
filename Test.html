@@ -817,6 +817,9 @@ tr:last-child td { border-bottom:none; }
 
     </div>
 
+    <div class="home-section-label" style="font-size:10px;color:#3d8bff;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin:28px 0 12px;padding-left:2px">🩺 Data Health</div>
+    <div id="home-health" style="background:#0b1828;border:1px solid #162030;border-radius:12px;padding:16px 18px;font-size:11px;color:#7a9ab0;margin-bottom:24px;overflow-x:auto">No request made yet.</div>
+
     <div style="text-align:center;font-size:10px;color:#162030;padding-bottom:24px">
       Data: Binance · DefiLlama · CoinGecko · Hyperliquid &nbsp;·&nbsp; Not investment advice &nbsp;·&nbsp; <span id="home-build" style="color:#7a9ab0"></span>
     </div>
@@ -1871,6 +1874,23 @@ const ARCA_ASSETS = [
       { label:"Revenue collapse from peak", bizMalus:-5, riskMalus:0, detail:"Daily revenue fell from ~$2M (late Aug) to ~$240K (early Oct 2026)." },
       { label:"Single-chain dependency", bizMalus:0, riskMalus:-5, detail:"All activity depends on Robinhood Chain memecoin flows." },
     ]},
+
+  // ── SKY ──────────────────────────────────────────────────────────────────────
+  { id:"SKY", name:"SKY", sector:"Stablecoin / CDP",  protocolAge:2017,
+    nextUnlock:"No vesting schedule: MKR→SKY migration done (Sep 2025, 1 MKR = 24,000 SKY), ~23.46B supply. Staking rewards are paid in SKY (Feb 2026 vote: ~838M SKY over 180 days).",
+    staticCircSupply:23.0e9, staticTotalSupply:23.46e9,
+    icon:"S", color:"#7b61ff", source:"binance", binanceSymbol:"SKYUSDT",
+    annualRevenue:"~$160–200M on DefiLlama's definition (30d revenue ~$13.5M, Oct 2026) — Sky self-reports a ~$419M gross run rate (Jun 2026)", realYield:"N/A", inflation:"~0–7% (est.): no new minting, but ~1.7B SKY/yr of staking rewards — sources conflict", staticTVL:"~$5.6B",
+    defillamaSlug:"sky-lending", defillamaSlugAlt:"makerdao", coingeckoId:"sky",
+    useFeesAsRevenue:false, // fees include the savings rate paid to USDS/DAI savers; DefiLlama revenue = fees − savings rate
+    buybackNote:"Smart Burn Engine: protocol surplus buys SKY on the market. The rate is set by governance and was cut ~87% in Mar 2026 to rebuild reserves — current pace not confirmed.",
+    realYieldSource:"Live holders revenue when DefiLlama reports it", inflationSource:"Sky governance (Feb 2026 rewards vote); DefiLlama token rights lists no emissions — unreconciled",
+    dataDate:"Oct 2026",
+    thesis:"Issuer of USDS/DAI (formerly MakerDAO), the largest decentralized stablecoin protocol. Revenue comes from stability fees and RWA / treasury collateral, minus the savings rate. Surplus funds SKY buybacks, but the buyback rate is a governance dial that was turned down sharply in 2026.",
+    moat:"Largest decentralized stablecoin (USDS/DAI) + Spark distribution + 8-year track record",
+    riskFlags:[
+      { label:"Buyback budget cut", bizMalus:0, riskMalus:-5, detail:"Governance reduced Smart Burn Engine buybacks by ~87% in March 2026 to rebuild the surplus; current pace unconfirmed." },
+    ]},
 ];
 
 // ── Value accrual (Jeff Dorman's "proper token design") — how protocol value reaches the token ──
@@ -1899,6 +1919,7 @@ const ARCA_VALUE_ACCRUAL = {
   LIT:'discretionary',   // company-run buybacks from revenue, burned
   DRV:'hardcoded',       // DAO-voted 35% of revenue → weekly buybacks
   PONS:'discretionary',  // team-run 80% buyback, not immutable
+  SKY:'hardcoded',       // Smart Burn Engine, governance-set rate (cut ~87% in Mar 2026)
 };
 ARCA_ASSETS.forEach(a=>{ a.valueAccrual = ARCA_VALUE_ACCRUAL[a.id] || 'none'; });
 
@@ -1906,7 +1927,56 @@ let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
 let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is no longer current is discarded instead of overwriting the newer token's view
-const DASH_BUILD = "2026-10-28-a"; // shown at the bottom of the home page to confirm which file is loaded
+// ── Data health — every fetchWithTimeout() call is counted per source and shown on the home page ──
+const HEALTH_SOURCES = ['CoinGecko','DefiLlama','Binance','Hyperliquid','CORS proxy'];
+const dataHealth = {};
+HEALTH_SOURCES.forEach(k=>{ dataHealth[k]={ok:0,fail:0,rateLimited:0,lastOk:null,lastErr:null}; });
+let arcaHealth = null; // {total, revLive:[ids], relOk:[ids], ts} — set after each ARCA load
+function healthSourceOf(url){
+  let h=''; try{ h=new URL(url).hostname; }catch(e){ return null; }
+  if(h.includes('allorigins')||h.includes('corsproxy')) return 'CORS proxy';
+  if(h.endsWith('coingecko.com')) return 'CoinGecko';
+  if(h.endsWith('llama.fi')) return 'DefiLlama';
+  if(h.endsWith('binance.com')) return 'Binance';
+  if(h.endsWith('hyperliquid.xyz')) return 'Hyperliquid';
+  return null;
+}
+function healthRecord(url, ok, err, status){
+  const k=healthSourceOf(url); if(!k) return;
+  const s=dataHealth[k];
+  if(ok){ s.ok++; s.lastOk=Date.now(); } else { s.fail++; s.lastErr=err; }
+  if(status===429||status===418) s.rateLimited++;
+  scheduleHealthRender();
+}
+let _healthTimer=null;
+function scheduleHealthRender(){ if(_healthTimer) return; _healthTimer=setTimeout(()=>{ _healthTimer=null; renderDataHealth(); }, 400); }
+function renderDataHealth(){
+  const el=document.getElementById('home-health'); if(!el) return;
+  const t=ts=>ts?new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';
+  const rows=HEALTH_SOURCES.map(k=>{
+    const s=dataHealth[k], n=s.ok+s.fail;
+    const [label,col]= n===0?['Not used yet','#4a6a80'] : s.fail===0?['OK','#00d98b'] : s.ok===0?['Down','#ff3d5a'] : ['Degraded','#f0b840'];
+    const note=k==='CORS proxy'?'fallback when a direct call fails':(s.fail&&s.lastErr?'last error: '+s.lastErr:'');
+    return `<tr><td style="padding:4px 10px 4px 0;color:#c8d8e8;white-space:nowrap">${k}</td>
+      <td style="padding:4px 10px;color:${col};font-weight:700;white-space:nowrap">● ${label}</td>
+      <td style="padding:4px 10px;white-space:nowrap">${s.ok} ok · ${s.fail} failed${s.rateLimited?` · <span style="color:#f0b840">${s.rateLimited}× rate-limited</span>`:''}</td>
+      <td style="padding:4px 10px;white-space:nowrap">last success ${t(s.lastOk)}</td>
+      <td style="padding:4px 0 4px 10px;color:#4a6a80">${note}</td></tr>`;
+  }).join('');
+  let arca;
+  if(!arcaHealth) arca='ARCA coverage: not loaded yet (loads with the ARCA page).';
+  else{
+    const ids=ARCA_ASSETS.map(a=>a.id), miss=(have)=>ids.filter(id=>!have.includes(id));
+    const mr=miss(arcaHealth.revLive), mh=miss(arcaHealth.relOk);
+    arca=`ARCA coverage (${t(arcaHealth.ts)}): live revenue <b style="color:#c8d8e8">${arcaHealth.revLive.length}/${arcaHealth.total}</b>${mr.length?` <span style="color:#4a6a80">(missing: ${mr.join(', ')})</span>`:''}
+      · 90d valuation history <b style="color:#c8d8e8">${arcaHealth.relOk.length}/${arcaHealth.total}</b>${mh.length?` <span style="color:#4a6a80">(missing: ${mh.join(', ')})</span>`:''}`;
+  }
+  el.innerHTML=`<table style="border-collapse:collapse;font-size:11px">${rows}</table>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #162030;line-height:1.6">${arca}</div>
+    <div style="margin-top:6px;font-size:9px;color:#4a6a80">Counts every request made by this tab since it was opened. A failed direct call that succeeded through the proxy shows as a failure on the source and a success on the proxy.</div>`;
+}
+
+const DASH_BUILD = "2026-10-29-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -2087,6 +2157,17 @@ async function fetchHyperliquidCandles(coin, interval, limit){
   if(!Array.isArray(data)||!data.length) throw new Error('Hyperliquid: empty candle set');
   return data.slice(-limit).map(c=>[+c.t,+c.o,+c.h,+c.l,+c.c,+c.v]);
 }
+// Binance rate limit: one retry on HTTP 429, after Retry-After (default 2s, capped at 5s). 418 (IP ban) is not retried.
+async function binanceFetch(url, ms){
+  let res=await fetchWithTimeout(url, ms);
+  if(res.status===429){
+    const wait=Math.min(5, parseFloat(res.headers.get('Retry-After'))||2)*1000;
+    console.warn('Binance 429 — one retry in '+(wait/1000)+'s:', url);
+    await new Promise(r=>setTimeout(r, wait));
+    res=await fetchWithTimeout(url, ms);
+  }
+  return res;
+}
 async function fetchBinanceCandles(symbol, interval, limit){
   if(HL_COINS[symbol]){
     try{ return tagCandleSource(await fetchHyperliquidCandles(HL_COINS[symbol], interval, limit), 'Hyperliquid'); }
@@ -2094,7 +2175,7 @@ async function fetchBinanceCandles(symbol, interval, limit){
   }
   // 1. Try spot API
   try {
-    const res=await fetchWithTimeout(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,10000);
+    const res=await binanceFetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,10000);
     if(res.ok) {
       const data = await res.json();
       if(data.length > 0) return tagCandleSource(data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]), 'Binance');
@@ -2102,7 +2183,7 @@ async function fetchBinanceCandles(symbol, interval, limit){
   } catch {}
   // 2. Try futures API (some tokens listed on futures before spot)
   try {
-    const res=await fetchWithTimeout(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,10000);
+    const res=await binanceFetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,10000);
     if(res.ok) {
       const data = await res.json();
       if(data.length > 0) return tagCandleSource(data.map(c=>[+c[0],+c[1],+c[2],+c[3],+c[4],+c[5]]), 'Binance futures');
@@ -3566,6 +3647,10 @@ async function fetchArcaData(){
   updateSourceUI();
   try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();}catch(e){console.error('renderArcaGrid error:',e);document.getElementById('arca-grid').innerHTML='<div style="color:#ff3d5a;padding:20px;text-align:center">Render error: '+e.message+'</div>';}
   const states=ARCA_ASSETS.map(a=>calcDynamicMetrics(a).liveState);
+  arcaHealth={ total:ARCA_ASSETS.length, ts:Date.now(),
+    revLive:ARCA_ASSETS.filter(a=>calcDynamicMetrics(a).revIsLive).map(a=>a.id),
+    relOk:ARCA_ASSETS.filter(a=>arcaDynamic[a.id]?.relStatus==='ok').map(a=>a.id) };
+  renderDataHealth();
   const liveCount=states.filter(x=>x==='live').length, partialCount=states.filter(x=>x==='partial').length;
   document.getElementById("arca-update").innerHTML=`<span style="color:#00d98b">${liveCount}/${ARCA_ASSETS.length} live</span>${partialCount?` \u00b7 <span style="color:#f0b840">${partialCount} partial</span>`:''} \u00b7 ${new Date().toLocaleTimeString("en-GB")}`;
   if(arcaBtn){arcaBtn.disabled=false;arcaBtn.textContent='↻ Refresh';}
@@ -4703,7 +4788,7 @@ const SECTOR_ICONS = {
   "DEX / Liquidity":"💧","DEX/Liquidity":"💧",
   "DeFi Lending":"🏦","Institutional Lending":"🏛",
   "Memecoin Launchpad":"🚀","RWA Tokenization":"🏢",
-  "Yield Trading":"📈","Synthetic Dollar":"💲","Options DEX":"📊"
+  "Yield Trading":"📈","Synthetic Dollar":"💲","Options DEX":"📊","Stablecoin / CDP":"🪙"
 };
 function sectorBadge(sector){
   const icon=SECTOR_ICONS[sector]||'●';
@@ -5257,7 +5342,8 @@ function fetchWithTimeout(url, msOrOpts, ms) {
   return Promise.race([
     fetch(url, opts),
     new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), timeout))
-  ]);
+  ]).then(res => { healthRecord(url, res.ok, res.ok ? null : 'HTTP '+res.status, res.status); return res; },
+          err => { healthRecord(url, false, err && err.message === 'timeout' ? 'timeout' : 'network / CORS', 0); throw err; });
 }
 
 // Draw a canvas chart
