@@ -617,6 +617,12 @@ tr:last-child td { border-bottom:none; }
 .dev-card-sub { font-size:9px; color:#2e4a60; margin-top:2px; }
 @keyframes defiRowFadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
 
+.arca-plus{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;border:1px solid #2e4a60;color:#7a9ab0;font-size:9px;line-height:1;cursor:pointer;margin-left:3px;user-select:none;vertical-align:middle}
+.arca-plus:hover{border-color:#3d8bff;color:#3d8bff}
+.arca-note{display:none;font-size:8.5px;color:#7a9ab0;line-height:1.5;margin-top:4px;padding-top:4px;border-top:1px dashed #162030;text-transform:none;letter-spacing:0}
+.arca-note.open{display:block}
+.arca-more{margin:0 0 8px;border:1px solid #162030;border-radius:6px;padding:4px 8px}
+.arca-more summary{cursor:pointer;font-size:9px;color:#3d8bff;text-transform:uppercase;letter-spacing:1px;font-weight:600;padding:3px 0}
 </style>
 <body>
 <style>
@@ -1923,6 +1929,38 @@ const ARCA_VALUE_ACCRUAL = {
 };
 ARCA_ASSETS.forEach(a=>{ a.valueAccrual = ARCA_VALUE_ACCRUAL[a.id] || 'none'; });
 
+// ── Inflation & static real yield — one verified number per token, used by BOTH the score and the cards ──
+//   inf : expected 12-month growth of circulating supply (unlocks + emissions − burns), % — analyst estimate
+//   ry  : value delivered to holders from revenue (buybacks, burns, fee share) ÷ circulating MC, % — used only
+//         when DefiLlama has no live holders revenue for the token. null = not applicable / not verifiable.
+//   infNote / ryNote : shown to users behind the "+" on each card (why a figure is limited)
+const ARCA_SUPPLY_YIELD = {
+  HYPE:{inf:10, ry:4, infNote:"", ryNote:""},
+  JUP:{inf:17.5, ry:4.5, infNote:"", ryNote:""},
+  UNI:{inf:2, ry:2.5, infNote:"", ryNote:""},
+  AAVE:{inf:0.5, ry:1, infNote:"", ryNote:""},
+  PUMP:{inf:1, ry:4, infNote:"", ryNote:""},
+  ONDO:{inf:18, ry:0, infNote:"", ryNote:""},
+  MET:{inf:3, ry:3, infNote:"", ryNote:""},
+  ASTER:{inf:8, ry:3.5, infNote:"", ryNote:""},
+  SYRUP:{inf:1, ry:1, infNote:"", ryNote:""},
+  AERO:{inf:25, ry:14, infNote:"", ryNote:""},
+  PENDLE:{inf:3, ry:6.5, infNote:"", ryNote:""},
+  ENA:{inf:12, ry:0, infNote:"", ryNote:""},
+  RAY:{inf:5, ry:12, infNote:"", ryNote:""},
+  MORPHO:{inf:6, ry:0, infNote:"", ryNote:""},
+  MEGA:{inf:8, ry:0, infNote:"", ryNote:""},
+  TRX:{inf:1, ry:4, infNote:"", ryNote:""},
+  KNTQ:{inf:25, ry:4.6, infNote:"", ryNote:""},
+  LDO:{inf:0, ry:0, infNote:"", ryNote:""},
+  LIT:{inf:55, ry:4, infNote:"", ryNote:""},
+  DRV:{inf:12, ry:2, infNote:"", ryNote:""},
+  PONS:{inf:0, ry:null, infNote:"", ryNote:""},
+  SKY:{inf:7, ry:null, infNote:"", ryNote:""}
+};
+function arcaInflation(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.inf!=null ? e.inf : null; }
+function arcaStaticYield(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.ry!=null ? e.ry : null; }
+
 let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
@@ -1976,7 +2014,7 @@ function renderDataHealth(){
     <div style="margin-top:6px;font-size:9px;color:#4a6a80">Counts every request made by this tab since it was opened. A failed direct call that succeeded through the proxy shows as a failure on the source and a success on the proxy.</div>`;
 }
 
-const DASH_BUILD = "2026-10-29-a"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-29-b"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3722,7 +3760,7 @@ function calcDynamicMetrics(a){
   // Real yield net = yield (live holders revenue when DefiLlama reports it, else analyst estimate) − inflation (analyst estimate)
   const parseRY=s=>{if(!s||s==='N/A')return 0;const n=parseFloat(String(s).replace(/[^0-9.-]/g,''));return isNaN(n)?0:n;};
   const realYieldIsLive=liveRealYield!=null;
-  const realYieldNet=(realYieldIsLive?liveRealYield:parseRY(a.realYield))-parseRY(a.inflation);
+  const realYieldNet=(realYieldIsLive?liveRealYield:(arcaStaticYield(a)??0))-(arcaInflation(a)??0);
   // Emissions unlock data
   const emissionsUnlock30dPct=d.emissions?.unlock30dPct??null;
   const emissionsUnlock90dPct=d.emissions?.unlock90dPct??null;
@@ -3887,7 +3925,7 @@ function getConvictionScore(price, a, m) {
 
   // ═══ PILLAR 3 — CAPITAL RISK (15%) ═══
   let fRisk = 55;
-  const inflationPct  = parseNum(a.inflation);
+  const inflationPct  = arcaInflation(a) ?? 0;
   const buybackOffset = a.valueAccrual==='hardcoded'?6 : a.valueAccrual==='discretionary'?2 : 0;
   const netDilution   = Math.max(0, inflationPct - buybackOffset);
   const dilPts = netDilution<2?15 : netDilution<5?8 : netDilution<10?0 : netDilution<20?-10 : -20;
@@ -4131,7 +4169,34 @@ function arcaSortAssets(list, key='signal'){
   }[key]||byScore;
   return rows.sort(cmp).map(r=>r.a);
 }
+// Peer comparison across the whole ARCA universe (not only the filtered view)
+function arcaPeerStats(){
+  const rows=ARCA_ASSETS.map(a=>{ const m=calcDynamicMetrics(a);
+    const ry=m.liveRealYield!=null?m.liveRealYield:arcaStaticYield(a), inf=arcaInflation(a);
+    return {id:a.id, color:a.color, ry, ryLive:m.liveRealYield!=null, inf, net:(ry!=null&&inf!=null)?Math.round((ry-inf)*10)/10:null, va:a.valueAccrual}; });
+  const metric=(key,desc)=>{ const v=rows.filter(r=>r[key]!=null).sort((x,y)=>desc?y[key]-x[key]:x[key]-y[key]);
+    const vals=v.map(r=>r[key]), k=vals.length, sorted=[...vals].sort((x,y)=>x-y);
+    const med=k?(k%2?sorted[(k-1)/2]:(sorted[k/2-1]+sorted[k/2])/2):null;
+    const rank={}; v.forEach(r=>{ rank[r.id]=1+vals.findIndex(x=>x===r[key]); }); // ties share the best rank
+    return {rank, n:k, med, min:sorted[0], max:sorted[k-1], pts:v.map(r=>({id:r.id,color:r.color,v:r[key]}))}; };
+  const vaCount={}; rows.forEach(r=>{ vaCount[r.va]=(vaCount[r.va]||0)+1; });
+  return { byId:Object.fromEntries(rows.map(r=>[r.id,r])), ry:metric('ry',true), inf:metric('inf',false), net:metric('net',true), vaCount, total:rows.length };
+}
+const sfPct=v=>v==null?'N/A':(Math.abs(v)<10?v.toFixed(1):v.toFixed(0))+'%';
+// One dot per ARCA token on a line, the current token highlighted, median marked
+function peerStrip(stat, id, label, fmtFn){
+  if(!stat.n) return '';
+  const lo=Math.min(0,stat.min), hi=Math.max(stat.max, lo+1), x=v=>4+(v-lo)/(hi-lo)*192;
+  const dots=stat.pts.map(p=>`<circle cx="${x(p.v).toFixed(1)}" cy="9" r="${p.id===id?4:2.2}" fill="${p.id===id?p.color:'#2e4a60'}" ${p.id===id?'stroke="#e8f4ff" stroke-width="1"':''}><title>${p.id}: ${fmtFn(p.v)}</title></circle>`);
+  const me=stat.pts.find(p=>p.id===id); if(me){ const i=stat.pts.indexOf(me); dots.push(dots.splice(i,1)[0]); } // draw the current token last (on top)
+  return `<div style="margin:6px 0 2px"><div style="display:flex;justify-content:space-between;font-size:8px;color:#3a5a70"><span>${label}</span><span>median ${fmtFn(stat.med)} · range ${fmtFn(stat.min)} → ${fmtFn(stat.max)}</span></div>
+    <svg viewBox="0 0 200 18" style="width:100%;height:18px;display:block"><line x1="4" y1="9" x2="196" y2="9" stroke="#162030" stroke-width="2"/>${lo<0?`<line x1="${x(0).toFixed(1)}" y1="3" x2="${x(0).toFixed(1)}" y2="15" stroke="#2e4a60" stroke-width="0.6"/>`:''}<line x1="${x(stat.med).toFixed(1)}" y1="2" x2="${x(stat.med).toFixed(1)}" y2="16" stroke="#7a9ab0" stroke-width="0.8" stroke-dasharray="2,1.5"/>${dots.join('')}</svg></div>`;
+}
+const arcaPlus='<span class="arca-plus" role="button" title="What is this? / data limits" onclick="event.stopPropagation();this.closest(\'.arca-metric\').querySelector(\'.arca-note\').classList.toggle(\'open\');this.textContent=this.textContent===\'+\'?\'\u2212\':\'+\'">+</span>';
+function rankBadge(rank,n,col){ return rank?`<span style="font-size:8px;color:${col};border:1px solid ${col}44;background:${col}12;border-radius:3px;padding:0 4px;margin-left:4px;font-weight:600">#${rank}/${n}</span>`:''; }
+
 function renderArcaGrid(){
+  const peers=arcaPeerStats();
   const grid=document.getElementById("arca-grid");
   const tbody=document.getElementById("arca-table-body");
 
@@ -4245,35 +4310,59 @@ function renderArcaGrid(){
         ${m.revTvl!=null?`<div class="arca-metric ${m.revIsLive?'arca-live':'arca-static'}"><div class="arca-metric-label">${tip("Rev/TVL","Annual Revenue ÷ TVL × 100","Capital efficiency.",m.revTvl>0.5?"High efficiency.":m.revTvl>0.1?"Moderate efficiency.":"Low efficiency.")} ${m.revIsLive?'🟢':qualityBadge(m.revSourceQuality)}</div><div class="arca-metric-value">${(m.revTvl*100).toFixed(1)}%</div></div>`:''}
         `}
       </div>
-      <!-- §2.3 + §5.1: Model Assumptions -->
-      <div style="margin-bottom:4px;font-size:9px;color:#ff8c00;text-transform:uppercase;letter-spacing:1px;font-weight:600">Model Assumptions <span style="font-weight:400;color:#2e4a60;text-transform:none">(ARCA analyst inputs${a.dataDate?' · updated '+a.dataDate:' · as of Feb 2026'})</span></div>
-      <div class="arca-metrics" style="border:1px solid #ff8c0015;border-radius:6px;padding:4px;margin-bottom:8px">
-        ${!m.ps?`<div class="arca-metric arca-static"><div class="arca-metric-label">Revenue (EST)</div><div class="arca-metric-value" style="font-size:11px;color:#b8ccd8">${a.annualRevenue}</div></div>`:''}
-        <div class="arca-metric ${m.liveRealYield!==null?'arca-live':'arca-static'}"><div class="arca-metric-label">Real Yield ${m.liveRealYield!==null?'🟢':'(EST)'}</div><div class="arca-metric-value" style="color:${(m.liveRealYield??parseFloat((a.realYield||'0').replace(/[^0-9.-]/g,'')))>5?'#00d98b':(m.liveRealYield??parseFloat((a.realYield||'0').replace(/[^0-9.-]/g,'')))>2?'#f0b840':'#ff3d5a'}">${m.liveRealYield!==null?m.liveRealYield.toFixed(1)+'%':(a.realYield==='N/A'?'<span style="color:#3a5a70">N/A</span>':a.realYield)}</div>${m.liveRealYield!==null?'<div class="arca-metric-sub">holdersRev30d×12/MC · Live</div>':(a.realYieldSource?'<div class="arca-metric-sub" style="line-height:1.4">'+a.realYieldSource+'</div>':'')}</div>
-        <div class="arca-metric arca-static"><div class="arca-metric-label">Inflation (EST) <span style="cursor:help;color:#3a5a70" title="${a.inflationSource||'No source'}">i</span></div><div class="arca-metric-value" style="color:${a.inflation==='N/A'?'#3a5a70':parseFloat((a.inflation||'0').replace(/[^0-9.-]/g,''))<3?'#00d98b':parseFloat((a.inflation||'0').replace(/[^0-9.-]/g,''))<6?'#f0b840':'#ff3d5a'}">${a.inflation}</div></div>
-        <div class="arca-metric arca-static"><div class="arca-metric-label">Value Accrual</div><div class="arca-metric-value" style="font-size:12px;color:${bb.color}">${bb.icon} ${bb.text}</div><div class="arca-metric-sub" style="font-size:8px">${a.buybackNote}</div></div>
-      </div>
-
-      <!-- Token Unlock Donut -->
+      <!-- Model Assumptions: short verified numbers + peer rank; explanations behind "+" -->
       ${(()=>{
-        const cs=m.supply||a.staticCircSupply||0;
-        const ts=m.totalSupply||a.staticTotalSupply||0;
-        if(!cs||!ts||ts<=0) return a.isPreMarket
-          ? `<div style="font-size:9px;color:#2e4a60;padding:4px;text-align:center">Circulating supply unavailable pre-TGE · Total supply: 10,000,000,000 MEGA</div>`
-          : '<div style="font-size:9px;color:#2e4a60;padding:4px;text-align:center">Supply data unavailable</div>';
-        const up=Math.min(100,Math.max(0,(cs/ts)*100));
-        const lp=100-up;
-        const col=a.color||'#3d8bff';
-        return `<div class="unlock-wrap">
-          <div class="unlock-donut" style="background:conic-gradient(${col} 0% ${up}%, #162030 ${up}% 100%)">
-            <div class="unlock-donut-inner" style="color:${col}">${up.toFixed(0)}%</div>
-          </div>
-          <div class="unlock-legend">
-            <div>● Unlocked: <span style="color:${col}">${up.toFixed(1)}%</span> (${cs>=1e9?(cs/1e9).toFixed(1)+'B':(cs/1e6).toFixed(0)+'M'})</div>
-            <div>● Locked: <span style="color:#ff8c00">${lp.toFixed(1)}%</span> (${(ts-cs)>=1e9?((ts-cs)/1e9).toFixed(1)+'B':((ts-cs)/1e6).toFixed(0)+'M'})</div>
-            <div style="color:#2e4a60;margin-top:2px">Total: ${ts>=1e9?(ts/1e9).toFixed(1)+'B':(ts/1e6).toFixed(0)+'M'} · ${lp>50?'⚠ Majority locked':'✅ Majority unlocked'}</div>
-          </div>
-        </div>`;
+        const P=peers.byId[a.id]||{}, e=ARCA_SUPPLY_YIELD[a.id]||{};
+        const ry=P.ry, inf=P.inf, net=P.net;
+        const ryCol=ry==null?'#3a5a70':ry>5?'#00d98b':ry>2?'#f0b840':'#ff3d5a';
+        const infCol=inf==null?'#3a5a70':inf<3?'#00d98b':inf<6?'#f0b840':'#ff3d5a';
+        const netTag=net==null?null:net>1?['Accretive','#00d98b']:net>=-1?['~Neutral','#f0b840']:['Dilutive','#ff3d5a'];
+        const vaN=peers.vaCount[a.valueAccrual]||0;
+        const note=(html)=>`<div class="arca-note">${html}</div>`;
+        const ryLimit=P.ryLive?'Live: DefiLlama holders revenue 30d × 12 ÷ circulating MC.':(e.ryNote||'Analyst estimate — DefiLlama reports no holders revenue for this token.');
+        return `<div style="margin-bottom:4px;font-size:9px;color:#ff8c00;text-transform:uppercase;letter-spacing:1px;font-weight:600">Model Assumptions <span style="font-weight:400;color:#2e4a60;text-transform:none">(${a.dataDate?'updated '+a.dataDate:'as of Feb 2026'} · rank among ${peers.total} ARCA tokens)</span></div>
+      <div class="arca-metrics" style="border:1px solid #ff8c0015;border-radius:6px;padding:4px;margin-bottom:8px">
+        ${!m.ps?`<div class="arca-metric arca-static" style="grid-column:1/-1"><div class="arca-metric-label">Revenue (EST)</div><div class="arca-metric-value" style="font-size:11px;color:#b8ccd8">${a.annualRevenue}</div></div>`:''}
+        <div class="arca-metric ${P.ryLive?'arca-live':'arca-static'}"><div class="arca-metric-label">Real Yield ${P.ryLive?'🟢':'<span style="color:#ff8c00;font-size:7px">EST</span>'} ${arcaPlus}</div>
+          <div class="arca-metric-value" style="color:${ryCol}">${sfPct(ry)}${rankBadge(peers.ry.rank[a.id],peers.ry.n,ryCol)}</div>
+          ${note(`Value delivered to holders from revenue (buybacks, burns, fee share) ÷ circulating market cap. Token emissions are not counted.<br>${ryLimit}<br>ARCA median: ${sfPct(peers.ry.med)}.`)}</div>
+        <div class="arca-metric arca-static"><div class="arca-metric-label">Inflation <span style="color:#ff8c00;font-size:7px">EST</span> ${arcaPlus}</div>
+          <div class="arca-metric-value" style="color:${infCol}">${inf==null?'N/A':'~'+sfPct(inf)}${rankBadge(peers.inf.rank[a.id],peers.inf.n,infCol)}</div>
+          ${note(`Expected growth of circulating supply over the next 12 months (unlocks + emissions − burns). #1 = lowest dilution.<br>${e.infNote||a.inflation}<br>Source: ${a.inflationSource||'analyst estimate'}. ARCA median: ${sfPct(peers.inf.med)}.`)}</div>
+        <div class="arca-metric ${P.ryLive?'arca-live':'arca-static'}"><div class="arca-metric-label">Net Yield ${arcaPlus}</div>
+          <div class="arca-metric-value" style="color:${netTag?netTag[1]:'#3a5a70'}">${net==null?'N/A':(net>0?'+':'')+sfPct(net)}${netTag?`<span style="font-size:8px;color:${netTag[1]};margin-left:5px">${netTag[0]}</span>`:''}</div>
+          ${note(`Real yield − inflation: what a holder earns after dilution. Accretive above +1%, dilutive below −1%. Feeds the ARCA score (Business pillar, "Real Yield Net").${net==null?'<br>Not computed: one of the two inputs is not available.':''} ARCA median: ${peers.net.med==null?'N/A':(peers.net.med>0?'+':'')+sfPct(peers.net.med)}.`)}</div>
+        <div class="arca-metric arca-static"><div class="arca-metric-label">Value Accrual ${arcaPlus}</div>
+          <div class="arca-metric-value" style="font-size:12px;color:${bb.color}">${bb.icon} ${bb.text}<span style="font-size:8px;color:#3a5a70;margin-left:5px;font-weight:400">${vaN}/${peers.total} tokens</span></div>
+          ${note(`${a.buybackNote||'No mechanism documented.'}<br>Hardcoded = protocol / DAO rule · Discretionary = team policy that can change · None = no channel from revenue to holders.`)}</div>
+      </div>
+      <details class="arca-more"><summary>Peers &amp; supply</summary>
+        ${peerStrip(peers.ry,a.id,'Real yield',sfPct)}
+        ${peerStrip(peers.inf,a.id,'Inflation (12m)',sfPct)}
+        ${peerStrip(peers.net,a.id,'Net yield',v=>v==null?'N/A':(v>0?'+':'')+sfPct(v))}
+        <div style="font-size:8px;color:#2e4a60;margin:2px 0 6px">One dot per ARCA token (hover for the name). Dashed line = median. Estimates and live figures are mixed: ranks can move when a live source drops.</div>
+      <!-- Token Unlock Donut -->
+        ${(()=>{
+          const cs=m.supply||a.staticCircSupply||0;
+          const ts=m.totalSupply||a.staticTotalSupply||0;
+          if(!cs||!ts||ts<=0) return a.isPreMarket
+            ? `<div style="font-size:9px;color:#2e4a60;padding:4px;text-align:center">Circulating supply unavailable pre-TGE · Total supply: 10,000,000,000 MEGA</div>`
+            : '<div style="font-size:9px;color:#2e4a60;padding:4px;text-align:center">Supply data unavailable</div>';
+          const up=Math.min(100,Math.max(0,(cs/ts)*100));
+          const lp=100-up;
+          const col=a.color||'#3d8bff';
+          return `<div class="unlock-wrap">
+            <div class="unlock-donut" style="background:conic-gradient(${col} 0% ${up}%, #162030 ${up}% 100%)">
+              <div class="unlock-donut-inner" style="color:${col}">${up.toFixed(0)}%</div>
+            </div>
+            <div class="unlock-legend">
+              <div>● Unlocked: <span style="color:${col}">${up.toFixed(1)}%</span> (${cs>=1e9?(cs/1e9).toFixed(1)+'B':(cs/1e6).toFixed(0)+'M'})</div>
+              <div>● Locked: <span style="color:#ff8c00">${lp.toFixed(1)}%</span> (${(ts-cs)>=1e9?((ts-cs)/1e9).toFixed(1)+'B':((ts-cs)/1e6).toFixed(0)+'M'})</div>
+              <div style="color:#2e4a60;margin-top:2px">Total: ${ts>=1e9?(ts/1e9).toFixed(1)+'B':(ts/1e6).toFixed(0)+'M'} · ${lp>50?'⚠ Majority locked':'✅ Majority unlocked'}</div>
+            </div>
+          </div>`;
+        })()}
+        </details>`;
       })()}
 
       ${m.rev24h>0?`<div style="margin-top:4px;font-size:10px;color:#3a5a70">24h: Rev ${cxSym()}${fmt(cx(m.rev24h))} ${qualityBadge(m.revQuality)} \u00b7 Fees ${cxSym()}${fmt(cx(m.fees24h))} ${qualityBadge(m.feeQuality)}</div>`:''}
