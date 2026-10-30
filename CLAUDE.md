@@ -35,6 +35,7 @@ Cherche activement les bugs dans son propre patch.
 Propose, ne modifie rien. Produit une note de 3 à 5 propositions classées par intérêt / effort ; Tim choisit, on implémente une par une avec les reviewers 1 et 2.
 - Vision globale du dashboard, refontes, nouvelles pages utiles.
 - Scan de nouveaux tokens éligibles au score ARCA.
+- Vérifier par un agent dédié les tables manuelles `ARCA_UNLOCKS` (calendriers) et `ARCA_SUPPLY_YIELD` (inflation / real yield), puis mettre à jour `ARCA_UNLOCKS_ASOF`.
 - Veille : nouveautés ARCA sur https://www.ar.ca/blog, publications DeFi (blogs, docs, gouvernance). Posts X : pas d'accès direct sans API.
 - Le scoring du dashboard peut évoluer ; tout changement de score est décidé par Tim, un par un.
 
@@ -53,7 +54,9 @@ Binance spot + futures, Hyperliquid (HYPE via `candleSnapshot`, repli Binance), 
 Binance et Hyperliquid sont injoignables depuis la sandbox Claude Code : le test sur le vrai réseau se fait côté Tim.
 
 ## À faire / points ouverts
-- Format réel de `candleSnapshot` jamais observé (basé sur la doc Hyperliquid).
+- DefiLlama `/emission` est payant (402) : appels retirés, critère « 30d Unlocks » du score éteint (décision de Tim, 30 oct.). Les calendriers d'unlocks sont saisis à la main.
+- Sandbox : Binance répond 451 (blocage géographique) ; CoinGecko, DefiLlama, Hyperliquid et Tokenomist sont accessibles.
+- À décider : la liquidité du score (pénalité Vol/MC ≤ 1 %) utilise le volume DEX du protocole avant celui du token, ce qui pénalise à tort KNTQ et DRV.
 - Retry sur 429/418 dans `fetchBinanceCandles` absent du build actuel : à remettre si les « — » persistent sur les badges multi-TF.
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
 - Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?

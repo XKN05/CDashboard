@@ -1965,9 +1965,30 @@ function arcaStaticYield(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.ry!=nu
 //   events  : discrete unlocks / cliffs {date, amount (tokens), cat, label}
 //   monthly : linear vesting {from:'YYYY-MM', to:'YYYY-MM', amount (tokens per month), cat, label}
 //   cat     : insiders (team, investors) · community (ecosystem, airdrop, treasury) · emissions (staking / mining rewards)
-const ARCA_UNLOCKS_ASOF = "/*ASOF*/";
+const ARCA_UNLOCKS_ASOF = "2026-10-30";
 const ARCA_UNLOCKS = {
-/*UNLOCKS*/
+  HYPE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 9916667, "cat": "insiders", "label": "Core contributors vesting (ceiling, released on the 6th)"}], "confidence": "med", "note": "Ceiling from the whitepaper vesting (238M over 24 months). The team claims at its discretion and has claimed only 1–18% of it so far."},
+  JUP:{"events": [], "monthly": [], "confidence": "med", "note": "No scheduled unlocks since the Feb 2026 Net-Zero vote (team vesting ended, reserve paused, Jupuary cancelled). A new DAO vote could change this."},
+  UNI:{"events": [{"date": "2027-01-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}, {"date": "2027-04-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}, {"date": "2027-07-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}, {"date": "2027-10-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}], "monthly": [], "confidence": "med", "note": "Original vesting ended in 2024. The 20M UNI/yr budget is paid quarterly (exact days approximate). Treasury grants are not modeled."},
+  AAVE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4563, "cat": "emissions", "label": "stkAAVE safety rewards (150 AAVE/day)"}], "confidence": "med", "note": "Only stkAAVE rewards (150 AAVE/day, Aug 2026 rate); governance can change it every quarter. Other reserve spending is not modeled."},
+  PUMP:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4166666667, "cat": "insiders", "label": "Team linear vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 2708333333, "cat": "insiders", "label": "Investor linear vesting"}], "confidence": "med", "note": "After the Jul 2026 cliff, the remaining team and investor tokens vest over 36 months. Actual claims have differed from the schedule."},
+  ONDO:{"events": [{"date": "2027-01-18", "amount": 792000000, "cat": "community", "label": "Annual cliff: ecosystem growth"}, {"date": "2027-01-18", "amount": 918223118, "cat": "insiders", "label": "Annual cliff: protocol development + private sales"}], "monthly": [], "confidence": "med", "note": "1.71B per DefiLlama / Tokenomics.com; Tokenomist says 1.94B. The split between groups is estimated."},
+  MET:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4722222, "cat": "community", "label": "Ecosystem reserve linear vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 2500000, "cat": "insiders", "label": "Team linear vesting"}], "confidence": "med", "note": "72-month linear vesting to Oct 2031. Reserve spending is discretionary."},
+  ASTER:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 10000000, "cat": "insiders", "label": "Team linear vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 1950000, "cat": "emissions", "label": "Staking rewards (450K per weekly epoch)"}], "confidence": "low", "note": "Team terms come from secondary sources, not official docs. Remaining airdrop tranches have no published dates."},
+  SYRUP:{"events": [], "monthly": [], "confidence": "med", "note": "No scheduled unlocks: staking emissions ended and supply reached its Sep 2026 target. ~100M non-circulating tokens could be spent by the DAO."},
+  AERO:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 13380000, "cat": "emissions", "label": "Revenue-capped pool emissions (estimate)"}], "confidence": "low", "note": "Emissions depend on pool revenue since the Oct 22, 2026 merger (~8%/yr of supply, hard cap 20%/yr). The monthly figure is an estimate."},
+  PENDLE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 47000, "cat": "emissions", "label": "Liquidity incentives (estimate)"}], "confidence": "low", "note": "Vesting is over; incentive emissions fell ~92% in 2026. The monthly figure comes from a reported ~0.2%/yr rate."},
+  ENA:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 93750000, "cat": "insiders", "label": "Core contributors vesting (to Mar 2028)"}, {"from": "2026-11", "to": "2027-10", "amount": 40625000, "cat": "community", "label": "Foundation release (to Apr 2028)"}], "confidence": "high", "note": "Remaining investor unlocks were all released early on Oct 5, 2026. The ecosystem pool (28%) has no fixed schedule and is not included."},
+  RAY:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 158333, "cat": "emissions", "label": "Mining reserve emissions"}], "confidence": "med", "note": "All vesting ended in 2024; only ~1.9M RAY/yr of farm emissions, depending on active reward programs."},
+  MORPHO:{"events": [{"date": "2026-11-20", "amount": 1000000, "cat": "insiders", "label": "Market maker allocation"}], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 6333333, "cat": "insiders", "label": "Founders linear vesting (to Nov 2027)"}, {"from": "2026-11", "to": "2027-10", "amount": 2791667, "cat": "insiders", "label": "Strategic partners linear vesting"}], "confidence": "low", "note": "From the 2026 whitepaper; trackers disagree. Early contributors, reserves and DAO treasury have no fixed schedule and are not included."},
+  MEGA:{"events": [{"date": "2027-04-30", "amount": 132640000, "cat": "insiders", "label": "1-year cliff: team, investors, Echo round"}], "monthly": [], "confidence": "low", "note": "53% of supply unlocks only on KPI milestones (no dates). The monthly rate after the Apr 2027 cliff is not published."},
+  TRX:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 119136000, "cat": "emissions", "label": "Block + voting rewards (gross)"}], "confidence": "high", "note": "Gross issuance; fee burns offset most of it (net ~+0.5%/yr in 2026). The SR committee can change the rates."},
+  KNTQ:{"events": [], "monthly": [{"from": "2026-12", "to": "2027-10", "amount": 12916667, "cat": "insiders", "label": "Core contributors + investors monthly tranches"}], "confidence": "med", "note": "1-year cliff ends Nov 27, 2026, then 24 monthly tranches (first date unconfirmed). Growth and Foundation pools (40%) have no schedule."},
+  LDO:{"events": [], "monthly": [], "confidence": "high", "note": "Fully vested since 2024; only discretionary DAO treasury spending could add supply."},
+  LIT:{"events": [], "monthly": [{"from": "2027-01", "to": "2027-10", "amount": 13888889, "cat": "insiders", "label": "Team + investors linear vesting after the Dec 27 cliff"}], "confidence": "med", "note": "Cliff ends Dec 27, 2026 with no lump sum, then linear vesting to late 2029. The ecosystem pool (25%) has no published schedule."},
+  DRV:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4791667, "cat": "insiders", "label": "Core contributors vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 433333, "cat": "emissions", "label": "Staking rewards"}, {"from": "2026-11", "to": "2027-10", "amount": 216667, "cat": "emissions", "label": "Trading incentives"}], "confidence": "med", "note": "Strategic allocation finished vesting in Oct 2026. Foundation and DAO treasury spending are unscheduled."},
+  PONS:{"events": [], "monthly": [], "confidence": "med", "note": "Fixed 1B supply with no published vesting; ~30% burned. Team or treasury allocations were never disclosed."},
+  SKY:{"events": [], "monthly": [], "confidence": "med", "note": "No new SKY minted; since Aug 2026 staking rewards are paid with SKY bought on the market. Governance can change this."}
 };
 // Risk level of one month of unlocks: the higher of size (% of circulating) and liquidity (days of 24h volume),
 // one level up when insiders receive most of it. Display only — not used by the score.
@@ -1980,25 +2001,27 @@ function unlockLevel(pct, days, insiderShare){
   if(lv>0 && insiderShare>0.5) lv=Math.min(3, lv+1);
   return lv;
 }
-// 12 calendar months from the current one; the current month only counts what is still ahead of today
+// 12 calendar months: from the current month in its first half, else from the next one (events left in the current month are folded into the first bar)
 function arcaUnlockMonths(a, m){
   const u=ARCA_UNLOCKS[a.id]; if(!u) return null;
-  const now=new Date(), y0=now.getUTCFullYear(), m0=now.getUTCMonth();
+  const now=new Date(), late=now.getUTCDate()>15;
+  const s0=new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()+(late?1:0), 1)), y0=s0.getUTCFullYear(), m0=s0.getUTCMonth();
   const daysIn=(y,mo)=>new Date(Date.UTC(y,mo+1,0)).getUTCDate();
   const buckets=[...Array(12)].map((_,i)=>{ const d=new Date(Date.UTC(y0,m0+i,1)); return {y:d.getUTCFullYear(), mo:d.getUTCMonth(), amt:0, ins:0, items:[]}; });
   const idx=(y,mo)=>(y-y0)*12+(mo-m0);
   (u.monthly||[]).forEach(r=>{
     const [fy,fm]=r.from.split('-').map(Number), [ty,tm]=r.to.split('-').map(Number);
     buckets.forEach((b,i)=>{ const k=b.y*12+b.mo; if(k<fy*12+fm-1||k>ty*12+tm-1) return;
-      const share=i===0 ? (daysIn(b.y,b.mo)-now.getUTCDate()+1)/daysIn(b.y,b.mo) : 1;
+      const share=(i===0&&!late) ? (daysIn(b.y,b.mo)-now.getUTCDate()+1)/daysIn(b.y,b.mo) : 1;
       const amt=r.amount*share; b.amt+=amt; if(r.cat==='insiders') b.ins+=amt; b.items.push({amt, label:r.label, cat:r.cat}); });
   });
   (u.events||[]).forEach(e=>{
     const d=new Date(e.date+'T00:00:00Z'); if(d<now) return;
-    const i=idx(d.getUTCFullYear(), d.getUTCMonth()); if(i<0||i>11) return;
+    const i=Math.max(0, idx(d.getUTCFullYear(), d.getUTCMonth())); if(i>11) return; // a date later this month (late case) lands in the first bar
     const b=buckets[i]; b.amt+=e.amount; if(e.cat==='insiders') b.ins+=e.amount; b.items.push({amt:e.amount, label:e.label+' ('+e.date+')', cat:e.cat, date:e.date});
   });
-  const circ=m.supply||a.staticCircSupply||0, price=m.price||arcaPrices[a.id]||0, vol=m.vol24h||0;
+  const d=arcaDynamic[a.id]||{};
+  const circ=m.supply||a.staticCircSupply||0, price=m.price||arcaPrices[a.id]||0, vol=d.hlVol24h||d.cg?.vol24h||0; // token volume, not the protocol's DEX volume
   buckets.forEach(b=>{
     b.pct = circ>0 ? b.amt/circ*100 : null;
     b.days = (vol>0&&price>0&&b.amt>0) ? b.amt*price/vol : null;
@@ -2044,7 +2067,7 @@ let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is
 // ── Data health — every fetchWithTimeout() call is counted per source and shown on the home page ──
 const HEALTH_SOURCES = ['CoinGecko','DefiLlama','Binance','Hyperliquid','CORS proxy'];
 const dataHealth = {};
-HEALTH_SOURCES.forEach(k=>{ dataHealth[k]={ok:0,fail:0,rateLimited:0,lastOk:null,lastErr:null}; });
+HEALTH_SOURCES.forEach(k=>{ dataHealth[k]={ok:0,fail:0,noData:0,rateLimited:0,lastOk:null,lastErr:null}; });
 let arcaHealth = null; // {total, revLive:[ids], relOk:[ids], ts} — set after each ARCA load
 function healthSourceOf(url){
   let h=''; try{ h=new URL(url).hostname; }catch(e){ return null; }
@@ -2058,7 +2081,9 @@ function healthSourceOf(url){
 function healthRecord(url, ok, err, status){
   const k=healthSourceOf(url); if(!k) return;
   const s=dataHealth[k];
-  if(ok){ s.ok++; s.lastOk=Date.now(); } else { s.fail++; s.lastErr=err; }
+  if(ok){ s.ok++; s.lastOk=Date.now(); }
+  else if(status===400||status===404){ s.noData++; } // slug without this dataset (alt slugs are tried) — not an outage
+  else { s.fail++; s.lastErr=err; }
   if(status===429||status===418) s.rateLimited++;
   scheduleHealthRender();
 }
@@ -2073,7 +2098,7 @@ function renderDataHealth(){
     const note=k==='CORS proxy'?'fallback when a direct call fails':(s.fail&&s.lastErr?'last error: '+s.lastErr:'');
     return `<tr><td style="padding:4px 10px 4px 0;color:#c8d8e8;white-space:nowrap">${k}</td>
       <td style="padding:4px 10px;color:${col};font-weight:700;white-space:nowrap">● ${label}</td>
-      <td style="padding:4px 10px;white-space:nowrap">${s.ok} ok · ${s.fail} failed${s.rateLimited?` · <span style="color:#f0b840">${s.rateLimited}× rate-limited</span>`:''}</td>
+      <td style="padding:4px 10px;white-space:nowrap">${s.ok} ok · ${s.fail} failed${s.noData?` · ${s.noData} no data`:''}${s.rateLimited?` · <span style="color:#f0b840">${s.rateLimited}× rate-limited</span>`:''}</td>
       <td style="padding:4px 10px;white-space:nowrap">last success ${t(s.lastOk)}</td>
       <td style="padding:4px 0 4px 10px;color:#4a6a80">${note}</td></tr>`;
   }).join('');
