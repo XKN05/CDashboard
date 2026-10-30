@@ -51,13 +51,11 @@ Dernière session penseur : 2026-10-29 (note : `docs/penseur/2026-10-29.md`)
 
 ## Sources de données
 Binance spot + futures, Hyperliquid (HYPE via `candleSnapshot`, repli Binance), DefiLlama, CoinGecko, alternative.me, mempool.space, allorigins.win (proxy CORS, en premier).
-Binance et Hyperliquid sont injoignables depuis la sandbox Claude Code : le test sur le vrai réseau se fait côté Tim.
+Binance est injoignable depuis la sandbox Claude Code (451) : le test Binance sur le vrai réseau se fait côté Tim.
 
 ## À faire / points ouverts
 - DefiLlama `/emission` est payant (402) : appels retirés, critère « 30d Unlocks » du score éteint (décision de Tim, 30 oct.). Les calendriers d'unlocks sont saisis à la main.
 - Sandbox : Binance répond 451 (blocage géographique) ; CoinGecko, DefiLlama, Hyperliquid et Tokenomist sont accessibles.
-- À décider : la liquidité du score (pénalité Vol/MC ≤ 1 %) utilise le volume DEX du protocole avant celui du token, ce qui pénalise à tort KNTQ et DRV.
-- Retry sur 429/418 dans `fetchBinanceCandles` absent du build actuel : à remettre si les « — » persistent sur les badges multi-TF.
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
 - Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?
 - En ligne sur `index.html` depuis le 27 oct. 2026 (build `2026-10-27-a`) : nouveaux tokens LIT / DRV / PONS (VVV retiré, TAO non ajouté), données manuelles Oct 2026, TRX sur revenu DefiLlama live, vue « Price vs Fundamentals », P/E live uniquement (« >100× (n/m) », grille unique <10/18/30/50×), « Value accrual » (table `ARCA_VALUE_ACCRUAL`), tri ARCA par défaut BUY → NEUTRAL → AVOID (score décroissant dans chaque groupe).

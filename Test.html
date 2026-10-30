@@ -2115,7 +2115,7 @@ function renderDataHealth(){
     <div style="margin-top:6px;font-size:9px;color:#4a6a80">Counts every request made by this tab since it was opened. A failed direct call that succeeded through the proxy shows as a failure on the source and a success on the proxy.</div>`;
 }
 
-const DASH_BUILD = "2026-10-30-a"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-30-b"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3845,7 +3845,9 @@ function calcDynamicMetrics(a){
   const hlVol24h=d.hlVol24h||0;
   const dexVol24h=d.dexVol||0;
   const vol24h=hlVol24h>0?hlVol24h:dexVol24h>0?dexVol24h:cgVol24h;
-  const volMcRatio=circMC>0&&vol24h>0?vol24h/circMC:null;
+  // liquidity of the TOKEN: its own trading volume (Hyperliquid for HYPE, else CoinGecko), not the protocol's DEX volume
+  const tokenVol24h=hlVol24h>0?hlVol24h:cgVol24h;
+  const volMcRatio=circMC>0&&tokenVol24h>0?tokenVol24h/circMC:null;
   const pctChg7d=d.cg?.pctChg7d??null;
   const pctChg30d=d.cg?.pctChg30d??null;
   const ath=d.cg?.ath||0;
