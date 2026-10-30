@@ -1961,6 +1961,105 @@ const ARCA_SUPPLY_YIELD = {
 function arcaInflation(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.inf!=null ? e.inf : null; }
 function arcaStaticYield(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.ry!=null ? e.ry : null; }
 
+// ── Unlock schedules (manual, verified every 2 weeks — DefiLlama's unlock API is paid) ──
+//   events  : discrete unlocks / cliffs {date, amount (tokens), cat, label}
+//   monthly : linear vesting {from:'YYYY-MM', to:'YYYY-MM', amount (tokens per month), cat, label}
+//   cat     : insiders (team, investors) · community (ecosystem, airdrop, treasury) · emissions (staking / mining rewards)
+const ARCA_UNLOCKS_ASOF = "2026-10-30";
+const ARCA_UNLOCKS = {
+  HYPE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 9916667, "cat": "insiders", "label": "Core contributors vesting (ceiling, released on the 6th)"}], "confidence": "med", "note": "Ceiling from the whitepaper vesting (238M over 24 months). The team claims at its discretion and has claimed only 1–18% of it so far."},
+  JUP:{"events": [], "monthly": [], "confidence": "med", "note": "No scheduled unlocks since the Feb 2026 Net-Zero vote (team vesting ended, reserve paused, Jupuary cancelled). A new DAO vote could change this."},
+  UNI:{"events": [{"date": "2027-01-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}, {"date": "2027-04-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}, {"date": "2027-07-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}, {"date": "2027-10-01", "amount": 5000000, "cat": "insiders", "label": "Growth budget tranche to Uniswap Labs"}], "monthly": [], "confidence": "med", "note": "Original vesting ended in 2024. The 20M UNI/yr budget is paid quarterly (exact days approximate). Treasury grants are not modeled."},
+  AAVE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4563, "cat": "emissions", "label": "stkAAVE safety rewards (150 AAVE/day)"}], "confidence": "med", "note": "Only stkAAVE rewards (150 AAVE/day, Aug 2026 rate); governance can change it every quarter. Other reserve spending is not modeled."},
+  PUMP:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4166666667, "cat": "insiders", "label": "Team linear vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 2708333333, "cat": "insiders", "label": "Investor linear vesting"}], "confidence": "med", "note": "After the Jul 2026 cliff, the remaining team and investor tokens vest over 36 months. Actual claims have differed from the schedule."},
+  ONDO:{"events": [{"date": "2027-01-18", "amount": 792000000, "cat": "community", "label": "Annual cliff: ecosystem growth"}, {"date": "2027-01-18", "amount": 918223118, "cat": "insiders", "label": "Annual cliff: protocol development + private sales"}], "monthly": [], "confidence": "med", "note": "1.71B per DefiLlama / Tokenomics.com; Tokenomist says 1.94B. The split between groups is estimated."},
+  MET:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4722222, "cat": "community", "label": "Ecosystem reserve linear vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 2500000, "cat": "insiders", "label": "Team linear vesting"}], "confidence": "med", "note": "72-month linear vesting to Oct 2031. Reserve spending is discretionary."},
+  ASTER:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 10000000, "cat": "insiders", "label": "Team linear vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 1950000, "cat": "emissions", "label": "Staking rewards (450K per weekly epoch)"}], "confidence": "low", "note": "Team terms come from secondary sources, not official docs. Remaining airdrop tranches have no published dates."},
+  SYRUP:{"events": [], "monthly": [], "confidence": "med", "note": "No scheduled unlocks: staking emissions ended and supply reached its Sep 2026 target. ~100M non-circulating tokens could be spent by the DAO."},
+  AERO:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 13380000, "cat": "emissions", "label": "Revenue-capped pool emissions (estimate)"}], "confidence": "low", "note": "Emissions depend on pool revenue since the Oct 22, 2026 merger (~8%/yr of supply, hard cap 20%/yr). The monthly figure is an estimate."},
+  PENDLE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 47000, "cat": "emissions", "label": "Liquidity incentives (estimate)"}], "confidence": "low", "note": "Vesting is over; incentive emissions fell ~92% in 2026. The monthly figure comes from a reported ~0.2%/yr rate."},
+  ENA:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 93750000, "cat": "insiders", "label": "Core contributors vesting (to Mar 2028)"}, {"from": "2026-11", "to": "2027-10", "amount": 40625000, "cat": "community", "label": "Foundation release (to Apr 2028)"}], "confidence": "high", "note": "Remaining investor unlocks were all released early on Oct 5, 2026. The ecosystem pool (28%) has no fixed schedule and is not included."},
+  RAY:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 158333, "cat": "emissions", "label": "Mining reserve emissions"}], "confidence": "med", "note": "All vesting ended in 2024; only ~1.9M RAY/yr of farm emissions, depending on active reward programs."},
+  MORPHO:{"events": [{"date": "2026-11-20", "amount": 1000000, "cat": "insiders", "label": "Market maker allocation"}], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 6333333, "cat": "insiders", "label": "Founders linear vesting (to Nov 2027)"}, {"from": "2026-11", "to": "2027-10", "amount": 2791667, "cat": "insiders", "label": "Strategic partners linear vesting"}], "confidence": "low", "note": "From the 2026 whitepaper; trackers disagree. Early contributors, reserves and DAO treasury have no fixed schedule and are not included."},
+  MEGA:{"events": [{"date": "2027-04-30", "amount": 132640000, "cat": "insiders", "label": "1-year cliff: team, investors, Echo round"}], "monthly": [], "confidence": "low", "note": "53% of supply unlocks only on KPI milestones (no dates). The monthly rate after the Apr 2027 cliff is not published."},
+  TRX:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 119136000, "cat": "emissions", "label": "Block + voting rewards (gross)"}], "confidence": "high", "note": "Gross issuance; fee burns offset most of it (net ~+0.5%/yr in 2026). The SR committee can change the rates."},
+  KNTQ:{"events": [], "monthly": [{"from": "2026-12", "to": "2027-10", "amount": 12916667, "cat": "insiders", "label": "Core contributors + investors monthly tranches"}], "confidence": "med", "note": "1-year cliff ends Nov 27, 2026, then 24 monthly tranches (first date unconfirmed). Growth and Foundation pools (40%) have no schedule."},
+  LDO:{"events": [], "monthly": [], "confidence": "high", "note": "Fully vested since 2024; only discretionary DAO treasury spending could add supply."},
+  LIT:{"events": [], "monthly": [{"from": "2027-01", "to": "2027-10", "amount": 13888889, "cat": "insiders", "label": "Team + investors linear vesting after the Dec 27 cliff"}], "confidence": "med", "note": "Cliff ends Dec 27, 2026 with no lump sum, then linear vesting to late 2029. The ecosystem pool (25%) has no published schedule."},
+  DRV:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 4791667, "cat": "insiders", "label": "Core contributors vesting"}, {"from": "2026-11", "to": "2027-10", "amount": 433333, "cat": "emissions", "label": "Staking rewards"}, {"from": "2026-11", "to": "2027-10", "amount": 216667, "cat": "emissions", "label": "Trading incentives"}], "confidence": "med", "note": "Strategic allocation finished vesting in Oct 2026. Foundation and DAO treasury spending are unscheduled."},
+  PONS:{"events": [], "monthly": [], "confidence": "med", "note": "Fixed 1B supply with no published vesting; ~30% burned. Team or treasury allocations were never disclosed."},
+  SKY:{"events": [], "monthly": [], "confidence": "med", "note": "No new SKY minted; since Aug 2026 staking rewards are paid with SKY bought on the market. Governance can change this."}
+};
+// Risk level of one month of unlocks: the higher of size (% of circulating) and liquidity (days of 24h volume),
+// one level up when insiders receive most of it. Display only — not used by the score.
+const UNLOCK_LEVELS = [
+  {label:'Low', color:'#00d98b'}, {label:'Moderate', color:'#f0b840'}, {label:'High', color:'#ff8c00'}, {label:'Very high', color:'#ff3d5a'} ];
+function unlockLevel(pct, days, insiderShare){
+  const bySize = pct==null?0 : pct<1?0 : pct<3?1 : pct<7?2 : 3;
+  const byLiq  = days==null?0 : days<1?0 : days<5?1 : days<15?2 : 3;
+  let lv=Math.max(bySize, byLiq);
+  if(lv>0 && insiderShare>0.5) lv=Math.min(3, lv+1);
+  return lv;
+}
+// 12 calendar months: from the current month in its first half, else from the next one (events left in the current month are folded into the first bar)
+function arcaUnlockMonths(a, m){
+  const u=ARCA_UNLOCKS[a.id]; if(!u) return null;
+  const now=new Date(), late=now.getUTCDate()>15;
+  const s0=new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()+(late?1:0), 1)), y0=s0.getUTCFullYear(), m0=s0.getUTCMonth();
+  const daysIn=(y,mo)=>new Date(Date.UTC(y,mo+1,0)).getUTCDate();
+  const buckets=[...Array(12)].map((_,i)=>{ const d=new Date(Date.UTC(y0,m0+i,1)); return {y:d.getUTCFullYear(), mo:d.getUTCMonth(), amt:0, ins:0, items:[]}; });
+  const idx=(y,mo)=>(y-y0)*12+(mo-m0);
+  (u.monthly||[]).forEach(r=>{
+    const [fy,fm]=r.from.split('-').map(Number), [ty,tm]=r.to.split('-').map(Number);
+    buckets.forEach((b,i)=>{ const k=b.y*12+b.mo; if(k<fy*12+fm-1||k>ty*12+tm-1) return;
+      const share=(i===0&&!late) ? (daysIn(b.y,b.mo)-now.getUTCDate()+1)/daysIn(b.y,b.mo) : 1;
+      const amt=r.amount*share; b.amt+=amt; if(r.cat==='insiders') b.ins+=amt; b.items.push({amt, label:r.label, cat:r.cat}); });
+  });
+  (u.events||[]).forEach(e=>{
+    const d=new Date(e.date+'T00:00:00Z'); if(d<now) return;
+    const i=Math.max(0, idx(d.getUTCFullYear(), d.getUTCMonth())); if(i>11) return; // a date later this month (late case) lands in the first bar
+    const b=buckets[i]; b.amt+=e.amount; if(e.cat==='insiders') b.ins+=e.amount; b.items.push({amt:e.amount, label:e.label+' ('+e.date+')', cat:e.cat, date:e.date});
+  });
+  const d=arcaDynamic[a.id]||{};
+  const circ=m.supply||a.staticCircSupply||0, price=m.price||arcaPrices[a.id]||0, vol=d.hlVol24h||d.cg?.vol24h||0; // token volume, not the protocol's DEX volume
+  buckets.forEach(b=>{
+    b.pct = circ>0 ? b.amt/circ*100 : null;
+    b.days = (vol>0&&price>0&&b.amt>0) ? b.amt*price/vol : null;
+    b.level = b.amt>0 ? unlockLevel(b.pct, b.days, b.amt>0?b.ins/b.amt:0) : -1;
+  });
+  return {buckets, circ, total:buckets.reduce((s,b)=>s+b.amt,0), note:u.note||'', confidence:u.confidence||'low'};
+}
+const fmtTok=v=>v>=1e9?(v/1e9).toFixed(2)+'B':v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toFixed(0);
+function renderUnlockChart(a, m){
+  const U=arcaUnlockMonths(a, m);
+  const asof=`<div style="font-size:8px;color:#2e4a60;margin-top:4px">Manual schedule (not live) · checked ${ARCA_UNLOCKS_ASOF} · bar colour = risk level of that month (size vs float, days of volume, insiders) · display only, not in the score.</div>`;
+  if(!U || !U.total) return `<div style="font-size:9px;color:#7a9ab0;line-height:1.5;padding:4px 0">${U?'No unlock scheduled in the next 12 months.':'No verified unlock schedule.'} ${U?.note||ARCA_UNLOCKS[a.id]?.note||''}<br><span style="color:#3a5a70">Next unlock (analyst note): ${a.nextUnlock||'N/A'}</span></div>${asof}`;
+  const B=U.buckets, max=Math.max(...B.map(b=>b.pct||0), 0.5);
+  const worst3=Math.max(...B.slice(0,3).map(b=>b.level)), w=UNLOCK_LEVELS[Math.max(0,worst3)];
+  const big=B.find(b=>b.level>=2) || B.reduce((x,y)=>y.amt>x.amt?y:x);
+  const bigLv=UNLOCK_LEVELS[Math.max(0,big.level)];
+  const mName=b=>new Date(Date.UTC(b.y,b.mo,1)).toLocaleString('en-US',{month:'short',timeZone:'UTC'});
+  const bigDate=big.items.find(it=>it.date)?.date || mName(big)+' '+big.y;
+  const bw=200/12;
+  const bars=B.map((b,i)=>{
+    const h=b.pct?Math.max(1.5, b.pct/max*52):0, col=b.level>=0?UNLOCK_LEVELS[b.level].color:'#162030', x=i*bw+2;
+    const tip=`${mName(b)} ${b.y}: ${fmtTok(b.amt)} ${a.id}${b.pct!=null?' · '+b.pct.toFixed(2)+'% of float':''}${b.days!=null?' · ≈'+b.days.toFixed(1)+' days of volume':''}${b.level>=0?' · '+UNLOCK_LEVELS[b.level].label:''}${b.items.length?' — '+b.items.map(it=>it.label).join(', '):''}`;
+    const tipAttr=tip.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+    return `<g style="cursor:pointer" data-tip="${tipAttr}" onclick="const d=this.closest('.arca-more').querySelector('.unl-detail');d.textContent=this.dataset.tip;d.style.display='block'"><title>${tipAttr}</title><rect x="${x.toFixed(1)}" y="${(60-h).toFixed(1)}" width="${(bw-4).toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${col}"/>
+      ${b.pct>=0.1?`<text x="${(x+(bw-4)/2).toFixed(1)}" y="${(57-h).toFixed(1)}" font-size="5.5" fill="#7a9ab0" text-anchor="middle">${b.pct<10?b.pct.toFixed(1):b.pct.toFixed(0)}</text>`:''}
+      <text x="${(x+(bw-4)/2).toFixed(1)}" y="69" font-size="5.5" fill="#3a5a70" text-anchor="middle">${mName(b)[0]}${mName(b).slice(1,3)}</text></g>`;
+  }).join('');
+  const totPct=U.circ>0?U.total/U.circ*100:null;
+  return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0">
+      <span style="font-size:8px;color:#3a5a70">Next 3 months</span>
+      <span style="font-size:9px;font-weight:700;color:${w.color};border:1px solid ${w.color}55;background:${w.color}14;border-radius:3px;padding:1px 6px">${worst3>=2?'⚠ ':''}${worst3<0?'No unlock':w.label+' risk'}</span></div>
+    <div style="font-size:9px;color:#b8ccd8;line-height:1.5">Biggest: <b style="color:${bigLv.color}">${bigDate}</b> · ${fmtTok(big.amt)} ${a.id}${big.pct!=null?' · <b style="color:'+bigLv.color+'">'+big.pct.toFixed(1)+'% of float</b>':''}${big.days!=null?' · ≈'+(big.days<10?big.days.toFixed(1):big.days.toFixed(0))+' days of volume':''}</div>
+    <svg viewBox="0 0 200 72" style="width:100%;height:auto;display:block;margin-top:4px"><line x1="0" y1="60.5" x2="200" y2="60.5" stroke="#162030" stroke-width="0.6"/>${bars}</svg>
+    <div style="font-size:8px;color:#3a5a70;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px"><span>% of circulating supply per month (tap a bar for details)</span><span>12-month total: <b style="color:#b8ccd8">${totPct!=null?'+'+totPct.toFixed(totPct<10?1:0)+'%':fmtTok(U.total)}</b></span></div>
+    <div class="unl-detail" style="display:none;font-size:9px;color:#b8ccd8;background:#070b12;border:1px solid #162030;border-radius:4px;padding:4px 6px;margin-top:4px;line-height:1.5"></div>
+    <div style="font-size:8px;color:#4a6a80;margin-top:3px">${UNLOCK_LEVELS.map(l=>`<span style="color:${l.color}">■</span> ${l.label}`).join(' &nbsp;')} · confidence ${U.confidence}${U.note?' · '+U.note:''}</div>${asof}`;
+}
+
 let selectedToken = TOKENS[0];
 let ichCandleSource = null; // venue that actually served the candles currently shown on the Ichimoku page
 let ichShownKey = null; // token|interval whose analysis is currently on screen
@@ -1968,7 +2067,7 @@ let ichRequestId = 0; // bumped by every fetchIchimoku(); a response whose id is
 // ── Data health — every fetchWithTimeout() call is counted per source and shown on the home page ──
 const HEALTH_SOURCES = ['CoinGecko','DefiLlama','Binance','Hyperliquid','CORS proxy'];
 const dataHealth = {};
-HEALTH_SOURCES.forEach(k=>{ dataHealth[k]={ok:0,fail:0,rateLimited:0,lastOk:null,lastErr:null}; });
+HEALTH_SOURCES.forEach(k=>{ dataHealth[k]={ok:0,fail:0,noData:0,rateLimited:0,lastOk:null,lastErr:null}; });
 let arcaHealth = null; // {total, revLive:[ids], relOk:[ids], ts} — set after each ARCA load
 function healthSourceOf(url){
   let h=''; try{ h=new URL(url).hostname; }catch(e){ return null; }
@@ -1982,7 +2081,9 @@ function healthSourceOf(url){
 function healthRecord(url, ok, err, status){
   const k=healthSourceOf(url); if(!k) return;
   const s=dataHealth[k];
-  if(ok){ s.ok++; s.lastOk=Date.now(); } else { s.fail++; s.lastErr=err; }
+  if(ok){ s.ok++; s.lastOk=Date.now(); }
+  else if(status===400||status===404){ s.noData++; } // slug without this dataset (alt slugs are tried) — not an outage
+  else { s.fail++; s.lastErr=err; }
   if(status===429||status===418) s.rateLimited++;
   scheduleHealthRender();
 }
@@ -1997,7 +2098,7 @@ function renderDataHealth(){
     const note=k==='CORS proxy'?'fallback when a direct call fails':(s.fail&&s.lastErr?'last error: '+s.lastErr:'');
     return `<tr><td style="padding:4px 10px 4px 0;color:#c8d8e8;white-space:nowrap">${k}</td>
       <td style="padding:4px 10px;color:${col};font-weight:700;white-space:nowrap">● ${label}</td>
-      <td style="padding:4px 10px;white-space:nowrap">${s.ok} ok · ${s.fail} failed${s.rateLimited?` · <span style="color:#f0b840">${s.rateLimited}× rate-limited</span>`:''}</td>
+      <td style="padding:4px 10px;white-space:nowrap">${s.ok} ok · ${s.fail} failed${s.noData?` · ${s.noData} no data`:''}${s.rateLimited?` · <span style="color:#f0b840">${s.rateLimited}× rate-limited</span>`:''}</td>
       <td style="padding:4px 10px;white-space:nowrap">last success ${t(s.lastOk)}</td>
       <td style="padding:4px 0 4px 10px;color:#4a6a80">${note}</td></tr>`;
   }).join('');
@@ -2014,7 +2115,7 @@ function renderDataHealth(){
     <div style="margin-top:6px;font-size:9px;color:#4a6a80">Counts every request made by this tab since it was opened. A failed direct call that succeeded through the proxy shows as a failure on the source and a success on the proxy.</div>`;
 }
 
-const DASH_BUILD = "2026-10-29-b"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-10-30-b"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3549,6 +3650,9 @@ async function fetchDefiLlamaChainTVL(chainName){
 }
 // Returns: { unlock30dPct: float|null, unlock90dPct: float|null, hasData: bool }
 async function fetchDefiLlamaEmissions(slug){
+  // DefiLlama /emission is a paid endpoint (HTTP 402 since at least Oct 2026): the call always failed, so the
+  // "30d Unlocks" score criterion never applied. Not called any more; unlock charts use ARCA_UNLOCKS instead.
+  return {unlock30dPct:null,unlock90dPct:null,hasData:false};
   try{
     const d=await fetchJSON('https://api.llama.fi/emission/'+slug);
     if(!d||!d.data) return{unlock30dPct:null,unlock90dPct:null,hasData:false};
@@ -3741,7 +3845,9 @@ function calcDynamicMetrics(a){
   const hlVol24h=d.hlVol24h||0;
   const dexVol24h=d.dexVol||0;
   const vol24h=hlVol24h>0?hlVol24h:dexVol24h>0?dexVol24h:cgVol24h;
-  const volMcRatio=circMC>0&&vol24h>0?vol24h/circMC:null;
+  // liquidity of the TOKEN: its own trading volume (Hyperliquid for HYPE, else CoinGecko), not the protocol's DEX volume
+  const tokenVol24h=hlVol24h>0?hlVol24h:cgVol24h;
+  const volMcRatio=circMC>0&&tokenVol24h>0?tokenVol24h/circMC:null;
   const pctChg7d=d.cg?.pctChg7d??null;
   const pctChg30d=d.cg?.pctChg30d??null;
   const ath=d.cg?.ath||0;
@@ -4183,15 +4289,6 @@ function arcaPeerStats(){
   return { byId:Object.fromEntries(rows.map(r=>[r.id,r])), ry:metric('ry',true), inf:metric('inf',false), net:metric('net',true), vaCount, total:rows.length };
 }
 const sfPct=v=>v==null?'N/A':(Math.abs(v)<10?v.toFixed(1):v.toFixed(0))+'%';
-// One dot per ARCA token on a line, the current token highlighted, median marked
-function peerStrip(stat, id, label, fmtFn){
-  if(!stat.n) return '';
-  const lo=Math.min(0,stat.min), hi=Math.max(stat.max, lo+1), x=v=>4+(v-lo)/(hi-lo)*192;
-  const dots=stat.pts.map(p=>`<circle cx="${x(p.v).toFixed(1)}" cy="9" r="${p.id===id?4:2.2}" fill="${p.id===id?p.color:'#2e4a60'}" ${p.id===id?'stroke="#e8f4ff" stroke-width="1"':''}><title>${p.id}: ${fmtFn(p.v)}</title></circle>`);
-  const me=stat.pts.find(p=>p.id===id); if(me){ const i=stat.pts.indexOf(me); dots.push(dots.splice(i,1)[0]); } // draw the current token last (on top)
-  return `<div style="margin:6px 0 2px"><div style="display:flex;justify-content:space-between;font-size:8px;color:#3a5a70"><span>${label}</span><span>median ${fmtFn(stat.med)} · range ${fmtFn(stat.min)} → ${fmtFn(stat.max)}</span></div>
-    <svg viewBox="0 0 200 18" style="width:100%;height:18px;display:block"><line x1="4" y1="9" x2="196" y2="9" stroke="#162030" stroke-width="2"/>${lo<0?`<line x1="${x(0).toFixed(1)}" y1="3" x2="${x(0).toFixed(1)}" y2="15" stroke="#2e4a60" stroke-width="0.6"/>`:''}<line x1="${x(stat.med).toFixed(1)}" y1="2" x2="${x(stat.med).toFixed(1)}" y2="16" stroke="#7a9ab0" stroke-width="0.8" stroke-dasharray="2,1.5"/>${dots.join('')}</svg></div>`;
-}
 const arcaPlus='<span class="arca-plus" role="button" title="What is this? / data limits" onclick="event.stopPropagation();this.closest(\'.arca-metric\').querySelector(\'.arca-note\').classList.toggle(\'open\');this.textContent=this.textContent===\'+\'?\'\u2212\':\'+\'">+</span>';
 function rankBadge(rank,n,col){ return rank?`<span style="font-size:8px;color:${col};border:1px solid ${col}44;background:${col}12;border-radius:3px;padding:0 4px;margin-left:4px;font-weight:600">#${rank}/${n}</span>`:''; }
 
@@ -4336,11 +4433,8 @@ function renderArcaGrid(){
           <div class="arca-metric-value" style="font-size:12px;color:${bb.color}">${bb.icon} ${bb.text}<span style="font-size:8px;color:#3a5a70;margin-left:5px;font-weight:400">${vaN}/${peers.total} tokens</span></div>
           ${note(`${a.buybackNote||'No mechanism documented.'}<br>Hardcoded = protocol / DAO rule · Discretionary = team policy that can change · None = no channel from revenue to holders.`)}</div>
       </div>
-      <details class="arca-more"><summary>Peers &amp; supply</summary>
-        ${peerStrip(peers.ry,a.id,'Real yield',sfPct)}
-        ${peerStrip(peers.inf,a.id,'Inflation (12m)',sfPct)}
-        ${peerStrip(peers.net,a.id,'Net yield',v=>v==null?'N/A':(v>0?'+':'')+sfPct(v))}
-        <div style="font-size:8px;color:#2e4a60;margin:2px 0 6px">One dot per ARCA token (hover for the name). Dashed line = median. Estimates and live figures are mixed: ranks can move when a live source drops.</div>
+      <details class="arca-more"><summary>Upcoming unlocks</summary>
+        ${renderUnlockChart(a, m)}
       <!-- Token Unlock Donut -->
         ${(()=>{
           const cs=m.supply||a.staticCircSupply||0;
