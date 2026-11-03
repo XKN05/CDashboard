@@ -1038,14 +1038,14 @@ tr:last-child td { border-bottom:none; }
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
       <div style="font-size:10px;color:#3d8bff;letter-spacing:2px;text-transform:uppercase;font-weight:600">Dorman Quadrant Map</div>
     </div>
-    <div style="font-size:9px;color:#2e4a60;margin-bottom:10px">Each token's quadrant is computed live from its business score and design score (buyback mechanism × proven live yield) — not hardcoded per token</div>
+    <div style="font-size:9px;color:#2e4a60;margin-bottom:10px">Project success = live total fees ≥ $5M/yr (DefiLlama). Token design = sourced qualitative call (Dorman's published matrix, else his criteria), reviewed every two weeks. Hover a token for the reason. * mechanism voted, not yet active</div>
     <div id="dorman-matrix-svg"></div>
     <div id="dorman-matrix-list" style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px"></div>
     <div style="font-size:9px;color:#3a5a70;margin-top:10px;line-height:1.6">
-      <span style="color:#00d98b">Q1 investable</span> — proper design, revenue reaches holders ·
-      <span style="color:#3d8bff">Q2 emerging</span> — sound design, business still scaling ·
-      <span style="color:#f0b840">Q3 value trap</span> — real business, token isolates holders ·
-      <span style="color:#ff3d5a">Q4 speculation</span> — neither. Framework: Jeff Dorman (CIO, Arca), Aug 2026.
+      <span style="color:#00d98b">Q1 investable</span> — project succeeding, token captures the value ·
+      <span style="color:#3d8bff">Q2 emerging</span> — good token, project not succeeding ·
+      <span style="color:#f0b840">Q3 value trap</span> — project succeeding, token captures little ·
+      <span style="color:#ff3d5a">Q4 speculation</span> — neither. Framework: Jeff Dorman (CIO, Arca), "The List of Investable Tokens Is Very Short" (Apr 2026), updated by "The New Crypto All-Star Tokens" (Aug 2026). Not investment advice.
     </div>
   </div>
 
@@ -1929,6 +1929,36 @@ const ARCA_VALUE_ACCRUAL = {
 };
 ARCA_ASSETS.forEach(a=>{ a.valueAccrual = ARCA_VALUE_ACCRUAL[a.id] || 'none'; });
 
+// ── Token design for the Dorman quadrant map — a qualitative call, reviewed every thinker session ──
+// Dorman's "good token design" = the token captures the project's economics (buyback & burn, fee distribution,
+// fee burn), whoever runs it. No formula reproduces his calls, so they are recorded here with their source.
+// Display only: the ARCA score keeps using ARCA_VALUE_ACCRUAL.
+const ARCA_TOKEN_DESIGN = {
+  HYPE:  {design:'good', src:'Dorman, Apr & Aug 2026', note:'~99% of trading fees buy HYPE via the Assistance Fund.'},
+  JUP:   {design:'good', src:'Dorman, Apr 2026',       note:'50% of fees to Litterbox buybacks (paused Jan 2026, reinstated).'},
+  UNI:   {design:'good', src:'Dorman, Aug 2026',       note:'Fee switch + UNIfication burns since Dec 2025. Rated poor design in his Apr 2026 matrix.'},
+  AAVE:  {design:'good', src:'Dorman, Apr & Aug 2026', note:'Buyback program funded by protocol revenue (Aavenomics).'},
+  PUMP:  {design:'good', src:'Dorman, Apr & Aug 2026', note:'~50% of revenue buys and burns PUMP (company-run).'},
+  ONDO:  {design:'bad',  src:'Dorman, Apr 2026',       note:'Project succeeds, but the token is irrelevant to its economics.'},
+  MET:   {design:'bad',  src:'ARCA (Dorman criteria)', note:'Pool fees go to liquidity providers, not to MET.', success:false, successNote:'Manual override: placed in Q4 by the dashboard owner despite the fee volume.'},
+  ASTER: {design:'good', src:'ARCA (Dorman criteria)', note:'99% of fees fund buybacks paid to veASTER stakers.'},
+  SYRUP: {design:'good', src:'Dorman, Apr & Aug 2026', note:'Revenue-funded buybacks and staker distributions.'},
+  AERO:  {design:'good', src:'Dorman, Apr & Aug 2026', note:'Exchange revenue goes to staked AERO.'},
+  PENDLE:{design:'good', src:'Dorman, Apr 2026',       note:'Up to 80% of revenue buys PENDLE for stakers.'},
+  ENA:   {design:'good', src:'Dorman, Apr & Aug 2026', note:'Fee switch voted (up to 95% of net revenue to buybacks) but inactive until USDe reaches $7.5B.', pending:true},
+  RAY:   {design:'bad',  src:'Dorman, Apr 2026',       note:'12% of fees buy RAY, held in a wallet rather than burned or distributed.'},
+  MORPHO:{design:'bad',  src:'Dorman, Apr & Aug 2026', note:'Fees accrue to the DAO; no direct buyback or distribution yet.'},
+  MEGA:  {design:'bad',  src:'ARCA (Dorman criteria)', note:'Buyback gated on a USDm milestone; amounts undisclosed.'},
+  TRX:   {design:'good', src:'ARCA (Dorman criteria)', note:'Every transaction fee is burned, like ETH and BNB in Dorman\'s Q1. Net supply still grew slightly in 2026.'},
+  KNTQ:  {design:'good', src:'Dorman, Apr 2026',       note:'Performance fees buy KNTQ (now via the Hyperliquid Assistance Fund).'},
+  LDO:   {design:'bad',  src:'Dorman, Apr 2026',       note:'NEST buyback only triggers above $40M/yr revenue; nothing bought yet.'},
+  LIT:   {design:'good', src:'Dorman, Aug 2026',       note:'Substantial earnings buy LIT, burned since mid-2026. Rated poor design in his Apr 2026 matrix.'},
+  DRV:   {design:'bad',  src:'Dorman, Apr 2026',       note:'35% of a small revenue base to weekly buybacks.'},
+  PONS:  {design:'good', src:'ARCA (Dorman criteria)', note:'~80% of fees buy and burn PONS (team-run).'},
+  SKY:   {design:'good', src:'Dorman, Apr 2026',       note:'Surplus funds SKY buybacks and staking rewards (rate cut in Mar 2026).'},
+};
+const DORMAN_SUCCESS_MIN_FEES = 5e6; // $/yr: every project Dorman calls "achieving some success" clears it (smallest: PENDLE, DRV ~$6M)
+
 // ── Inflation & static real yield — one verified number per token, used by BOTH the score and the cards ──
 //   inf : expected 12-month growth of circulating supply (unlocks + emissions − burns), % — analyst estimate
 //   ry  : value delivered to holders from revenue (buybacks, burns, fee share) ÷ circulating MC, % — used only
@@ -2115,7 +2145,7 @@ function renderDataHealth(){
     <div style="margin-top:6px;font-size:9px;color:#4a6a80">Counts every request made by this tab since it was opened. A failed direct call that succeeded through the proxy shows as a failure on the source and a success on the proxy.</div>`;
 }
 
-const DASH_BUILD = "2026-10-30-b"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-11-03-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -4123,32 +4153,17 @@ function arcaFmtPrice(p){if(!p&&p!==0)return"\u2014";const v=cx(p);const s=cxSym
 function qualityBadge(q){if(q==='manual')return'<span title="Manual revenue estimate (analyst input), not live" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udccb EST</span>';if(q==='direct30d')return'<span title="Direct 30d data from DefiLlama" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2</span>';if(q==='from_chain_fees')return'<span title="Chain-level fees from DefiLlama /overview/fees" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2 ⛓</span>';if(q==='from7d')return'<span title="Estimated from 7d data" style="color:#f0b840;font-size:8px;cursor:help">\ud83d\udfe1 EST</span>';if(q==='from24h'||q==='estimated')return'<span title="Estimated from 24h data" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udfe0 EST</span>';return'<span title="No live data" style="color:#ff3d5a;font-size:8px;cursor:help">\ud83d\udd34</span>';}
 function accrualLabel(level){if(level==='hardcoded')return{text:'Hardcoded',color:'#00d98b',icon:'\u2713\u2713'};if(level==='discretionary')return{text:'Discretionary',color:'#f0b840',icon:'\u2713'};return{text:'None',color:'#ff3d5a',icon:'\u2717'};}
 
-// ── Dorman Token Investability Matrix ───────────────────────────────────────
-// Jeff Dorman (CIO, Arca): tokens are only "investable" if protocol success is
-// tied to the token via a real cash-flow/burn mechanism. Both axes below are
-// derived from data already live/computed elsewhere on this page — nothing
-// here is a hardcoded per-token label, so a token's position updates on its
-// own as its live real yield or business score change. Dorman's own paper
-// (Aug 2026) is used only to calibrate these thresholds, not as a data source.
-function calcDesignScore(a, m){
-  const va = a.valueAccrual;
-  const liveYield = m?.liveRealYield;
-  if (va === 'hardcoded'){
-    // Rule-based channel AND proven live (>0.5%) = proper design, Dorman's Q1 bar.
-    // Rule exists but no live holder revenue yet = partial credit only.
-    return (liveYield != null && liveYield > 0.5) ? 85 : 45;
-  }
-  if (va === 'discretionary') return 35; // company/team policy = not proper design, however large (Dorman: Pump.fun is a value trap)
-  if (va === 'none') return 15;
-  return 25; // not set — missing data, treated cautiously rather than as proven absence
-}
-function calcDormanQuadrant(businessScore, designScore){
-  const highBiz = businessScore >= 50;
-  const properDesign = designScore >= 65;
-  if (highBiz && properDesign)  return { q:1, label:'Investable',    color:'#00d98b' };
-  if (!highBiz && properDesign) return { q:2, label:'Emerging',      color:'#3d8bff' };
-  if (highBiz && !properDesign) return { q:3, label:'Value trap',    color:'#f0b840' };
-  return                              { q:4, label:'Speculation',   color:'#ff3d5a' };
+// ── Dorman Token Investability Matrix (Arca, "The List of Investable Tokens Is Very Short", Apr 2026) ──
+//   axis 1 — project success : live total fees ≥ DORMAN_SUCCESS_MIN_FEES (30d × 12), unless overridden in ARCA_TOKEN_DESIGN
+//   axis 2 — token design    : ARCA_TOKEN_DESIGN (qualitative, sourced)
+function arcaDorman(a, m){
+  const t=ARCA_TOKEN_DESIGN[a.id]||{design:'bad', src:'not classified', note:''};
+  const feesAnn=m?.feesAnn30d>0 ? m.feesAnn30d : (m?.revAnn30d||0);
+  const success = t.success!=null ? t.success : feesAnn>=DORMAN_SUCCESS_MIN_FEES;
+  const good = t.design==='good';
+  const q = success ? (good?1:3) : (good?2:4);
+  const meta={1:['Investable','#00d98b'],2:['Emerging','#3d8bff'],3:['Value trap','#f0b840'],4:['Speculation','#ff3d5a']}[q];
+  return { q, label:meta[0], color:meta[1], success, good, feesAnn, t };
 }
 
 // ── Dorman Quadrant Matrix render ────────────────────────────────────────────
@@ -4161,17 +4176,12 @@ function renderDormanMatrix(){
   const listEl=document.getElementById('dorman-matrix-list');
   if(!svgEl) return;
 
-  // No scatter positioning — calcDesignScore only ever returns 5 discrete values,
-  // so precise (x,y) placement never carried real information and only caused
-  // overlap problems. Quadrant MEMBERSHIP is the entire point; show that directly.
   const pts=ARCA_ASSETS.map(a=>{
     const price=arcaPrices[a.id]||0;
     const m=calcDynamicMetrics(a);
-    const conv=getConvictionScore(price,a,m);
     if(m.dataCompleteness<0.4) return null; // not enough data loaded yet
-    const design=calcDesignScore(a,m);
-    const dorman=calcDormanQuadrant(conv.business,design);
-    return{ id:a.id, q:dorman.q };
+    const d=arcaDorman(a,m);
+    return{ id:a.id, q:d.q, pending:!!d.t.pending, tip:`${a.id}: fees ${d.feesAnn>0?fmtCompact(d.feesAnn)+'/yr':'n/a'}${d.t.successNote?' ('+d.t.successNote+')':''} · ${d.good?'good':'poor'} design — ${d.t.note} [${d.t.src}]` };
   }).filter(Boolean);
 
   listEl.innerHTML='';
@@ -4182,17 +4192,17 @@ function renderDormanMatrix(){
   }
 
   const groups={1:[],2:[],3:[],4:[]};
-  pts.forEach(p=>groups[p.q].push(p.id));
+  pts.forEach(p=>groups[p.q].push(p));
   const meta={
-    1:['Q1','Investable','#00d98b','high business \u00d7 proper design'],
-    2:['Q2','Emerging','#3d8bff','low business \u00d7 proper design'],
-    3:['Q3','Value trap','#f0b840','high business \u00d7 poor design'],
-    4:['Q4','Speculation','#ff3d5a','low business \u00d7 poor design'],
+    1:['Q1','Investable','#00d98b','project succeeding \u00d7 good token design'],
+    2:['Q2','Emerging','#3d8bff','no success yet \u00d7 good token design'],
+    3:['Q3','Value trap','#f0b840','project succeeding \u00d7 poor token design'],
+    4:['Q4','Speculation','#ff3d5a','no success \u00d7 poor token design'],
   };
   const box=q=>{
     const[num,label,color,sub]=meta[q];
     const chips=groups[q].length
-      ? groups[q].map(id=>`<span style="display:inline-block;background:${color}14;border:1px solid ${color}44;color:${color};border-radius:4px;padding:3px 8px;font-size:10px;font-weight:600;margin:2px">${id}</span>`).join('')
+      ? groups[q].map(p=>`<span title="${p.tip.replace(/"/g,'&quot;')}" style="display:inline-block;background:${color}14;border:1px solid ${color}44;color:${color};border-radius:4px;padding:3px 8px;font-size:10px;font-weight:600;margin:2px;cursor:help">${p.id}${p.pending?'<sup style="font-size:7px;color:#f0b840">*</sup>':''}</span>`).join('')
       : `<span style="color:#3a5a70;font-size:10px">\u2014</span>`;
     return`<div style="background:${color}0d;border:1px solid ${color}33;border-radius:8px;padding:12px">
       <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:2px">
@@ -4205,10 +4215,9 @@ function renderDormanMatrix(){
     </div>`;
   };
 
-  // Same spatial reading as the framework itself: Q3 top-left, Q1 top-right,
-  // Q4 bottom-left, Q2 bottom-right.
+  // Same layout as Dorman's chart: good design on top, project success on the left.
   svgEl.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-    ${box(3)}${box(1)}${box(4)}${box(2)}
+    ${box(1)}${box(2)}${box(3)}${box(4)}
   </div>`;
 }
 
@@ -4337,9 +4346,8 @@ function renderArcaGrid(){
     const bb=accrualLabel(a.valueAccrual);
     const dcPct=Math.round(m.dataCompleteness*100);
     const dcCol=dcPct>=70?'#00d98b':dcPct>=40?'#f0b840':'#ff3d5a';
-    const designScore=calcDesignScore(a,m);
-    const dorman=calcDormanQuadrant(conv.business,designScore);
-    const dormanBadgeHtml=`<span style="background:${dorman.color}1a;border:1px solid ${dorman.color}44;color:${dorman.color};padding:1px 6px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:0.3px;white-space:nowrap">Q${dorman.q}</span>`;
+    const dorman=arcaDorman(a,m);
+    const dormanBadgeHtml=`<span title="Dorman quadrant: ${dorman.label} — ${dorman.good?'good':'poor'} token design (${dorman.t.src})${dorman.t.pending?' · mechanism voted, not yet active':''}" style="background:${dorman.color}1a;border:1px solid ${dorman.color}44;color:${dorman.color};padding:1px 6px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:0.3px;white-space:nowrap">Q${dorman.q}${dorman.t.pending?' · pending':''}</span>`;
 
     const incidentBadgeHtml = a.activeIncident ? `
       <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#1a0a00;border:1px solid #ff8c0055;border-radius:6px;margin-bottom:10px;animation:incidentPulse 3s ease-in-out infinite">
