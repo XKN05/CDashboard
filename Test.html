@@ -1033,6 +1033,13 @@ tr:last-child td { border-bottom:none; }
     </div>
   </div>
 
+  <!-- Upcoming unlocks across all ARCA tokens -->
+  <div class="card" id="arca-unlock-overview-card" style="margin-bottom:14px">
+    <div style="font-size:10px;color:#ff8c00;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:2px">Upcoming Unlocks — Next 6 Months</div>
+    <div style="font-size:9px;color:#2e4a60;margin-bottom:10px">Months where a token's unlocks are High or Very high risk (size vs float, days of volume, insiders). Manual schedules — tap a token to open its card.</div>
+    <div id="arca-unlock-overview"><div style="font-size:10px;color:#3a5a70">Loading…</div></div>
+  </div>
+
   <!-- Dorman Quadrant Matrix -->
   <div class="card" id="dorman-matrix-card" style="margin-bottom:14px">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
@@ -1995,7 +2002,13 @@ function arcaStaticYield(a){ const e=ARCA_SUPPLY_YIELD[a.id]; return e&&e.ry!=nu
 //   events  : discrete unlocks / cliffs {date, amount (tokens), cat, label}
 //   monthly : linear vesting {from:'YYYY-MM', to:'YYYY-MM', amount (tokens per month), cat, label}
 //   cat     : insiders (team, investors) · community (ecosystem, airdrop, treasury) · emissions (staking / mining rewards)
-const ARCA_UNLOCKS_ASOF = "2026-10-30";
+const ARCA_UNLOCKS_ASOF = "2026-10-30"; // date the manual tables (ARCA_UNLOCKS, ARCA_SUPPLY_YIELD, ARCA_TOKEN_DESIGN) were last verified
+// Freshness of the manual tables: amber after 21 days, red after 42 (they are meant to be re-checked every two weeks)
+function manualFreshness(){
+  const days=Math.floor((Date.now()-new Date(ARCA_UNLOCKS_ASOF+'T00:00:00Z'))/864e5);
+  const col=days>42?'#ff3d5a':days>21?'#f0b840':'#3a5a70';
+  return { days, col, html:`<span title="Manual tables (inflation, real yield estimates, unlock schedules, token design) are re-checked every two weeks" style="color:${col};${days>21?'font-weight:700':''}">checked ${ARCA_UNLOCKS_ASOF}${days>21?' · '+days+' days ago':''}</span>` };
+}
 const ARCA_UNLOCKS = {
   HYPE:{"events": [], "monthly": [{"from": "2026-11", "to": "2027-10", "amount": 9916667, "cat": "insiders", "label": "Core contributors vesting (ceiling, released on the 6th)"}], "confidence": "med", "note": "Ceiling from the whitepaper vesting (238M over 24 months). The team claims at its discretion and has claimed only 1–18% of it so far."},
   JUP:{"events": [], "monthly": [], "confidence": "med", "note": "No scheduled unlocks since the Feb 2026 Net-Zero vote (team vesting ended, reserve paused, Jupuary cancelled). A new DAO vote could change this."},
@@ -2060,9 +2073,42 @@ function arcaUnlockMonths(a, m){
   return {buckets, circ, total:buckets.reduce((s,b)=>s+b.amt,0), note:u.note||'', confidence:u.confidence||'low'};
 }
 const fmtTok=v=>v>=1e9?(v/1e9).toFixed(2)+'B':v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toFixed(0);
+function renderUnlockOverview(){
+  const el=document.getElementById('arca-unlock-overview'); if(!el) return;
+  const rows={}, recurring=[]; let months=null;
+  ARCA_ASSETS.forEach(a=>{
+    const m=calcDynamicMetrics(a), U=arcaUnlockMonths(a,m); if(!U) return;
+    const B=U.buckets.slice(0,6); months=months||B;
+    const u=ARCA_UNLOCKS[a.id]||{};
+    // linear vesting already running: one line for the whole window instead of one chip per month
+    const running=(u.monthly||[]).filter(r=>{ const [fy,fm]=r.from.split('-').map(Number); return fy*12+fm-1 < B[0].y*12+B[0].mo; }); // started before the window
+    const runAmt=running.reduce((x,r)=>x+r.amount,0);
+    if(runAmt>0 && U.circ>0){
+      const pct=runAmt/U.circ*100, ins=running.filter(r=>r.cat==='insiders').reduce((x,r)=>x+r.amount,0)/runAmt;
+      const lv=unlockLevel(pct, (B[1]?.days!=null&&B[1].amt>0)?B[1].days*runAmt/B[1].amt:null, ins);
+      if(lv>=2) recurring.push({id:a.id, level:lv, pct, what:running.map(r=>r.label).join(', ')});
+    }
+    // discrete events and vesting that starts inside the window
+    B.forEach((b,i)=>{
+      const fresh=b.items.filter(it=>it.date || (u.monthly||[]).some(r=>r.label===it.label && (()=>{ const [fy,fm]=r.from.split('-').map(Number); return fy===b.y&&fm-1===b.mo; })())).map(it=>it.date?it:{...it,label:it.label+' — monthly vesting starts'});
+      const amt=fresh.reduce((x,it)=>x+it.amt,0); if(!amt||!U.circ) return;
+      const pct=amt/U.circ*100, lv=unlockLevel(pct, b.days!=null&&b.amt>0?b.days*amt/b.amt:null, fresh.filter(it=>it.cat==='insiders').reduce((x,it)=>x+it.amt,0)/amt);
+      if(lv>=2) (rows[i]=rows[i]||[]).push({id:a.id, level:lv, pct, what:fresh.map(it=>it.label).join(', ')});
+    });
+  });
+  if(!months){ el.innerHTML='<div style="font-size:10px;color:#3a5a70">No unlock schedule loaded.</div>'; return; }
+  const chip=r=>{ const L=UNLOCK_LEVELS[r.level];
+    return `<span onclick="document.getElementById('arca-card-${r.id}')?.scrollIntoView({behavior:'smooth'})" title="${r.id}: ${r.pct.toFixed(1)}% of float — ${r.what.replace(/"/g,'&quot;')}" style="display:inline-block;cursor:pointer;background:${L.color}14;border:1px solid ${L.color}55;color:${L.color};border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600;margin:2px">${r.id} <span style="font-weight:400;font-size:9px">${r.pct<10?r.pct.toFixed(1):r.pct.toFixed(0)}%</span></span>`; };
+  const sortR=l=>l.sort((x,y)=>y.level-x.level||y.pct-x.pct);
+  const mName=b=>new Date(Date.UTC(b.y,b.mo,1)).toLocaleString('en-US',{month:'short',year:'numeric',timeZone:'UTC'});
+  const row=(label,content,i)=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:5px 0;border-top:${i?'1px solid #0d1825':'none'}"><div style="flex:0 0 70px;font-size:10px;color:#7a9ab0;padding-top:4px">${label}</div><div style="flex:1">${content}</div></div>`;
+  el.innerHTML=row('Every month', recurring.length?sortR(recurring).map(chip).join('')+'<div style="font-size:8px;color:#2e4a60;margin-top:2px">linear vesting / emissions already running, % of float per month</div>':'<span style="font-size:9px;color:#2e4a60">none at High risk</span>',0)
+    + months.map((b,i)=>row(mName(b), rows[i]?sortR(rows[i]).map(chip).join(''):'<span style="font-size:9px;color:#2e4a60">no cliff or new vesting</span>',1)).join('')
+    + `<div style="font-size:8px;color:#2e4a60;margin-top:6px">${UNLOCK_LEVELS.slice(2).map(l=>`<span style="color:${l.color}">■</span> ${l.label}`).join(' &nbsp;')} · % = share of circulating supply · ${manualFreshness().html} · display only, not in the score.</div>`;
+}
 function renderUnlockChart(a, m){
   const U=arcaUnlockMonths(a, m);
-  const asof=`<div style="font-size:8px;color:#2e4a60;margin-top:4px">Manual schedule (not live) · checked ${ARCA_UNLOCKS_ASOF} · bar colour = risk level of that month (size vs float, days of volume, insiders) · display only, not in the score.</div>`;
+  const asof=`<div style="font-size:8px;color:#2e4a60;margin-top:4px">Manual schedule (not live) · ${manualFreshness().html} · bar colour = risk level of that month (size vs float, days of volume, insiders) · display only, not in the score.</div>`;
   if(!U || !U.total) return `<div style="font-size:9px;color:#7a9ab0;line-height:1.5;padding:4px 0">${U?'No unlock scheduled in the next 12 months.':'No verified unlock schedule.'} ${U?.note||ARCA_UNLOCKS[a.id]?.note||''}<br><span style="color:#3a5a70">Next unlock (analyst note): ${a.nextUnlock||'N/A'}</span></div>${asof}`;
   const B=U.buckets, max=Math.max(...B.map(b=>b.pct||0), 0.5);
   const worst3=Math.max(...B.slice(0,3).map(b=>b.level)), w=UNLOCK_LEVELS[Math.max(0,worst3)];
@@ -2145,7 +2191,7 @@ function renderDataHealth(){
     <div style="margin-top:6px;font-size:9px;color:#4a6a80">Counts every request made by this tab since it was opened. A failed direct call that succeeded through the proxy shows as a failure on the source and a success on the proxy.</div>`;
 }
 
-const DASH_BUILD = "2026-11-03-a"; // shown at the bottom of the home page to confirm which file is loaded
+const DASH_BUILD = "2026-11-16-a"; // shown at the bottom of the home page to confirm which file is loaded
 { const el=document.getElementById("home-build"); if(el) el.textContent="build "+DASH_BUILD; }
 let ichInterval = "4h";
 let ichParams = {tenkan:20, kijun:60, spanB:120, displacement:30};
@@ -3817,7 +3863,7 @@ async function fetchArcaData(){
   await Promise.allSettled(ARCA_ASSETS.map(a=>fetchArcaRelHistory(a)));
 
   updateSourceUI();
-  try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();}catch(e){console.error('renderArcaGrid error:',e);document.getElementById('arca-grid').innerHTML='<div style="color:#ff3d5a;padding:20px;text-align:center">Render error: '+e.message+'</div>';}
+  try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();renderUnlockOverview();}catch(e){console.error('renderArcaGrid error:',e);document.getElementById('arca-grid').innerHTML='<div style="color:#ff3d5a;padding:20px;text-align:center">Render error: '+e.message+'</div>';}
   const states=ARCA_ASSETS.map(a=>calcDynamicMetrics(a).liveState);
   arcaHealth={ total:ARCA_ASSETS.length, ts:Date.now(),
     revLive:ARCA_ASSETS.filter(a=>calcDynamicMetrics(a).revIsLive).map(a=>a.id),
@@ -4142,12 +4188,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeScoreModal();})
 function convictionColor(s){if(s>=65)return"#00d98b";if(s>=50)return"#f0b840";return"#ff3d5a";}
 
 // getBuySignal: 3 tiers driven by the conviction score (price/strike/PE args kept for call-site compatibility).
+// BUY / NEUTRAL / AVOID is a fundamental reading of the conviction score, not a timing signal:
+// the Nov 2026 backtest (Dec 2025 – Oct 2026) found no predictive power on 30–90d prices.
 function getBuySignal(price, strike, livePe, convScore) {
-  if (convScore == null) return { label:'—', cls:'signal-moderate', icon:'◆' };
-  if (convScore >= 65) return { label:'BUY',     cls:'signal-buy',      icon:'⬆' };
-  if (convScore >= 50) return { label:'NEUTRAL', cls:'signal-neutral',  icon:'◆' };
-  return { label:'AVOID', cls:'signal-avoid', icon:'✕' };
+  if (convScore == null) return { label:'—', cls:'signal-moderate', icon:'◆', reading:'' };
+  if (convScore >= 65) return { label:'BUY',     cls:'signal-buy',      icon:'⬆', reading:'Cheap vs fundamentals' };
+  if (convScore >= 50) return { label:'NEUTRAL', cls:'signal-neutral',  icon:'◆', reading:'Fair vs fundamentals' };
+  return { label:'AVOID', cls:'signal-avoid', icon:'✕', reading:'Expensive vs fundamentals' };
 }
+const SIGNAL_DISCLAIMER='Fundamental reading of the conviction score, not a timing signal: a backtest (Dec 2025 – Oct 2026) found no link between this signal and 30–90 day price moves.';
 
 function arcaFmtPrice(p){if(!p&&p!==0)return"\u2014";const v=cx(p);const s=cxSym();if(v<0.001)return s+v.toFixed(6);if(v<0.01)return s+v.toFixed(5);if(v<1)return s+v.toFixed(4);if(v<100)return s+v.toFixed(2);return s+fmt(v);}
 function qualityBadge(q){if(q==='manual')return'<span title="Manual revenue estimate (analyst input), not live" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udccb EST</span>';if(q==='direct30d')return'<span title="Direct 30d data from DefiLlama" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2</span>';if(q==='from_chain_fees')return'<span title="Chain-level fees from DefiLlama /overview/fees" style="color:#00d98b;font-size:8px;cursor:help">\ud83d\udfe2 ⛓</span>';if(q==='from7d')return'<span title="Estimated from 7d data" style="color:#f0b840;font-size:8px;cursor:help">\ud83d\udfe1 EST</span>';if(q==='from24h'||q==='estimated')return'<span title="Estimated from 24h data" style="color:#ff8c00;font-size:8px;cursor:help">\ud83d\udfe0 EST</span>';return'<span title="No live data" style="color:#ff3d5a;font-size:8px;cursor:help">\ud83d\udd34</span>';}
@@ -4389,7 +4438,7 @@ function renderArcaGrid(){
       ${incidentBadgeHtml}
       ${preMarketBadgeHtml}
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;padding:10px 12px;background:#070b12;border-radius:6px;border:1px solid #0d1e2e">
-        <div><div style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Entry Signal</div><span class="arca-signal ${sig.cls}">${sig.icon} ${sig.label}</span></div>
+        <div><div style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px" title="${SIGNAL_DISCLAIMER}">Signal <span style="cursor:help">ⓘ</span></div><span class="arca-signal ${sig.cls}" title="${SIGNAL_DISCLAIMER}">${sig.icon} ${sig.label}</span>${sig.reading?`<div style="font-size:8px;color:#7a9ab0;margin-top:3px">${sig.reading}</div>`:''}</div>
         <div style="text-align:center"><div style="font-size:9px;color:#00d98b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Strike (P/E=10×) ${hasStrike&&!a.isPreMarket?(m.strikeIsLive?'🟢':'<span style="color:#ff8c00;font-size:7px">EST</span>'):''}</div><div style="font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${a.isPreMarket?'#2e4a60':'#00d98b'}">${a.isPreMarket?'N/A':hasStrike?arcaFmtPrice(strike):'—'}</div></div>
         <div style="text-align:right"><div style="font-size:9px;color:#3a5a70;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">vs Strike</div><div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${a.isPreMarket?'#2e4a60':distColor}">${a.isPreMarket?'N/A':distSign+' '+distText}</div></div>
       </div>
@@ -4425,7 +4474,7 @@ function renderArcaGrid(){
         const vaN=peers.vaCount[a.valueAccrual]||0;
         const note=(html)=>`<div class="arca-note">${html}</div>`;
         const ryLimit=P.ryLive?'Live: DefiLlama holders revenue 30d × 12 ÷ circulating MC.':(e.ryNote||'Analyst estimate — DefiLlama reports no holders revenue for this token.');
-        return `<div style="margin-bottom:4px;font-size:9px;color:#ff8c00;text-transform:uppercase;letter-spacing:1px;font-weight:600">Model Assumptions <span style="font-weight:400;color:#2e4a60;text-transform:none">(${a.dataDate?'updated '+a.dataDate:'as of Feb 2026'} · rank among ${peers.total} ARCA tokens)</span></div>
+        return `<div style="margin-bottom:4px;font-size:9px;color:#ff8c00;text-transform:uppercase;letter-spacing:1px;font-weight:600">Model Assumptions <span style="font-weight:400;color:#2e4a60;text-transform:none">(${manualFreshness().html} · rank among ${peers.total} ARCA tokens)</span></div>
       <div class="arca-metrics" style="border:1px solid #ff8c0015;border-radius:6px;padding:4px;margin-bottom:8px">
         ${!m.ps?`<div class="arca-metric arca-static" style="grid-column:1/-1"><div class="arca-metric-label">Revenue (EST)</div><div class="arca-metric-value" style="font-size:11px;color:#b8ccd8">${a.annualRevenue}</div></div>`:''}
         <div class="arca-metric ${P.ryLive?'arca-live':'arca-static'}"><div class="arca-metric-label">Real Yield ${P.ryLive?'🟢':'<span style="color:#ff8c00;font-size:7px">EST</span>'} ${arcaPlus}</div>
@@ -4533,7 +4582,7 @@ function renderArcaGrid(){
       <td style="font-family:'IBM Plex Mono',monospace">${m.ps!=null?sf(m.ps,1)+'\u00d7'+((m.mcIsLive&&m.feeQuality==='direct30d')?' \ud83d\udfe2':' <span style="color:#ff8c00;font-size:7px">EST</span>'):'\u2014'}</td>
       <td style="color:${m.mcTvl!=null?(m.mcTvl<1?'#00d98b':m.mcTvl<3?'#f0b840':'#ff3d5a'):'#3a5a70'};font-family:'IBM Plex Mono',monospace">${m.mcTvl!=null?sf(m.mcTvl,2)+'\u00d7':'\u2014'}</td>
       <td style="color:${m.realYieldNet>5?'#00d98b':m.realYieldNet>0?'#f0b840':'#ff3d5a'}">${m.realYieldNet>0?'+':''}${sf(m.realYieldNet,1)}%</td><td style="color:${m.vol7dPct!=null?(m.vol7dPct<60?'#00d98b':m.vol7dPct<120?'#f0b840':'#ff3d5a'):'#3a5a70'}">${m.vol7dPct!=null?sf(m.vol7dPct,0)+'%':'\u2014'}</td>
-      <td><span class="arca-signal ${sig.cls}" style="font-size:10px;padding:2px 8px">${sig.icon} ${sig.label}</span></td>
+      <td><span class="arca-signal ${sig.cls}" style="font-size:10px;padding:2px 8px" title="${sig.reading?sig.reading+' — ':''}${SIGNAL_DISCLAIMER}">${sig.icon} ${sig.label}</span></td>
       <td><span style="font-weight:700;font-family:'IBM Plex Mono',monospace;color:${convCol}">${conv.total}</span></td><td style="font-size:9px;font-family:'IBM Plex Mono',monospace"><span style="color:${conv.business>=60?'#00d98b':'#ff3d5a'}" title="Business Quality">${conv.business}</span>/<span style="color:${conv.valuation>=60?'#00d98b':'#ff3d5a'}" title="Valuation">${conv.valuation}</span>/<span style="color:${conv.capitalRisk>=60?'#00d98b':'#ff3d5a'}" title="Capital Risk">${conv.capitalRisk}</span></td>
     </tr>`;
   }).join("");
@@ -4968,7 +5017,7 @@ function cx(usd){
 function cxSym(){return arcaCurrency==='CHF'?'CHF ':'$';}
 
 function rerenderArca(){
-  try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();}catch(e){console.error('Rerender error:',e);}
+  try{renderArcaGrid();renderRevChart();renderDormanMatrix();renderPriceVsFund();renderUnlockOverview();}catch(e){console.error('Rerender error:',e);}
   try{renderArcaSummary();}catch(e){}
   try{renderDormanAlloc();}catch(e){}
 }
