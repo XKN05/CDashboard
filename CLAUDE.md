@@ -55,13 +55,18 @@ Binance spot + futures, Hyperliquid (HYPE via `candleSnapshot`, repli Binance), 
 Binance est injoignable depuis la sandbox Claude Code (451) : le test Binance sur le vrai réseau se fait côté Tim.
 
 ## À faire / points ouverts
+- `arca_snapshot.py` : synchro à faire (bloquée : le dossier « Claude Access » du PC de Tim est listé mais pas servi aux sessions cloud). Changements à reporter depuis le 24 oct. 2026 : lot B, P1/P2, S1/S2, nouveaux tokens LIT / DRV / PONS / SKY (VVV retiré), revenu TRX en live, table `ARCA_SUPPLY_YIELD` (inflation / real yield chiffrés, score), pénalité de liquidité sur le volume du token, critère « 30d Unlocks » éteint. **Décidé (Tim, 16 nov.)** : les snapshots lisent HYPE sur Hyperliquid, comme le dashboard.
+- À confirmer par Tim : JUP et ASTER classés « discretionary » dans `ARCA_VALUE_ACCRUAL` (mécanisme suspendu / modifié par l'équipe en 2026). Utilisé par le score (pas par la matrice Dorman).
+- Identifiants DefiLlama / CoinGecko de LIT, DRV, PONS à surveiller.
 - DefiLlama `/emission` est payant (402) : appels retirés, critère « 30d Unlocks » du score éteint (décision de Tim, 30 oct.). Les calendriers d'unlocks sont saisis à la main.
-- Sandbox : Binance répond 451 (blocage géographique) ; CoinGecko, DefiLlama, Hyperliquid et Tokenomist sont accessibles.
+- Sandbox : Binance répond 451 (blocage géographique) ; CoinGecko, DefiLlama, Hyperliquid, Tokenomist et ar.ca sont accessibles.
 - `HL_INTERVAL_MS` ne couvre que 1h, 4h, 1d, 1w (autre intervalle → repli Binance).
-- Décision : `arca_snapshot.py` lit-il aussi HYPE sur Hyperliquid, ou on accepte l'écart avec les bougies Binance ?
-- En ligne sur `index.html` depuis le 27 oct. 2026 (build `2026-10-27-a`) : nouveaux tokens LIT / DRV / PONS (VVV retiré, TAO non ajouté), données manuelles Oct 2026, TRX sur revenu DefiLlama live, vue « Price vs Fundamentals », P/E live uniquement (« >100× (n/m) », grille unique <10/18/30/50×), « Value accrual » (table `ARCA_VALUE_ACCRUAL`), tri ARCA par défaut BUY → NEUTRAL → AVOID (score décroissant dans chaque groupe).
-- En ligne sur `index.html` depuis le 29 oct. 2026 (build `2026-10-28-a`) : S1 piliers 45 / 40 / 15 (au lieu de 60 / 30 / 10) et S2 points de revenu dès $10K/jour (~3,65 M$/an, pente 22) au lieu de $50K/jour. But : le score ne doit plus récompenser surtout la taille du revenu.
-- À confirmer par Tim : JUP et ASTER classés « discretionary » (mécanisme suspendu / modifié par l'équipe en 2026).
-- Alignement Dorman (axe design) : 10/11 tokens communs conformes ; MORPHO volontairement en « none » (fee switch inactif) alors que Dorman le place en Q2. Identifiants DefiLlama / CoinGecko de LIT, DRV, PONS à surveiller.
-- `arca_snapshot.py` : prochaine synchro à prévoir — scoring modifié (lot B, P1/P2, S1/S2), 3 nouveaux tokens et revenu TRX en live depuis le 24 oct. 2026.
-- Pistes hors bug : bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi (pas démarré).
+- Backtest (`docs/backtest/2026-11-02.md`) : sur déc. 2025 – oct. 2026, le score ne prédit pas le prix (IC ≈ +0,05). À présenter comme lecture fondamentale, pas comme signal de timing.
+- Pistes hors bug : bot de trading Hyperliquid (seulement si le scoring ARCA + Ichimoku est prouvé), tracker de positions DeFi. Pas pour le moment (Tim, 16 nov.).
+
+## Historique des mises en ligne (`index.html`)
+- 27 oct. 2026 (build `2026-10-27-a`) : nouveaux tokens LIT / DRV / PONS (VVV retiré, TAO non ajouté), données manuelles Oct 2026, TRX sur revenu DefiLlama live, vue « Price vs Fundamentals », P/E live uniquement (« >100× (n/m) », grille unique <10/18/30/50×), « Value accrual » (table `ARCA_VALUE_ACCRUAL`), tri ARCA par défaut BUY → NEUTRAL → AVOID (score décroissant dans chaque groupe).
+- 29 oct. 2026 (build `2026-10-28-a`) : S1 piliers 45 / 40 / 15 (au lieu de 60 / 30 / 10) et S2 points de revenu dès $10K/jour (~3,65 M$/an, pente 22) au lieu de $50K/jour. But : le score ne doit plus récompenser surtout la taille du revenu.
+- 29 oct. 2026 (build `2026-10-29-a`) : bloc Data health (accueil), retry unique sur 429 Binance, SKY ajouté (22 tokens).
+- 2 nov. 2026 (build `2026-10-30-b`) : Model Assumptions (chiffres courts, rangs, Net yield, « + »), table `ARCA_SUPPLY_YIELD` vérifiée utilisée par le score (corrige TRX lu à 1 202 620 % d'inflation), graphique des unlocks (`ARCA_UNLOCKS`), pénalité de liquidité sur le volume du token.
+- 3 nov. 2026 (build `2026-11-03-a`) : matrice Dorman alignée sur la matrice publiée par Arca (avr. 2026, mise à jour d'août) : succès = fees ≥ 5 M$/an, design = table sourcée `ARCA_TOKEN_DESIGN` (UNI et LIT selon août, TRX en Q1, MET forcé en Q4, ENA « pending »). Affichage seulement.
